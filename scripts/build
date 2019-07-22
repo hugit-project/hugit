@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+rm -rf lib
+mkdir lib
+
+npx shadow-cljs release app
+NODE_ENV=production npx loose-envify target/main.js > lib/main.js
+chmod +x bin/maggit
+tail -n +2 lib/main.js > lib/build.js
+rm lib/main.js
+mv lib/build.js lib/main.js
+echo "Built lib/main.js and prepared bin/maggit"

@@ -1,0 +1,15 @@
+*.class
+*.jar
+.hg/
+.hgignore
+/.lein-*
+/.nrepl-port
+/bin
+/checkouts
+/classes
+/node_modules
+/.shadow-cljs
+/target
+pom.xml
+pom.xml.asc
+profiles.clj

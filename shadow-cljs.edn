@@ -1,0 +1,23 @@
+{:source-paths ["test" "src" "env/dev"]
+ :dependencies [[org.clojure/clojure "1.10.0"]
+                [org.clojure/clojurescript "1.10.516"]
+                [org.clojure/tools.cli "0.4.1"]
+                [mount "0.1.15"]
+                [reagent "0.8.1" :exclusions [[cljsjs/react]
+                                              [cljsjs/react-dom]
+                                              [cljsjs/create-react-class]]]
+                [re-frame "0.10.6"]]
+ :builds {:app {:output-to  "target/main.js"
+                :output-dir "target/js/compiled/prod"
+                :target     :node-script
+                :devtools   {:after-load       maggit.app/reload!}
+                :dev        {:main             maggit.app/main!
+                             :output-to        "target/js/compiled/maggit.js"
+                             :output-dir       "target/js/compiled/dev"}
+                :release    {:main             maggit.main/main!
+                             :compiler-options {:optimizations :simple}}}
+          :test {:output-to "target/test.js"
+                 :output-dir "target/js/compiled/test"
+                 :target :node-test
+                 :ns-regexp "-test$"
+                 :autorun true}}}
