@@ -1,5 +1,5 @@
 # maggit
-A ClojureScript TUI to ...
+See [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template).
 
 ## Installation
 

@@ -46,5 +46,5 @@
      (.then current-head-commit-message*
             (fn [msg]
               (rf/dispatch
-               [:assoc-in [:repo :head-commit-message] msg])))
-     db)))
+               [:assoc-in [:repo :head-commit-message] msg]))))
+   db))
