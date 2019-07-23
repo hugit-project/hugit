@@ -46,6 +46,7 @@
   [view & {:keys [opts]}]
   (mount/start)
   (rf/dispatch-sync [:init (:options opts) (size @screen)])
+  (rf/dispatch-sync [:get-status])
   (-> (r/reactify-component view)
       (r/create-element #js {})
       (render @screen)))

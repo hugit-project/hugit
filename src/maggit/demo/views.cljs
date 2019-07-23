@@ -20,40 +20,42 @@
     :style  {:border {:fg :cyan}}
     :border {:type :line}
     :label  " Menu "}
-   [vertical-menu {:options {:home "Intro"
+   [vertical-menu {:options {:home "Status"
                              :about "About"
                              :resources "Resources"
                              :credits "Credits"}
                    :bg :magenta
                    :fg :black
-                   :on-select #(rf/dispatch [:update {:router/view %}])}]])
+                   :on-select
+                   (fn [selected]
+                     (rf/dispatch [:update {:router/view selected}])
+
+                     (case selected
+                       :home (rf/dispatch [:get-status])
+
+                       ;; default
+                       nil))}]])
 
 (defn home
   "Display welcome message and general usage info to user.
   Returns hiccup :box element."
   [_]
-  [:box#home
-   {:top 0
-    :right 0
-    :width "70%"
-    :height "50%"
-    :style {:border {:fg :magenta}}
-    :border {:type :line}
-    :label " Intro "}
-   [:box#content
-    {:top 1
-     :left 1
-     :right 1}
-    [:box
-     {:align :center
-      :style {:fg :yellow}
-      :content "Welcome, you are successfully running the app.\nHappy hacking!"}]
-    [:box#keys
-     {:top 5
-      :left 2
-      :right 2
-      :align :left
-      :content "Usage:\n\n  - j/k or up/down to select a page\n  - enter or l to view page"}]]])
+  (let [repo @(rf/subscribe [:repo])
+        {:keys [branch-name head-commit-message]} repo]
+    [:box#home
+     {:top 0
+      :right 0
+      :width "70%"
+      :height "50%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label " Status "}
+     [:box#keys
+      {:top 5
+       :left 2
+       :right 2
+       :align :left
+       :content (str "Head: [" branch-name "] " head-commit-message)}]]))
 
 (defn about
   "Display link to the template project and share features.
@@ -157,47 +159,6 @@
       :align :left
       :content "- https://github.com/eccentric-j/cljs-tui-template\n- https://eccentric-j.com/"}]]])
 
-(defn loader
-  "Shows a mock-loader progress bar for dramatic effect.
-  - Uses with-let to create a progress atom
-  - Uses a js interval to update it every 15 ms until progress is 100.
-  - Starts the timer on each mount.
-  - Navigates to home page when completed.
-  Returns hiccup :box vector."
-  [_]
-  (r/with-let [progress (r/atom 0)
-               interval (js/setInterval #(swap! progress inc) 15)]
-    (when (>= @progress 100)
-      (js/clearInterval interval)
-      (rf/dispatch [:update {:router/view :home}]))
-    [:box#loader
-     {:top 0
-      :width "100%"}
-     [:box
-      {:top 1
-       :width "100%"
-       :align :center
-       :content "Loading Demo"}]
-     [:box
-      {:top 2
-       :width "100%"
-       :align :center
-       :style {:fg :gray}
-       :content "Slow reveal for dramatic effect..."}]
-     [:progressbar
-      {:orientation :horizontal
-       :style {:bar {:bg :magenta}
-               :border {:fg :cyan}
-               :padding 1}
-       :border {:type :line}
-       :filled @progress
-       :left 0
-       :right 0
-       :width "100%"
-       :height 3
-       :top 4
-       :label " progress "}]]))
-
 (defn demo
   "Main demo UI wrapper.
 
@@ -215,9 +176,8 @@
               :right  0
               :width  "100%"
               :height "100%"}
-   (when (not= view :loader) [navbar])
-   [router {:views {:loader loader
-                    :home home
+   [navbar]
+   [router {:views {:home home
                     :about about
                     :resources resources
                     :credits credits}
