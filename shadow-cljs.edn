@@ -1,6 +1,7 @@
 {:source-paths ["test" "src" "env/dev"]
  :dependencies [[org.clojure/clojure "1.10.0"]
                 [org.clojure/clojurescript "1.10.516"]
+                [org.clojure/core.async "0.4.500"]
                 [org.clojure/tools.cli "0.4.1"]
                 [mount "0.1.15"]
                 [reagent "0.8.1" :exclusions [[cljsjs/react]
