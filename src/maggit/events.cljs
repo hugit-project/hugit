@@ -15,7 +15,7 @@
     {:opts opts
      :router/view :home
      :terminal/size terminal-size
-     :repo {:path "/Users/divyansh/repos/maggit"}}))
+     :repo {:path (js/process.cwd)}}))
 
 (rf/reg-event-db
   :update
