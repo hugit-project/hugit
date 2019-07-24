@@ -11,22 +11,18 @@
       .-Repository
       (.open path)))
 
-(defn current-branch-promise [repo]
-  (.getCurrentBranch repo))
-
-(defn head-commit-promise [repo]
-  (.getHeadCommit repo))
-
 (defn current-branch-name-promise
   [repo-promise]
   (-> repo-promise
-      (.then current-branch-promise)
+      (.then #(.getCurrentBranch %))
       (.then (fn [branch]
-               (last (str/split (.name branch) #"/"))))))
+               (-> (.name branch)
+                   (str/split #"/")
+                   last)))))
 
 (defn current-head-commit-message-promise
   [repo-promise]
   (-> repo-promise
-      (.then head-commit-promise)
+      (.then #(.getHeadCommit %))
       (.then (fn [commit]
                (.message commit)))))
