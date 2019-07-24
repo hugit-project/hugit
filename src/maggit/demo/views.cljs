@@ -9,7 +9,7 @@
 (defn navbar
   "Displays a blessed js box with a vertical-menu used for navigation.
   User can use j/k or up/down to navigate items and either enter or l to view
-  a page. Dispatches re-frame :update to set :router/view in app db.
+  a page. Dispatches re-frame :merge to set :router/view in app db.
   Returns a hiccup :box vector."
   [_]
   [:box#home
@@ -28,7 +28,7 @@
                    :fg :black
                    :on-select
                    (fn [selected]
-                     (rf/dispatch [:update {:router/view selected}])
+                     (rf/dispatch [:merge {:router/view selected}])
 
                      (case selected
                        :home (rf/dispatch [:get-status])

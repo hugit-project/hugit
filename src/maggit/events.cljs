@@ -18,7 +18,7 @@
      :repo {:path (js/process.cwd)}}))
 
 (rf/reg-event-db
-  :update
+  :merge
   (fn [db [_ data]]
     (merge db data)))
 
@@ -26,11 +26,6 @@
   :assoc-in
   (fn [db [_ path val]]
     (assoc-in db path val)))
-
-(rf/reg-event-db
-  :set
-  (fn [db [_ data]]
-    data))
 
 (rf/reg-event-db
  :get-status
