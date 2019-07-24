@@ -37,13 +37,13 @@
  (fn [db _]
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)
-         current-branch-name* (git/current-branch-name-promise repo*) 
-         current-head-commit-message* (git/current-head-commit-message-promise repo*)]
-     (.then current-branch-name*
+         branch-name* (git/current-branch-name-promise repo*)
+         commit-message* (git/current-head-commit-message-promise repo*)]
+     (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
                [:assoc-in [:repo :branch-name] branch-name])))
-     (.then current-head-commit-message*
+     (.then commit-message*
             (fn [msg]
               (rf/dispatch
                [:assoc-in [:repo :head-commit-message] msg]))))
