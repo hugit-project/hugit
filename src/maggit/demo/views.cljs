@@ -39,9 +39,13 @@
   "Display welcome message and general usage info to user.
   Returns hiccup :box element."
   [_]
-  (let [repo @(rf/subscribe [:repo])
-        {:keys [branch-name head-commit-message]} repo]
-    [:box#home
+  (let [{:keys [branch-name
+                head-commit-message
+                unstaged
+                staged]
+         :as repo}
+        @(rf/subscribe [:repo])]
+    [:box#status
      {:top 0
       :right 0
       :width "70%"
@@ -49,12 +53,36 @@
       :style {:border {:fg :magenta}}
       :border {:type :line}
       :label " Status "}
-     [:box#keys
-      {:top 5
-       :left 2
+     [:box#head
+      {:top 1
+       :left 1
        :right 2
-       :align :left
-       :content (str "Head: [" branch-name "] " head-commit-message)}]]))
+       :align :left}
+      [:text (str "Head: [" branch-name "] " head-commit-message)]]
+     (when (seq unstaged)
+       [:box#unstaged
+        {:top 4
+         :left 1
+         :right 2
+         :align :left
+         :label "Unstaged"}
+        (for [[idx file] (map-indexed vector unstaged)]
+          ^{:key idx}
+          [:text
+           {:top (-> idx (* 2) inc)}
+           file])])
+     (when (seq staged)
+       [:box#staged
+        {:top (+ 4 (inc (* 2 (count unstaged))))
+         :left 1
+         :right 2
+         :align :left
+         :label "Staged"}
+        (for [[idx file] (map-indexed vector staged)]
+          ^{:key idx}
+          [:text
+           {:top (-> idx (* 2) inc)}
+           file])])]))
 
 (defn about
   "Display link to the template project and share features.
