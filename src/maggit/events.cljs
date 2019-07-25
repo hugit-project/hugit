@@ -53,11 +53,15 @@
                [:assoc-in [:repo :head-commit-message] msg])))
      (.then file-statuses*
             (fn [statuses]
+              (rf/dispatch [:assoc-in [:repo :untracked] []])
               (rf/dispatch [:assoc-in [:repo :unstaged] []])
               (rf/dispatch [:assoc-in [:repo :staged] []])
               (.forEach statuses
                         (fn [file]
                           (let [status (-> file .status js->clj set)]
+                            (when (contains? status "WT_NEW")
+                              (rf/dispatch
+                               [:update-in [:repo :untracked] conj (.path file)]))
                             (when (contains? status "WT_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj (.path file)]))
