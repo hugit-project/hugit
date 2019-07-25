@@ -28,9 +28,9 @@
     (assoc-in db path val)))
 
 (rf/reg-event-db
-  :append-to
-  (fn [db [_ path val]]
-    (update-in db path concat [val])))
+  :update-in
+  (fn [db [_ path f & args]]
+    (update-in db path #(apply f % args))))
 
 (rf/reg-event-db
  :get-status
@@ -55,9 +55,10 @@
               (.forEach statuses
                         (fn [file]
                           (let [status (-> file .status js->clj set)]
-                            (println status)
                             (when (contains? status "WT_MODIFIED")
-                              (rf/dispatch [:append-to [:repo :unstaged] (.path file)]))
+                              (rf/dispatch
+                               [:update-in [:repo :unstaged] conj (.path file)]))
                             (when (contains? status "INDEX_MODIFIED")
-                              (rf/dispatch [:append-to [:repo :staged] (.path file)]))))))))
+                              (rf/dispatch
+                               [:update-in [:repo :staged] conj (.path file)]))))))))
    db))
