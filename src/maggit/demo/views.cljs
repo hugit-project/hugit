@@ -3,8 +3,6 @@
    [clojure.string :refer [join]]
    [re-frame.core :as rf]
    [reagent.core :as r]
-   [maggit.core :refer [screen]]
-   [maggit.keys :refer [with-keys]]
    [maggit.views :refer [router vertical-menu]]))
 
 (defn navbar
@@ -28,14 +26,7 @@
                    :bg :magenta
                    :fg :black
                    :on-select
-                   (fn [selected]
-                     (rf/dispatch [:merge {:router/view selected}])
-
-                     (case selected
-                       :home (rf/dispatch [:get-status])
-
-                       ;; default
-                       nil))}]])
+                   #(rf/dispatch [:merge {:router/view %}])}]])
 
 (defn home
   "Display welcome message and general usage info to user.
@@ -47,45 +38,44 @@
                 staged]
          :as repo}
         @(rf/subscribe [:repo])]
-    (with-keys @screen {["space"] #(rf/dispatch [:get-status])}
-      [:box#status
-       {:top 0
-        :right 0
-        :width "70%"
-        :height "50%"
-        :style {:border {:fg :magenta}}
-        :border {:type :line}
-        :label " Status "}
-       [:box#head
-        {:top 1
+    [:box#status
+     {:top 0
+      :right 0
+      :width "70%"
+      :height "50%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label " Status "}
+     [:box#head
+      {:top 1
+       :left 1
+       :right 2
+       :align :left}
+      [:text (str "Head: [" branch-name "] " head-commit-message)]]
+     (when (seq unstaged)
+       [:box#unstaged
+        {:top 4
          :left 1
          :right 2
-         :align :left}
-        [:text (str "Head: [" branch-name "] " head-commit-message)]]
-       (when (seq unstaged)
-         [:box#unstaged
-          {:top 4
-           :left 1
-           :right 2
-           :align :left
-           :label "Unstaged"}
-          (for [[idx file] (map-indexed vector unstaged)]
-            ^{:key idx}
-            [:text
-             {:top (inc idx)}
-             file])])
-       (when (seq staged)
-         [:box#staged
-          {:top (+ 4 (if (seq unstaged) 2 0) (count unstaged))
-           :left 1
-           :right 2
-           :align :left
-           :label "Staged"}
-          (for [[idx file] (map-indexed vector staged)]
-            ^{:key idx}
-            [:text
-             {:top (inc idx)}
-             file])])])))
+         :align :left
+         :label "Unstaged"}
+        (for [[idx file] (map-indexed vector unstaged)]
+          ^{:key idx}
+          [:text
+           {:top (inc idx)}
+           file])])
+     (when (seq staged)
+       [:box#staged
+        {:top (+ 4 (if (seq unstaged) 2 0) (count unstaged))
+         :left 1
+         :right 2
+         :align :left
+         :label "Staged"}
+        (for [[idx file] (map-indexed vector staged)]
+          ^{:key idx}
+          [:text
+           {:top (inc idx)}
+           file])])]))
 
 (defn about
   "Display link to the template project and share features.
