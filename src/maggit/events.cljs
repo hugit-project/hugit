@@ -5,17 +5,21 @@
   (:require [re-frame.core :as rf]
             [maggit.git :as git]))
 
-; Below are very general effect handlers. While you can use these to get
-; going quickly you are likely better off creating custom handlers for actions
-; specific to your application.
+(defonce watch
+  (js/require "watch"))
+
 
 (rf/reg-event-db
   :init
   (fn [db [_ opts terminal-size]]
-    {:opts opts
-     :router/view :home
-     :terminal/size terminal-size
-     :repo {:path (js/process.cwd)}}))
+    (let [cwd (js/process.cwd)]
+      (.unwatchTree watch cwd)
+      (.watchTree watch cwd (fn [& args]
+                              (rf/dispatch [:get-status])))
+      {:opts opts
+       :router/view :home
+       :terminal/size terminal-size
+       :repo {:path cwd}})))
 
 (rf/reg-event-db
   :merge
