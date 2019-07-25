@@ -72,11 +72,11 @@
           (for [[idx file] (map-indexed vector unstaged)]
             ^{:key idx}
             [:text
-             {:top (-> idx (* 2) inc)}
+             {:top (inc idx)}
              file])])
        (when (seq staged)
          [:box#staged
-          {:top (+ 4 (if (seq unstaged) 1 0) (* 2 (count unstaged)))
+          {:top (+ 4 (if (seq unstaged) 2 0) (count unstaged))
            :left 1
            :right 2
            :align :left
@@ -84,7 +84,7 @@
           (for [[idx file] (map-indexed vector staged)]
             ^{:key idx}
             [:text
-             {:top (-> idx (* 2) inc)}
+             {:top (inc idx)}
              file])])])))
 
 (defn about
