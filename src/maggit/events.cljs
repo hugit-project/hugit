@@ -8,7 +8,6 @@
 (defonce watch
   (js/require "watch"))
 
-
 (rf/reg-event-db
   :init
   (fn [db [_ opts terminal-size]]
