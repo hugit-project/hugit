@@ -28,12 +28,18 @@
     (assoc-in db path val)))
 
 (rf/reg-event-db
+  :append-to
+  (fn [db [_ path val]]
+    (update-in db path concat [val])))
+
+(rf/reg-event-db
  :get-status
  (fn [db _]
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)
          branch-name* (git/current-branch-name-promise repo*)
-         commit-message* (git/current-head-commit-message-promise repo*)]
+         commit-message* (git/current-head-commit-message-promise repo*)
+         file-statuses* (git/statuses-promise repo*)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
@@ -41,5 +47,17 @@
      (.then commit-message*
             (fn [msg]
               (rf/dispatch
-               [:assoc-in [:repo :head-commit-message] msg]))))
+               [:assoc-in [:repo :head-commit-message] msg])))
+     (.then file-statuses*
+            (fn [statuses]
+              (rf/dispatch [:assoc-in [:repo :unstaged] []])
+              (rf/dispatch [:assoc-in [:repo :staged] []])
+              (.forEach statuses
+                        (fn [file]
+                          (let [status (-> file .status js->clj set)]
+                            (println status)
+                            (when (contains? status "WT_MODIFIED")
+                              (rf/dispatch [:append-to [:repo :unstaged] (.path file)]))
+                            (when (contains? status "INDEX_MODIFIED")
+                              (rf/dispatch [:append-to [:repo :staged] (.path file)]))))))))
    db))

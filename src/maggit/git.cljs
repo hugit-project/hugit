@@ -3,14 +3,23 @@
   #_(:require [cljs.core.async :refer [<! >!] :as a])
   (:require [clojure.string :as str]))
 
+;; Basic Classes
+;; =============
 (defonce Git
   (js/require "nodegit"))
 
-(defn repo-promise [path]
-  (-> Git
-      .-Repository
-      (.open path)))
+(defonce Repository
+  (.-Repository Git))
 
+
+;; Get Basic Objects
+;; =================
+(defn repo-promise [path]
+  (.open Repository path))
+
+
+;; Utils
+;; =====
 (defn current-branch-name-promise
   [repo-promise]
   (-> repo-promise
@@ -26,3 +35,8 @@
       (.then #(.getHeadCommit %))
       (.then (fn [commit]
                (.message commit)))))
+
+(defn statuses-promise
+  [repo-promise]
+  (.then repo-promise
+         #(.getStatus %)))
