@@ -5,6 +5,7 @@
 (defn status []
   (let [{:keys [branch-name
                 head-commit-message
+                untracked
                 unstaged
                 staged]}
         @(rf/subscribe [:repo])
@@ -29,7 +30,8 @@
       {:top 4
        :left 1
        :align :left
-       :items [(str "Unstaged (" (count unstaged) ")")
+       :items [(str "Untracked (" (count untracked) ")")
+               (str "Unstaged (" (count unstaged) ")")
                (str "Staged (" (count staged) ")")]
        :selected selected
        :on-select
@@ -37,11 +39,14 @@
          (rf/dispatch [:assoc-in [:status-view :selected] x])
          (rf/dispatch [:assoc-in [:files-view]
                        (case x
-                         0 {:label "Unstaged"
+                         0 {:label "Untracked"
+                            :files-path [:repo :untracked]}
+                         1 {:label "Unstaged"
                             :files-path [:repo :unstaged]}
-                         1 {:label "Staged"
+                         2 {:label "Staged"
                             :files-path [:repo :staged]})])
          (rf/dispatch [:assoc-in [:router/view] :files]))}]]))
+
 
 (defn files []
   (let [{:keys [files-path label]}
