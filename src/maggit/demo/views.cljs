@@ -36,7 +36,12 @@
        :selected selected
        :on-select
        (fn [x]
-         (let [chosen-list (case x
+         (let [{:keys [untracked
+                       unstaged
+                       staged]}
+               @(rf/subscribe [:repo])
+
+               chosen-list (case x
                              0 untracked
                              1 unstaged
                              2 staged)]
