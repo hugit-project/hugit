@@ -102,3 +102,32 @@
                           :fg (when (= value current) (or fg :white))}
                   :height 1
                   :content label}])]))))
+
+(letfn [(next-item [curr items]
+          (if (== (count items) (inc curr))
+            0
+            (inc curr)))
+        (prev-item [curr items]
+          (if (== -1 (dec curr))
+            (dec (count items))
+            (dec curr)))]
+  (defn navigable-list
+    [{:keys [items item-props on-change]
+      :or {on-change (fn [_])}
+      :as props}]
+    (r/with-let [selected (r/atom 0)
+                 items items]
+      (with-keys @screen {["down"] #(do
+                                      (swap! selected next-item items)
+                                      (on-change @selected))
+                          ["up"] #(do
+                                    (swap! selected prev-item items)
+                                    (on-change @selected))}
+        [:box (dissoc props :items :item-props :on-change)
+         (doall
+          (for [[idx item] (map-indexed vector items)]
+            ^{:key idx}
+            [:text (merge {:top (inc idx)}
+                          item-props)
+             (str (if (== @selected idx) "> " "  ")
+                  item)]))]))))

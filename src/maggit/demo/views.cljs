@@ -1,5 +1,6 @@
 (ns maggit.demo.views
-  (:require [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [maggit.views :refer [navigable-list]]))
 
 (defn status []
   (let [{:keys [branch-name
@@ -23,26 +24,18 @@
        :align :left}
       [:text (str "Head: [" branch-name "] " head-commit-message)]]
      (when (seq unstaged)
-       [:box#unstaged
+       [navigable-list
         {:top 4
          :left 1
          :right 2
          :align :left
-         :label "Unstaged"}
-        (for [[idx file] (map-indexed vector unstaged)]
-          ^{:key idx}
-          [:text
-           {:top (inc idx)}
-           file])])
+         :label "Unstaged"
+         :items unstaged}])
      (when (seq staged)
-       [:box#staged
+       [navigable-list
         {:top (+ 4 (if (seq unstaged) 2 0) (count unstaged))
          :left 1
          :right 2
          :align :left
-         :label "Staged"}
-        (for [[idx file] (map-indexed vector staged)]
-          ^{:key idx}
-          [:text
-           {:top (inc idx)}
-           file])])]))
+         :label "Staged"
+         :items staged}])]))
