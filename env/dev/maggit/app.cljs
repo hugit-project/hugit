@@ -4,17 +4,16 @@
    [reagent.core :as r]
    [maggit.core :refer [render screen]]
    [maggit.debug.views :as debug]
-   [maggit.demo.views :refer [demo]]
+   [maggit.demo.views :refer [status]]
    [maggit.main :as main]))
 
 (defn ui
   "Basic wrapper to show the demo app and the debug view half height.
   Returns hiccup vector."
   [_]
-  (let [view @(rf/subscribe [:view])
-        rows (:rows @(rf/subscribe [:size]))]
-    [demo
-     {:view view}
+  (let [rows (:rows @(rf/subscribe [:size]))]
+    [:box
+     [status]
      [debug/debug-box rows]]))
 
 (defn main!

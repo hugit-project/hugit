@@ -7,19 +7,11 @@
    [re-frame.core :as rf]
    [reagent.core :as r]
    [maggit.core :refer [render screen]]
-   [maggit.demo.views :refer [demo]]
+   [maggit.demo.views :refer [status]]
    [maggit.events]
    [maggit.resize :refer [size]]
    [maggit.subs]
    [maggit.views :as views]))
-
-(defn ui
-  "Root ui view.
-  Takes no arguments.
-  Returns hiccup demo element to run the demo app."
-  [_]
-  (let [view @(rf/subscribe [:view])]
-    [demo {:view view}]))
 
 (def cli-options
   [["-p" "--port PORT" "port number"
@@ -57,6 +49,6 @@
   Takes list of CLI args.
   Returns rendered reagent view."
   [& args]
-  (init! ui :opts (args->opts args)))
+  (init! status :opts (args->opts args)))
 
 (set! *main-cli-fn* main!)
