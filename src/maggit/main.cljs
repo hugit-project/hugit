@@ -7,7 +7,7 @@
    [re-frame.core :as rf]
    [reagent.core :as r]
    [maggit.core :refer [render screen]]
-   [maggit.demo.views :refer [status]]
+   [maggit.demo.views :refer [home]]
    [maggit.events]
    [maggit.resize :refer [size]]
    [maggit.subs]
@@ -38,7 +38,6 @@
   [view & {:keys [opts]}]
   (mount/start)
   (rf/dispatch-sync [:init (:options opts) (size @screen)])
-  (rf/dispatch-sync [:get-status])
   (-> (r/reactify-component view)
       (r/create-element #js {})
       (render @screen)))
@@ -49,6 +48,6 @@
   Takes list of CLI args.
   Returns rendered reagent view."
   [& args]
-  (init! status :opts (args->opts args)))
+  (init! home :opts (args->opts args)))
 
 (set! *main-cli-fn* main!)

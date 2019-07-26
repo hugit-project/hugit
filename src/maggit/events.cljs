@@ -11,12 +11,13 @@
 (rf/reg-event-db
   :init
   (fn [db [_ opts terminal-size]]
+    (rf/dispatch [:get-status])
     (let [cwd (js/process.cwd)]
       (.unwatchTree watch cwd)
       (.watchTree watch cwd (fn [& args]
                               (rf/dispatch [:get-status])))
       {:opts opts
-       :router/view :home
+       :router/view :status
        :terminal/size terminal-size
        :repo {:path cwd}})))
 

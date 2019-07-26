@@ -9,6 +9,11 @@
     db))
 
 (rf/reg-sub
+  :get-in
+  (fn [db [_ path]]
+    (get-in db path)))
+
+(rf/reg-sub
   :view
   (fn [db _]
     (:router/view db)))
@@ -22,3 +27,13 @@
   :repo
   (fn [db _]
     (:repo db)))
+
+(rf/reg-sub
+  :status-view
+  (fn [db _]
+    (:status-view db)))
+
+(rf/reg-sub
+  :files-view
+  (fn [db _]
+    (:files-view db)))

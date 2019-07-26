@@ -4,7 +4,7 @@
    [reagent.core :as r]
    [maggit.core :refer [render screen]]
    [maggit.debug.views :as debug]
-   [maggit.demo.views :refer [status]]
+   [maggit.demo.views :refer [home]]
    [maggit.main :as main]))
 
 (defn ui
@@ -13,7 +13,7 @@
   [_]
   (let [rows (:rows @(rf/subscribe [:size]))]
     [:box
-     [status]
+     [home]
      [debug/debug-box rows]]))
 
 (defn main!

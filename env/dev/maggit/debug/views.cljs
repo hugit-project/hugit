@@ -8,8 +8,7 @@
    [clojure.pprint :refer [pprint]]
    [clojure.string :refer [join]]
    [re-frame.core :as rf]
-   [reagent.core :as r]
-   [maggit.views :refer [router vertical-menu]]))
+   [reagent.core :as r]))
 
 (defonce logger
   (r/atom []))
