@@ -35,14 +35,12 @@
        :on-select
        (fn [x]
          (rf/dispatch [:assoc-in [:status-view :selected] x])
-         (rf/dispatch [:assoc-in [:files-view :files-path]
+         (rf/dispatch [:assoc-in [:files-view]
                        (case x
-                         0 [:repo :unstaged]
-                         1 [:repo :staged])])
-         (rf/dispatch [:assoc-in [:files-view :label]
-                       (case x
-                         0 "Unstaged"
-                         1 "Staged")])
+                         0 {:label "Unstaged"
+                            :files-path [:repo :unstaged]}
+                         1 {:label "Staged"
+                            :files-path [:repo :staged]})])
          (rf/dispatch [:assoc-in [:router/view] :files]))}]]))
 
 (defn files []
