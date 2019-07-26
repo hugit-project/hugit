@@ -12,6 +12,12 @@
             (dec (count items))
             (dec curr)))]
   (defn navigable-list
+    "Returns  a vertical list of items that can be navigated and selected from
+   - items: list of option strings, can be navigated using <up>/<down>
+   - item-props: properties that will be applied to each item
+   - selected: index of the currently selected item
+   - on-select: function that will be called with the selected index when <right> is pressed
+   - on-back: function that will be called when <left> is pressed"
     [{:keys [items item-props selected
              on-select on-back]
       :or {on-select (fn [_])
