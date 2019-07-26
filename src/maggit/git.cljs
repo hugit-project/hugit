@@ -29,10 +29,15 @@
                    (str/split #"/")
                    last)))))
 
+(defn head-commit-promise
+  [repo-promise]
+  (.then repo-promise
+         #(.getHeadCommit %)))
+
 (defn current-head-commit-message-promise
   [repo-promise]
   (-> repo-promise
-      (.then #(.getHeadCommit %))
+      head-commit-promise
       (.then (fn [commit]
                (.message commit)))))
 
@@ -40,3 +45,25 @@
   [repo-promise]
   (.then repo-promise
          #(.getStatus %)))
+
+(defn recent-commits-promise
+  ([repo-promise callback]
+   (-> repo-promise
+       head-commit-promise
+       (.then (fn [head-commit]
+                (let [history (.history head-commit)]
+                  (.on history "end"
+                       (fn [commits]
+                         (callback
+                          (for [commit (js->clj commits)]
+                            {:sha (.sha commit)
+                             :author {:name (-> commit .author .name)
+                                      :email (-> commit .author .email)}
+                             :date (.date commit)
+                             :message (.message commit)}))))
+                  (.start history))))))
+  ([repo-promise]
+   (js/Promise.
+    (fn [resolve]
+      (recent-commits-promise repo-promise
+                              #(resolve %))))))
