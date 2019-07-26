@@ -112,18 +112,20 @@
             (dec (count items))
             (dec curr)))]
   (defn navigable-list
-    [{:keys [items item-props on-change]
-      :or {on-change (fn [_])}
+    [{:keys [items item-props selected
+             on-select on-back]
+      :or {on-select (fn [_])
+           on-back (fn [])}
       :as props}]
-    (r/with-let [selected (r/atom 0)
-                 items items]
-      (with-keys @screen {["down"] #(do
-                                      (swap! selected next-item items)
-                                      (on-change @selected))
-                          ["up"] #(do
-                                    (swap! selected prev-item items)
-                                    (on-change @selected))}
-        [:box (dissoc props :items :item-props :on-change)
+    (r/with-let [selected (r/atom (or selected 0))]
+      (with-keys @screen
+        {["down"]  #(swap! selected next-item items)
+         ["up"]    #(swap! selected prev-item items)
+         ["right"] #(on-select @selected)
+         ["left"]  on-back}
+        [:box (dissoc props
+                      :items :item-props :selected
+                      :on-select :on-back)
          (doall
           (for [[idx item] (map-indexed vector items)]
             ^{:key idx}
