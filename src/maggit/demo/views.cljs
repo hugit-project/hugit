@@ -70,6 +70,9 @@
        :right 2
        :align :left
        :items files
+       :custom-key-handlers
+       {["s"] (fn [x]
+                (rf/dispatch [:stage-file (nth files x)]))}
        :on-back
        #(do
           (rf/dispatch [:assoc-in [:files-view] {}])

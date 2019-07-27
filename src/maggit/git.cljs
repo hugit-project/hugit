@@ -65,3 +65,11 @@
                                :summary (.summary commit)
                                :message (.message commit)}))))
                     (.start history))))))))
+
+(defn stage-file
+  [repo-promise file]
+  (-> repo-promise
+      (.then #(.refreshIndex %))
+      (.then (fn [index]
+               (.addByPath index file)
+               (.write index)))))

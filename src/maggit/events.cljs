@@ -74,3 +74,11 @@
             (fn [commits]
               (rf/dispatch [:assoc-in [:repo :commits] commits]))))
      db))
+
+(rf/reg-event-db
+ :stage-file
+ (fn [db [_ file]]
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)]
+     (git/stage-file repo* file))
+   db))
