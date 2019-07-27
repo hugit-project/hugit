@@ -1,6 +1,6 @@
 (ns maggit.demo.views
   (:require [re-frame.core :as rf]
-            [maggit.views :refer [navigable-list]]))
+            [maggit.views :refer [navigable-list scrollable-list]]))
 
 (defn status []
   (let [{:keys [branch-name
@@ -85,7 +85,7 @@
       :style {:border {:fg :magenta}}
       :border {:type :line}
       :label " Commit Log "}
-     [navigable-list
+     [scrollable-list
       {:top 1
        :left 1
        :right 2
