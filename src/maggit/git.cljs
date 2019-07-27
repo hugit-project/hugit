@@ -66,33 +66,24 @@
                                :message (.message commit)}))))
                     (.start history))))))))
 
+
+(defonce shelljs
+  (js/require "shelljs"))
+
 (defn stage-file
-  [repo-promise file]
-  (-> repo-promise
-      (.then #(.refreshIndex %))
-      (.then (fn [index]
-               (.addByPath index file)
-               (.write index)))
-      (.then (fn [code]
-               (when-not (zero? code)
-                 (stage-file repo-promise file))))))
+  [file]
+  (.exec shelljs
+         (str "git add " file)
+         #js {:silent true}))
 
 (defn unstage-file
-  [repo-promise file]
-  (-> repo-promise
-      (.then #(.refreshIndex %))
-      (.then (fn [index]
-               (.write index)))))
+  [file]
+  (.exec shelljs
+         (str "git reset " file)
+         #js {:silent true}))
 
 (defn untrack-file
-  [repo-promise file]
-  (println :untracking)
-  (-> repo-promise
-      (.then #(.refreshIndex %))
-      (.then (fn [index]
-               (.removeByPath index file)
-               (.write index)))
-      (.then (fn [code]
-               (if-not (zero? code)
-                 (untrack-file repo-promise file)
-                 (println :untracked))))))
+  [file]
+  (.exec shelljs
+         (str "git rm " file)
+         #js {:silent true}))
