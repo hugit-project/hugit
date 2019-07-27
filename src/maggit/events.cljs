@@ -85,3 +85,19 @@
          repo* (git/repo-promise repo-path)]
      (git/stage-file repo* file))
    db))
+
+(rf/reg-event-db
+ :untrack-file
+ (fn [db [_ file]]
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)]
+     (git/untrack-file repo* file))
+   db))
+
+(rf/reg-event-db
+ :unstage-file
+ (fn [db [_ file]]
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)]
+     (git/unstage-file repo* file))
+   db))
