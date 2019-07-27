@@ -95,7 +95,7 @@
        :items (for [{:keys [sha message]} commits]
                 (str (->> sha (take 7) clojure.string/join)
                      " "
-                     message))
+                     (-> message (clojure.string/split #"\n") first)))
        :on-back
        #(rf/dispatch [:assoc-in [:router/view] :status])}]]))
 
