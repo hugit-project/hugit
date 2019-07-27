@@ -92,10 +92,10 @@
        :right 2
        :align :left
        :window-size (-> screen-size :rows (* 0.5) (- 6))
-       :items (for [{:keys [sha message]} commits]
+       :items (for [{:keys [sha summary]} commits]
                 (str (->> sha (take 7) clojure.string/join)
                      " "
-                     (-> message (clojure.string/split #"\n") first)))
+                     summary))
        :on-back
        #(rf/dispatch [:assoc-in [:router/view] :status])}]]))
 

@@ -62,5 +62,6 @@
                                :author {:name (-> commit .author .name)
                                         :email (-> commit .author .email)}
                                :date (.date commit)
+                               :summary (.summary commit)
                                :message (.message commit)}))))
                     (.start history))))))))
