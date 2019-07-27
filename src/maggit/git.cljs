@@ -77,4 +77,4 @@
 
 (defn untrack-file
   [file]
-  (exec "git rm " file))
+  (exec "git rm --cached " file))
