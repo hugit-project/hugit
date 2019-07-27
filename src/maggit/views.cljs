@@ -3,11 +3,11 @@
             [maggit.core :refer [screen]]
             [maggit.keys :refer [with-keys]]))
 
-(letfn [(next-item [curr items]
-          (if (== (count items) (inc curr))
+(letfn [(cycle-next-item [curr items]
+          (if (== (dec (count items)) curr)
             0
             (inc curr)))
-        (prev-item [curr items]
+        (cycle-prev-item [curr items]
           (if (== -1 (dec curr))
             (dec (count items))
             (dec curr)))]
@@ -25,8 +25,8 @@
       :as props}]
     (r/with-let [selected (r/atom (or selected 0))]
       (with-keys @screen
-        {["down"]  #(swap! selected next-item items)
-         ["up"]    #(swap! selected prev-item items)
+        {["down"]  #(swap! selected cycle-next-item items)
+         ["up"]    #(swap! selected cycle-prev-item items)
          ["right"] #(on-select @selected)
          ["left"]  on-back}
         [:box (dissoc props
