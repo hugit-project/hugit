@@ -1,6 +1,6 @@
 (ns maggit.demo.views
   (:require [re-frame.core :as rf]
-            [maggit.views :refer [navigable-list]]))
+            [maggit.views :refer [navigable-list scrollable-list]]))
 
 (defn status []
   (let [{:keys [branch-name
@@ -76,7 +76,8 @@
           (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
 
 (defn commits []
-  (let [commits @(rf/subscribe [:get-in [:repo :commits]])]
+  (let [commits @(rf/subscribe [:get-in [:repo :commits]])
+        screen-size @(rf/subscribe [:size])]
     [:box#commits
      {:top 0
       :right 0
@@ -85,15 +86,16 @@
       :style {:border {:fg :magenta}}
       :border {:type :line}
       :label " Commit Log "}
-     [navigable-list
+     [scrollable-list
       {:top 1
        :left 1
        :right 2
        :align :left
-       :items (for [{:keys [sha message]} commits]
+       :window-size (-> screen-size :rows (* 0.5) (- 6))
+       :items (for [{:keys [sha summary]} commits]
                 (str (->> sha (take 7) clojure.string/join)
                      " "
-                     message))
+                     summary))
        :on-back
        #(rf/dispatch [:assoc-in [:router/view] :status])}]]))
 
