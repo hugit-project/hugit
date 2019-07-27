@@ -70,6 +70,13 @@
        :right 2
        :align :left
        :items files
+       :custom-key-handlers
+       {["s"] (fn [x]
+                (rf/dispatch [:stage-file (nth files x)]))
+        ["u"] (fn [x]
+                (rf/dispatch [:unstage-file (nth files x)]))
+        ["r"] (fn [x]
+                (rf/dispatch [:untrack-file (nth files x)]))}
        :on-back
        #(do
           (rf/dispatch [:assoc-in [:files-view] {}])

@@ -67,6 +67,9 @@
                             (when (contains? status "WT_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj (.path file)]))
+                            (when (contains? status "INDEX_NEW")
+                              (rf/dispatch
+                               [:update-in [:repo :staged] conj (.path file)]))
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj (.path file)])))))))
@@ -74,3 +77,21 @@
             (fn [commits]
               (rf/dispatch [:assoc-in [:repo :commits] commits]))))
      db))
+
+(rf/reg-event-db
+ :stage-file
+ (fn [db [_ file]]
+   (git/stage-file file)
+   db))
+
+(rf/reg-event-db
+ :untrack-file
+ (fn [db [_ file]]
+   (git/untrack-file file)
+   db))
+
+(rf/reg-event-db
+ :unstage-file
+ (fn [db [_ file]]
+   (git/unstage-file file)
+   db))
