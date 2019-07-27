@@ -36,27 +36,16 @@
        :selected selected
        :on-select
        (fn [x]
-         (let [{:keys [untracked
-                       unstaged
-                       staged]}
-               @(rf/subscribe [:repo])
-
-               chosen-list (case x
-                             0 untracked
-                             1 unstaged
-                             2 staged)]
-           (when (seq chosen-list)
-             (rf/dispatch [:assoc-in [:status-view :selected] x])
-             (rf/dispatch [:assoc-in [:files-view]
-                           (case x
-                             0 {:label "Untracked"
-                                :files-path [:repo :untracked]}
-                             1 {:label "Unstaged"
-                                :files-path [:repo :unstaged]}
-                             2 {:label "Staged"
-                                :files-path [:repo :staged]})])
-             (rf/dispatch [:assoc-in [:router/view] :files]))))}]]))
-
+         (rf/dispatch [:assoc-in [:status-view :selected] x])
+         (rf/dispatch [:assoc-in [:files-view]
+                       (case x
+                         0 {:label "Untracked"
+                            :files-path [:repo :untracked]}
+                         1 {:label "Unstaged"
+                            :files-path [:repo :unstaged]}
+                         2 {:label "Staged"
+                            :files-path [:repo :staged]})])
+         (rf/dispatch [:assoc-in [:router/view] :files]))}]]))
 
 (defn files []
   (let [{:keys [files-path label]}
