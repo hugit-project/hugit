@@ -1,7 +1,8 @@
 (ns maggit.git
   #_(:require-macros [cljs.core.async.macros :refer [go go-loop]])
   #_(:require [cljs.core.async :refer [<! >!] :as a])
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [maggit.shell :refer [exec]]))
 
 ;; Basic Classes
 ;; =============
@@ -66,24 +67,14 @@
                                :message (.message commit)}))))
                     (.start history))))))))
 
-
-(defonce shelljs
-  (js/require "shelljs"))
-
 (defn stage-file
   [file]
-  (.exec shelljs
-         (str "git add " file)
-         #js {:silent true}))
+  (exec "git add " file))
 
 (defn unstage-file
   [file]
-  (.exec shelljs
-         (str "git reset " file)
-         #js {:silent true}))
+  (exec "git reset " file))
 
 (defn untrack-file
   [file]
-  (.exec shelljs
-         (str "git rm " file)
-         #js {:silent true}))
+  (exec "git rm " file))
