@@ -67,6 +67,9 @@
                             (when (contains? status "WT_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj (.path file)]))
+                            (when (contains? status "INDEX_NEW")
+                              (rf/dispatch
+                               [:update-in [:repo :staged] conj (.path file)]))
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj (.path file)])))))))
