@@ -3,7 +3,8 @@
             [maggit.core :refer [screen]]
             [maggit.keys :refer [with-keys]]))
 
-(defn- enhance-handler-map [handlers arg-atom]
+(defn- enhance-handler-map
+  [handlers arg-atom]
   (into {} (for [[keys f] handlers]
              [keys #(f @arg-atom)])))
 
@@ -99,3 +100,21 @@
                           item-props)
              (str (if (zero? idx) "> " "  ")
                   item)]))]))))
+
+(defn text-input
+  "Text input from user
+   - on-submit: function that will be called with the current text
+   - on-back: function that will be called when is pressed
+   - custom-key-handlers: {[\"left\" \"right\"] (fn [idx] (println idx))}"
+  [{:keys [on-submit on-cancel]
+    :or {on-submit (fn [_])
+         on-cancel (fn [])}
+    :as props}]
+  [:textbox
+   (merge {:mouse true
+           :keys true
+           :vi true
+           :inputOnFocus true
+           :onSubmit on-submit
+           :on-cancel on-cancel}
+          (dissoc props :on-submit :on-cancel))])

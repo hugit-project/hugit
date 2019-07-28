@@ -1,6 +1,6 @@
 (ns maggit.demo.views
   (:require [re-frame.core :as rf]
-            [maggit.views :refer [navigable-list scrollable-list]]))
+            [maggit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn status []
   (let [{:keys [branch-name
@@ -35,6 +35,15 @@
                (str "Staged (" (count staged) ")")
                (str "Commit Log")]
        :selected selected
+       :custom-key-handlers
+       {["c"] (fn [_]
+                (rf/dispatch [:assoc-in [:input-view]
+                              {:label "Commit Message"
+                               :on-submit #(do
+                                             (rf/dispatch [:commit %])
+                                             (rf/dispatch [:assoc-in [:router/view] :status]))
+                               :on-cancel #(rf/dispatch [:assoc-in [:router/view] :status])}])
+                (rf/dispatch [:assoc-in [:router/view] :input]))}
        :on-select
        (fn [x]
          (rf/dispatch [:assoc-in [:status-view :selected] x])
@@ -106,9 +115,28 @@
        :on-back
        #(rf/dispatch [:assoc-in [:router/view] :status])}]]))
 
+(defn input []
+  (let [{:keys [label on-submit on-cancel]}
+        @(rf/subscribe [:input-view])]
+    [:box#input
+     {:top 0
+      :right 0
+      :width "100%"
+      :height "50%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label (str " " label " ")}
+     [text-input
+      {:top 1
+       :left 1
+       :height 10
+       :on-submit on-submit
+       :on-cancel on-cancel}]]))
+
 (defn home []
   (let [view @(rf/subscribe [:view])]
     [(case view
        :status status
        :files files
-       :commits commits)]))
+       :commits commits
+       :input input)]))

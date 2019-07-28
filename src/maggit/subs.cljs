@@ -37,3 +37,8 @@
   :files-view
   (fn [db _]
     (:files-view db)))
+
+(rf/reg-sub
+  :input-view
+  (fn [db _]
+    (:input-view db)))

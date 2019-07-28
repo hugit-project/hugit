@@ -95,3 +95,9 @@
  (fn [db [_ file]]
    (git/unstage-file file)
    db))
+
+(rf/reg-event-db
+ :commit
+ (fn [db [_ msg]]
+   (git/commit msg)
+   db))

@@ -78,3 +78,7 @@
 (defn untrack-file
   [file]
   (exec "git rm --cached " file))
+
+(defn commit
+  [msg]
+  (exec "git commit -m \"" msg "\""))
