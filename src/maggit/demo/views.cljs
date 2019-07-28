@@ -101,8 +101,7 @@
 (defn commits []
   (let [commits @(rf/subscribe [:get-in [:repo :commits]])
         size @(rf/subscribe [:size])
-        rows (r/atom (:rows size))
-        window-size (-> @rows (* 0.6) (- 4))]
+        rows (r/atom (:rows size))]
     (with-meta
       [:box#commits
        {:top 0
@@ -116,7 +115,7 @@
          :left 1
          :right 2
          :align :left
-         :window-size window-size
+         :window-size (-> @rows (* 0.6) (- 4))
          :items (for [{:keys [sha summary]} commits]
                   (str (->> sha (take 7) clojure.string/join)
                        " "
