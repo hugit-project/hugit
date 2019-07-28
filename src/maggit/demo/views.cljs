@@ -86,7 +86,9 @@
         ["u"] (fn [x]
                 (rf/dispatch [:unstage-file (nth files x)]))
         ["r"] (fn [x]
-                (rf/dispatch [:untrack-file (nth files x)]))}
+                (rf/dispatch [:untrack-file (nth files x)]))
+        ["k"] (fn [x]
+                (rf/dispatch [:checkout-file (nth files x)]))}
        :on-back
        #(do
           (rf/dispatch [:assoc-in [:files-view] {}])

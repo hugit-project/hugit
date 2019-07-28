@@ -97,6 +97,12 @@
    db))
 
 (rf/reg-event-db
+ :checkout-file
+ (fn [db [_ file]]
+   (git/checkout-file file)
+   db))
+
+(rf/reg-event-db
  :commit
  (fn [db [_ msg]]
    (git/commit msg)
