@@ -41,7 +41,8 @@
                               {:label "Commit Message"
                                :on-submit #(do
                                              (rf/dispatch [:commit %])
-                                             (rf/dispatch [:assoc-in [:router/view] :status]))
+                                             (rf/dispatch [:assoc-in [:status-view :selected] 3])
+                                             (rf/dispatch [:assoc-in [:router/view] :commits]))
                                :on-cancel #(rf/dispatch [:assoc-in [:router/view] :status])}])
                 (rf/dispatch [:assoc-in [:router/view] :input]))}
        :on-select
