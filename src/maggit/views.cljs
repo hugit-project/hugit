@@ -120,11 +120,16 @@
     :or {on-submit (fn [_])
          on-cancel (fn [])}
     :as props}]
-  [:textbox
-   (merge {:mouse true
-           :keys true
-           :vi true
-           :inputOnFocus true
-           :onSubmit on-submit
-           :on-cancel on-cancel}
-          (dissoc props :on-submit :on-cancel))])
+  (with-keys @screen
+    {["enter"]  {:f (fn [])
+                 :label "Commit"}
+     ["escape"] {:f (fn [])
+                 :label "Abort"}}
+    [:textbox
+     (merge {:mouse true
+             :keys true
+             :vi true
+             :inputOnFocus true
+             :onSubmit on-submit
+             :on-cancel on-cancel}
+            (dissoc props :on-submit :on-cancel))]))
