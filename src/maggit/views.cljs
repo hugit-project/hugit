@@ -74,9 +74,9 @@
       :or {on-select (fn [_])
            on-back (fn [])}
       :as props}]
-    (r/with-let [window-start (r/atom (or window-start 0))
-                 window-size (or window-size 5)
-                 window (r/atom (take window-size items))]
+    (let [window-start (r/atom (or window-start 0))
+          window-size (or window-size 5)
+          window (r/atom (take window-size items))]
       (with-keys @screen
         (merge
          {["down"]  #(do (swap! window-start next-item items)
