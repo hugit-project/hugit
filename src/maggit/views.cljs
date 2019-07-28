@@ -103,9 +103,8 @@
 
 (defn text-input
   "Text input from user
-   - on-submit: function that will be called with the current text
-   - on-back: function that will be called when is pressed
-   - custom-key-handlers: {[\"left\" \"right\"] (fn [idx] (println idx))}"
+   - on-submit: function that will be called with the current text on <enter>
+   - on-cancel: function that will be called on <escape>"
   [{:keys [on-submit on-cancel]
     :or {on-submit (fn [_])
          on-cancel (fn [])}
