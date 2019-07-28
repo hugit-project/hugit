@@ -62,7 +62,7 @@
            (rf/dispatch [:assoc-in [:router/view] :commits])))}]]))
 
 (defn files []
-  (let [{:keys [files-path label]}
+  (let [{:keys [files-path label selected]}
         @(rf/subscribe [:files-view])
 
         files @(rf/subscribe [:get-in files-path])]
@@ -80,6 +80,7 @@
        :right 2
        :align :left
        :items files
+       :selected selected
        :custom-key-handlers
        {["s"] (fn [x]
                 (rf/dispatch [:stage-file (nth files x)]))
@@ -87,10 +88,49 @@
                 (rf/dispatch [:unstage-file (nth files x)]))
         ["r"] (fn [x]
                 (rf/dispatch [:untrack-file (nth files x)]))}
+       :on-select
+       (fn [x]
+         (rf/dispatch [:assoc-in [:files-view :selected] x])
+         (rf/dispatch [:assoc-in [:diffs-view] {:file-path (nth files x)}])
+         (rf/dispatch [:assoc-in [:router/view] :diffs]))
        :on-back
        #(do
           (rf/dispatch [:assoc-in [:files-view] {}])
           (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
+
+(defn diffs []
+  (let [{:keys [file-path]} @(rf/subscribe [:diffs-view])
+        {:keys [old new]} @(rf/subscribe [:get-in [:repo :unstaged-diffs file-path]])
+        screen-size @(rf/subscribe [:size])]
+    [:box#commits
+     {:top 0
+      :right 0
+      :width "100%"
+      :height "50%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label (str " ( " file-path " ) ")}
+     [scrollable-list
+      {:top 1
+       :left 1
+       :right 2
+       :width "50%"
+       :align :left
+       :window-size (-> screen-size :rows (* 0.5) (- 6))
+       :items (clojure.string/split old #"\n")
+       :on-back
+       #(rf/dispatch [:assoc-in [:router/view] :files])}]
+     [scrollable-list
+      {:top 1
+       :left "50%" 
+       :right 2
+       :width "50%"
+       :align :left
+       :window-size (-> screen-size :rows (* 0.5) (- 6))
+       :items (clojure.string/split new #"\n")
+       :on-back
+       #(rf/dispatch [:assoc-in [:router/view] :files])}]]))
+
 
 (defn commits []
   (let [commits @(rf/subscribe [:get-in [:repo :commits]])
@@ -140,4 +180,5 @@
        :status status
        :files files
        :commits commits
-       :input input)]))
+       :input input
+       :diffs diffs)]))
