@@ -7,14 +7,23 @@
    [maggit.demo.views :refer [home]]
    [maggit.main :as main]))
 
-(defn ui
-  "Basic wrapper to show the demo app and the debug view half height.
-  Returns hiccup vector."
-  [_]
-  (let [rows (:rows @(rf/subscribe [:size]))]
+(defn ui []
+  (let [{:keys [rows]} @(rf/subscribe [:size])]
     [:box
-     [home]
-     [debug/debug-box rows]]))
+     {:top 0
+      :left 0
+      :height "100%"
+      :width "100%"}
+     [:box
+      {:top 0
+       :left 0
+       :height "70%"}
+      [main/ui]]
+     [:box
+      {:top "70%"
+       :left 0
+       :height "30%"}
+      [debug/log-box rows]]]))
 
 (defn main!
   "Main development entrypoint.
@@ -32,6 +41,8 @@
       (r/create-element #js {})
       (render @screen))
   (println "Reloading app"))
+
+
 
 (defn log-fn
   "A log handler function to append messages to our debug/logger atom.

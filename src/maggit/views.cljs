@@ -5,8 +5,9 @@
 
 (defn- enhance-handler-map
   [handlers arg-atom]
-  (into {} (for [[keys f] handlers]
-             [keys #(f @arg-atom)])))
+  (into {} (for [[keys {:keys [f label]}] handlers]
+             [keys {:f #(f @arg-atom)
+                    :label label}])))
 
 
 (letfn [(cycle-next-item [curr items]
@@ -24,7 +25,7 @@
    - selected: index of the currently selected item
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
-   - custom-key-handlers: {[\"left\" \"right\"] (fn [idx] (println idx))}"
+   - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
     [{:keys [items item-props selected
              on-select on-back custom-key-handlers]
       :or {on-select (fn [_])
@@ -32,10 +33,14 @@
       :as props}]
     (r/with-let [selected (r/atom (or selected 0))]
       (with-keys @screen
-        (merge {["down"]  #(swap! selected cycle-next-item items)
-                ["up"]    #(swap! selected cycle-prev-item items)
-                ["right"] #(on-select @selected)
-                ["left"]  on-back}
+        (merge {["down"]  {:f #(swap! selected cycle-next-item items)
+                           :label "Next Item"}
+                ["up"]    {:f #(swap! selected cycle-prev-item items)
+                           :label "Prev Item"}
+                ["right"] {:f #(on-select @selected)
+                           :label "Select"}
+                ["left"]  {:f on-back
+                           :label "Back"}}
                (enhance-handler-map custom-key-handlers selected))
         [:box (dissoc props
                       :items :item-props :selected
@@ -67,7 +72,7 @@
    - selected: index of the currently selected item
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
-   - custom-key-handlers: {[\"left\" \"right\"] (fn [idx] (println idx))}"
+   - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
     [{:keys [items item-props
              window-start window-size
              on-select on-back custom-key-handlers]
@@ -81,16 +86,20 @@
                                        window-size))]
         (with-keys @screen
           (merge
-           {["down"]  #(do (swap! window-start next-item items)
-                           (reset! window (get-window items
-                                                      @window-start
-                                                      window-size)))
-            ["up"]    #(do (swap! window-start prev-item items)
-                           (reset! window (get-window items
-                                                      @window-start
-                                                      window-size)))
-            ["right"] #(on-select @window-start)
-            ["left"]  on-back}
+           {["down"]  {:f #(do (swap! window-start next-item items)
+                               (reset! window (get-window items
+                                                          @window-start
+                                                          window-size)))
+                       :label "Next Item"}
+            ["up"]    {:f #(do (swap! window-start prev-item items)
+                               (reset! window (get-window items
+                                                          @window-start
+                                                          window-size)))
+                       :label "Prev Item"}
+            ["right"] {:f #(on-select @window-start)
+                       :label "Select"}
+            ["left"]  {:f on-back
+                       :label "Back"}}
            (enhance-handler-map custom-key-handlers window-start))
           [:box (dissoc props
                         :items :item-props :selected
