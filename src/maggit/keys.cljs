@@ -80,13 +80,19 @@
     :style {:border {:fg :magenta}}
     :border {:type :line}}
    (for [[idx [hotkeys label]]
-         (map-indexed vector @current-bindings)]
+         (->> @current-bindings
+              (sort-by (fn [[_ label]]
+                          (count label)))
+              (map-indexed vector))]
      ^{:key idx}
      [:box
       {:top (inc idx)}
-      [:text
-       {:left 1
-        :content (clojure.string/join ", " hotkeys)}]
+      [:box
+       {:width "45%"}
+       [:text
+        {:right 0
+         :content label}]]
       [:text
        {:left "50%"
-        :content label}]])])
+        :width "45%"
+        :content (clojure.string/join ", " hotkeys)}]])])
