@@ -74,32 +74,34 @@
       :or {on-select (fn [_])
            on-back (fn [])}
       :as props}]
-    (let [window-start (r/atom (or window-start 0))
-          window-size (or window-size 5)
-          window (r/atom (take window-size items))]
-      (with-keys @screen
-        (merge
-         {["down"]  #(do (swap! window-start next-item items)
-                         (reset! window (get-window items
-                                                    @window-start
-                                                    window-size)))
-          ["up"]    #(do (swap! window-start prev-item items)
-                         (reset! window (get-window items
-                                                    @window-start
-                                                    window-size)))
-          ["right"] #(on-select @window-start)
-          ["left"]  on-back}
-         (enhance-handler-map custom-key-handlers window-start))
-        [:box (dissoc props
-                      :items :item-props :selected
-                      :on-select :on-back)
-         (doall
-          (for [[idx item] (map-indexed vector @window)]
-            ^{:key idx}
-            [:text (merge {:top (inc idx)}
-                          item-props)
-             (str (if (zero? idx) "> " "  ")
-                  item)]))]))))
+    (r/with-let [window-start (r/atom (or window-start 0))
+                 window-size (or window-size 5)]
+      (let [window (r/atom (get-window items
+                                       @window-start
+                                       window-size))]
+        (with-keys @screen
+          (merge
+           {["down"]  #(do (swap! window-start next-item items)
+                           (reset! window (get-window items
+                                                      @window-start
+                                                      window-size)))
+            ["up"]    #(do (swap! window-start prev-item items)
+                           (reset! window (get-window items
+                                                      @window-start
+                                                      window-size)))
+            ["right"] #(on-select @window-start)
+            ["left"]  on-back}
+           (enhance-handler-map custom-key-handlers window-start))
+          [:box (dissoc props
+                        :items :item-props :selected
+                        :on-select :on-back)
+           (doall
+            (for [[idx item] (map-indexed vector @window)]
+              ^{:key idx}
+              [:text (merge {:top (inc idx)}
+                            item-props)
+               (str (if (zero? idx) "> " "  ")
+                    item)]))])))))
 
 (defn text-input
   "Text input from user
