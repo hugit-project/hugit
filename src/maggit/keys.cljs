@@ -5,23 +5,26 @@
 
 (defonce global-bindings
   {["q"] {:f #(.exit js/process 0)
-          :label "Quit"}})
+          :label "Quit"
+          :type "Global"}})
 
 (defonce current-bindings
   (r/atom {}))
 
 (defn register-bindings
   [key-bindings]
-  (doseq [[hotkeys {:keys [label]}] key-bindings]
-    (swap! current-bindings
-           assoc hotkeys label))
+  (doseq [[hotkeys {:keys [type label]}] key-bindings
+          :let [type (or type "Misc")]]
+    (swap! current-bindings assoc-in
+           [type hotkeys] label))
   @current-bindings)
 
 (defn unregister-bindings
   [key-bindings]
-  (doseq [[hotkeys] key-bindings]
-    (swap! current-bindings
-           dissoc hotkeys)))
+  (doseq [[hotkeys {:keys [type]}] key-bindings
+          :let [type (or type "Misc")]]
+    (swap! current-bindings update
+           type dissoc hotkeys)))
 
 (defn bind-keys
   "Set key bindings mapping keys to functions.
@@ -70,29 +73,47 @@
       (unbind-keys screen key-bindings)
       (unregister-bindings key-bindings))))
 
+(defn binding-component
+  [top hotkeys label]
+  [:box
+   {:top top}
+   [:box
+    {:width "45%"}
+    [:text
+     {:right 0
+      :content label}]]
+   [:text
+    {:left "50%"
+     :width "45%"
+     :content (clojure.string/join ", " hotkeys)}]])
+
+(defn binding-group-component
+  [top items label]
+  (when (seq items)
+    [:box
+     {:top top
+      :label label
+      :height (+ 2 (count items))
+      :style {:border {:fg :magenta}}
+      :border {:type :line}}
+     (for [[idx [hotkeys item-label]] (map-indexed vector items)
+           :let [item-top idx]]
+       ^{:key idx}
+       [binding-component item-top hotkeys item-label])]))
+
 (defn keymap-component
   []
-  [:box#keys
-   {:top 0
-    :left 0
-    :width "20%"
-    :label "Keys"
-    :style {:border {:fg :magenta}}
-    :border {:type :line}}
-   (for [[idx [hotkeys label]]
-         (->> @current-bindings
-              (sort-by (fn [[_ label]]
-                          (count label)))
-              (map-indexed vector))]
-     ^{:key idx}
-     [:box
-      {:top (inc idx)}
-      [:box
-       {:width "45%"}
-       [:text
-        {:right 0
-         :content label}]]
-      [:text
-       {:left "50%"
-        :width "45%"
-        :content (clojure.string/join ", " hotkeys)}]])])
+  (let [top (atom 0)]
+    [:box#keys
+     {:top 0
+      :left 0
+      :width "20%"
+      :label "Keys"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}}
+     (doall
+      (for [[idx [label items]] (map-indexed vector @current-bindings)
+            :let [group-top @top
+                  _ (swap! top + (count items) 2)]]
+        ^{:key idx}
+        [binding-group-component group-top items label]))]))

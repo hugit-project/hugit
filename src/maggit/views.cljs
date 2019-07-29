@@ -5,9 +5,10 @@
 
 (defn- enhance-handler-map
   [handlers arg-atom]
-  (into {} (for [[keys {:keys [f label]}] handlers]
+  (into {} (for [[keys {:keys [f label type]}] handlers]
              [keys {:f #(f @arg-atom)
-                    :label label}])))
+                    :label label
+                    :type type}])))
 
 
 (letfn [(cycle-next-item [curr items]
@@ -34,13 +35,17 @@
     (r/with-let [selected (r/atom (or selected 0))]
       (with-keys @screen
         (merge {["down"]  {:f #(swap! selected cycle-next-item items)
-                           :label "Next Item"}
+                           :label "Next Item"
+                           :type "Navigation"}
                 ["up"]    {:f #(swap! selected cycle-prev-item items)
-                           :label "Prev Item"}
+                           :label "Prev Item"
+                           :type "Navigation"}
                 ["right"] {:f #(on-select @selected)
-                           :label "Select"}
+                           :label "Select"
+                           :type "Navigation"}
                 ["left"]  {:f on-back
-                           :label "Back"}}
+                           :label "Back"
+                           :type "Navigation"}}
                (enhance-handler-map custom-key-handlers selected))
         [:box (dissoc props
                       :items :item-props :selected
@@ -90,16 +95,20 @@
                                (reset! window (get-window items
                                                           @window-start
                                                           window-size)))
-                       :label "Next Item"}
+                       :label "Next Item"
+                       :type "Navigation"}
             ["up"]    {:f #(do (swap! window-start prev-item items)
                                (reset! window (get-window items
                                                           @window-start
                                                           window-size)))
-                       :label "Prev Item"}
+                       :label "Prev Item"
+                       :type "Navigation"}
             ["right"] {:f #(on-select @window-start)
-                       :label "Select"}
+                       :label "Select"
+                       :type "Navigation"}
             ["left"]  {:f on-back
-                       :label "Back"}}
+                       :label "Back"
+                       :type "Navigation"}}
            (enhance-handler-map custom-key-handlers window-start))
           [:box (dissoc props
                         :items :item-props :selected
@@ -122,9 +131,11 @@
     :as props}]
   (with-keys @screen
     {["enter"]  {:f (fn [])
-                 :label "Commit"}
+                 :label "Submit"
+                 :type "Input"}
      ["escape"] {:f (fn [])
-                 :label "Abort"}}
+                 :label "Cancel"
+                 :type "Input"}}
     [:textbox
      (merge {:mouse true
              :keys true

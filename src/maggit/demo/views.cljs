@@ -45,7 +45,8 @@
                                                  (rf/dispatch [:assoc-in [:router/view] :commits]))
                                    :on-cancel #(rf/dispatch [:assoc-in [:router/view] :status])}])
                     (rf/dispatch [:assoc-in [:router/view] :input]))
-               :label "Commit"}}
+               :label "Commit"
+               :type "Action"}}
        :on-select
        (fn [x]
          (rf/dispatch [:assoc-in [:status-view :selected] x])
@@ -66,7 +67,7 @@
   (let [{:keys [files-path label]}
         @(rf/subscribe [:files-view])
 
-        files @(rf/subscribe [:get-in files-path])]
+        files (rf/subscribe [:get-in files-path])]
     [:box#files
      {:top 0
       :right 0
@@ -79,20 +80,24 @@
        :left 1
        :right 2
        :align :left
-       :items files
+       :items @files
        :custom-key-handlers
        {["s"] {:f (fn [x]
-                    (rf/dispatch [:stage-file (nth files x)]))
-               :label "Stage"}
+                    (rf/dispatch [:stage-file (nth @files x)]))
+               :label "Stage"
+               :type "Action"}
         ["u"] {:f (fn [x]
-                    (rf/dispatch [:unstage-file (nth files x)]))
-               :label "Unstage"}
+                    (rf/dispatch [:unstage-file (nth @files x)]))
+               :label "Unstage"
+               :type "Action"}
         ["r"] {:f (fn [x]
-                    (rf/dispatch [:untrack-file (nth files x)]))
-               :label "Untrack"}
+                    (rf/dispatch [:untrack-file (nth @files x)]))
+               :label "Untrack"
+               :type "Action"}
         ["k"] {:f (fn [x]
-                    (rf/dispatch [:checkout-file (nth files x)]))
-               :label "Checkout"}}
+                    (rf/dispatch [:checkout-file (nth @files x)]))
+               :label "Checkout"
+               :type "Action"}}
        :on-back
        #(do
           (rf/dispatch [:assoc-in [:files-view] {}])
