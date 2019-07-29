@@ -103,6 +103,10 @@
                     (rf/dispatch [:checkout-file (nth @files x)]))
                :label "Checkout"
                :type "Action"}}
+       :on-select
+       (fn [x]
+         (rf/dispatch [:assoc-in [:diffs-view] {:file-path (nth @files x)}])
+         (rf/dispatch [:assoc-in [:router/view] :diffs]))
        :on-back
        #(do
           (rf/dispatch [:assoc-in [:files-view] {}])
@@ -111,12 +115,12 @@
 (defn diffs []
   (let [{:keys [file-path]} @(rf/subscribe [:diffs-view])
         {:keys [old new]} @(rf/subscribe [:get-in [:repo :unstaged-diffs file-path]])
-        screen-size @(rf/subscribe [:size])]
+        size @(rf/subscribe [:size])
+        rows (r/atom (:rows size))]
     [:box#commits
      {:top 0
       :right 0
       :width "100%"
-      :height "50%"
       :style {:border {:fg :magenta}}
       :border {:type :line}
       :label (str " ( " file-path " ) ")}
@@ -126,7 +130,7 @@
        :right 2
        :width "50%"
        :align :left
-       :window-size (-> screen-size :rows (* 0.5) (- 6))
+       :window-size (-> @rows (* 0.6) (- 4))
        :items (clojure.string/split old #"\n")
        :on-back
        #(rf/dispatch [:assoc-in [:router/view] :files])}]
@@ -136,7 +140,7 @@
        :right 2
        :width "50%"
        :align :left
-       :window-size (-> screen-size :rows (* 0.5) (- 6))
+       :window-size (-> @rows (* 0.6) (- 4))
        :items (clojure.string/split new #"\n")
        :on-back
        #(rf/dispatch [:assoc-in [:router/view] :files])}]]))
@@ -195,6 +199,7 @@
         :status status
         :files files
         :commits commits
+        :diffs diffs
         :input input)])])
 
 (defn toast []
