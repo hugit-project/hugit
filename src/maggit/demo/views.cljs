@@ -40,9 +40,10 @@
                     (rf/dispatch [:assoc-in [:input-view]
                                   {:label "Commit Message"
                                    :on-submit (fn [msg]
-                                                 (rf/dispatch [:commit msg])
-                                                 (rf/dispatch [:assoc-in [:status-view :selected] 3])
-                                                 (rf/dispatch [:assoc-in [:router/view] :commits]))
+                                                (rf/dispatch [:toast "Commiting"])
+                                                (rf/dispatch [:commit msg])
+                                                (rf/dispatch [:assoc-in [:status-view :selected] 3])
+                                                (rf/dispatch [:assoc-in [:router/view] :commits]))
                                    :on-cancel #(rf/dispatch [:assoc-in [:router/view] :status])}])
                     (rf/dispatch [:assoc-in [:router/view] :input]))
                :label "Commit"
@@ -83,18 +84,22 @@
        :items @files
        :custom-key-handlers
        {["s"] {:f (fn [x]
+                    (rf/dispatch [:toast "Staging " (nth @files x)])
                     (rf/dispatch [:stage-file (nth @files x)]))
                :label "Stage"
                :type "Action"}
         ["u"] {:f (fn [x]
+                    (rf/dispatch [:toast "Unstaging " (nth @files x)])
                     (rf/dispatch [:unstage-file (nth @files x)]))
                :label "Unstage"
                :type "Action"}
         ["r"] {:f (fn [x]
+                    (rf/dispatch [:toast "Untracking " (nth @files x)])
                     (rf/dispatch [:untrack-file (nth @files x)]))
                :label "Untrack"
                :type "Action"}
         ["k"] {:f (fn [x]
+                    (rf/dispatch [:toast "Checking out " (nth @files x)])
                     (rf/dispatch [:checkout-file (nth @files x)]))
                :label "Checkout"
                :type "Action"}}
