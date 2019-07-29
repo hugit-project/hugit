@@ -39,8 +39,8 @@
        {["c"] {:f (fn [_]
                     (rf/dispatch [:assoc-in [:input-view]
                                   {:label "Commit Message"
-                                   :on-submit #(do
-                                                 (rf/dispatch [:commit %])
+                                   :on-submit (fn [msg]
+                                                 (rf/dispatch [:commit msg])
                                                  (rf/dispatch [:assoc-in [:status-view :selected] 3])
                                                  (rf/dispatch [:assoc-in [:router/view] :commits]))
                                    :on-cancel #(rf/dispatch [:assoc-in [:router/view] :status])}])
@@ -148,10 +148,35 @@
        :on-submit on-submit
        :on-cancel on-cancel}]]))
 
-(defn home []
+(defn viewport []
   (let [view @(rf/subscribe [:view])]
     [(case view
        :status status
        :files files
        :commits commits
        :input input)]))
+
+(defn toast []
+  (let [text @(rf/subscribe [:get-in [:toast-view :text]])]
+    [:box#toast
+     {:style {:border {:fg :magenta}}
+      :border {:type :line}}
+     text]))
+
+(defn home []
+  [:box
+   {:top 0
+    :left 0
+    :height "100%"
+    :width "100%"}
+   [:box
+    {:top 0
+     :left 0
+     :height "90%"}
+    [viewport]]
+   [:box
+    {:bottom 0
+     :left 0
+     :height "10%"}
+    [toast]]])
+
