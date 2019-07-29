@@ -29,24 +29,30 @@
    - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
     [{:keys [items item-props selected
              on-select on-back custom-key-handlers]
-      :or {on-select (fn [_])
-           on-back (fn [])}
       :as props}]
     (r/with-let [selected (r/atom (or selected 0))]
       (with-keys @screen
-        (merge {["down"]  {:f #(swap! selected cycle-next-item items)
-                           :label "Next Item"
-                           :type "Navigation"}
-                ["up"]    {:f #(swap! selected cycle-prev-item items)
-                           :label "Prev Item"
-                           :type "Navigation"}
-                ["right"] {:f #(on-select @selected)
-                           :label "Select"
-                           :type "Navigation"}
-                ["left"]  {:f on-back
-                           :label "Back"
-                           :type "Navigation"}}
-               (enhance-handler-map custom-key-handlers selected))
+        (-> {["down"]  {:f #(swap! selected cycle-next-item items)
+                        :label "Next Item"
+                        :type "Navigation"}
+             ["up"]    {:f #(swap! selected cycle-prev-item items)
+                        :label "Prev Item"
+                        :type "Navigation"}
+             ["right"] {:f #(on-select @selected)
+                        :label "Select"
+                        :type "Navigation"}
+             ["left"]  {:f on-back
+                        :label "Back"
+                        :type "Navigation"}}
+            (merge (enhance-handler-map custom-key-handlers selected))
+            (dissoc (when (empty? items)
+                      ["up"])
+                    (when (empty? items)
+                      ["down"])
+                    (when-not on-select
+                      ["right"])
+                    (when-not on-back
+                      ["left"])))
         [:box (dissoc props
                       :items :item-props :selected
                       :on-select :on-back)
@@ -81,8 +87,6 @@
     [{:keys [items item-props
              window-start window-size
              on-select on-back custom-key-handlers]
-      :or {on-select (fn [_])
-           on-back (fn [])}
       :as props}]
     (r/with-let [window-start (r/atom (or window-start 0))
                  window-size (or window-size 5)]
@@ -90,26 +94,33 @@
                                        @window-start
                                        window-size))]
         (with-keys @screen
-          (merge
-           {["down"]  {:f #(do (swap! window-start next-item items)
-                               (reset! window (get-window items
-                                                          @window-start
-                                                          window-size)))
-                       :label "Next Item"
-                       :type "Navigation"}
-            ["up"]    {:f #(do (swap! window-start prev-item items)
-                               (reset! window (get-window items
-                                                          @window-start
-                                                          window-size)))
-                       :label "Prev Item"
-                       :type "Navigation"}
-            ["right"] {:f #(on-select @window-start)
-                       :label "Select"
-                       :type "Navigation"}
-            ["left"]  {:f on-back
-                       :label "Back"
-                       :type "Navigation"}}
-           (enhance-handler-map custom-key-handlers window-start))
+          (-> {["down"]  {:f #(do (swap! window-start next-item items)
+                                  (reset! window (get-window items
+                                                             @window-start
+                                                             window-size)))
+                          :label "Next Item"
+                          :type "Navigation"}
+               ["up"]    {:f #(do (swap! window-start prev-item items)
+                                  (reset! window (get-window items
+                                                             @window-start
+                                                             window-size)))
+                          :label "Prev Item"
+                          :type "Navigation"}
+               ["right"] {:f #(on-select @window-start)
+                          :label "Select"
+                          :type "Navigation"}
+               ["left"]  {:f on-back
+                          :label "Back"
+                          :type "Navigation"}}
+              (merge (enhance-handler-map custom-key-handlers window-start))
+              (dissoc (when (empty? items)
+                        ["up"])
+                      (when (empty? items)
+                        ["down"])
+                      (when-not on-select
+                        ["right"])
+                      (when-not on-back
+                        ["left"])))
           [:box (dissoc props
                         :items :item-props :selected
                         :on-select :on-back)
