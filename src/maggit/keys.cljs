@@ -113,7 +113,8 @@
       :border {:type :line}}
      (doall
       (for [[idx [label items]] (map-indexed vector @current-bindings)
-            :let [group-top @top
+            :let [items (sort-by #(count (last %)) items)
+                  group-top @top
                   _ (swap! top + (count items) 2)]]
         ^{:key idx}
         [binding-group-component group-top items label]))]))
