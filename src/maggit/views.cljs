@@ -140,18 +140,21 @@
     :or {on-submit (fn [_])
          on-cancel (fn [])}
     :as props}]
-  (with-keys @screen
-    {["enter"]  {:f (fn [])
-                 :label "Submit"
-                 :type "Input"}
-     ["escape"] {:f (fn [])
-                 :label "Cancel"
-                 :type "Input"}}
-    [:textbox
-     (merge {:mouse true
-             :keys true
-             :vi true
-             :inputOnFocus true
-             :onSubmit on-submit
-             :on-cancel on-cancel}
-            (dissoc props :on-submit :on-cancel))]))
+  (r/with-let [focused? (r/atom false)]
+    (with-keys @screen
+      {["enter"]  {:f (fn [])
+                   :label "Submit"
+                   :type "Input"}
+       ["escape"] {:f (fn [])
+                   :label "Cancel"
+                   :type "Input"}}
+      [:textbox#editor
+       (merge {:mouse true
+               :ref (fn [editor]
+                      (when-not @focused?
+                        (.focus editor)
+                        (reset! focused? true)))
+               :inputOnFocus true
+               :onSubmit on-submit
+               :onCancel on-cancel}
+              (dissoc props :on-submit :on-cancel))])))

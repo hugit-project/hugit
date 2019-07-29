@@ -134,7 +134,7 @@
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
         @(rf/subscribe [:input-view])]
-    [:box#input
+    [:box
      {:top 0
       :right 0
       :width "100%"
