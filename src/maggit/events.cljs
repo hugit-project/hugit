@@ -3,7 +3,8 @@
   Used to manage app db updates and side-effects.
   https://github.com/Day8/re-frame/blob/master/docs/EffectfulHandlers.md"
   (:require [re-frame.core :as rf]
-            [maggit.git :as git]))
+            [maggit.git :as git]
+            [clojure.string :as str]))
 
 (defonce watch
   (js/require "watch"))
@@ -107,3 +108,11 @@
  (fn [db [_ msg]]
    (git/commit msg)
    db))
+
+(rf/reg-event-db
+ :toast
+ (fn [db [_ & strings]]
+   (js/setTimeout
+    #(rf/dispatch [:assoc-in [:toast-view :text] ""])
+    3000)
+   (assoc-in db [:toast-view :text] (str/join strings))))
