@@ -153,35 +153,32 @@
        :on-submit on-submit
        :on-cancel on-cancel}]]))
 
-(defn viewport []
-  (let [view @(rf/subscribe [:view])]
-    [(case view
-       :status status
-       :files files
-       :commits commits
-       :input input)]))
+(defn viewport [height]
+  [:box#viewport
+   {:height height}
+   (let [view @(rf/subscribe [:view])]
+     [(case view
+        :status status
+        :files files
+        :commits commits
+        :input input)])])
 
 (defn toast []
   (let [text @(rf/subscribe [:get-in [:toast-view :text]])]
     [:box#toast
-     {:style {:border {:fg :magenta}}
+     {:bottom 0
+      :height 3
+      :style {:border {:fg :magenta}}
       :border {:type :line}}
      text]))
 
 (defn home []
-  [:box
-   {:top 0
-    :left 0
-    :height "100%"
-    :width "100%"}
-   [:box
-    {:top 0
-     :left 0
-     :height "90%"}
-    [viewport]]
-   [:box
-    {:bottom 0
-     :left 0
-     :height "10%"}
-    [toast]]])
-
+  (let [size @(rf/subscribe [:size])
+        rows (:rows size)]
+    [:box#home
+     {:top 0
+      :left 0
+      :height "100%"
+      :width "100%"}
+     [viewport (- rows 3)]
+     [toast]]))
