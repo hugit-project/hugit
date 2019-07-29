@@ -149,8 +149,7 @@
                    :label "Cancel"
                    :type "Input"}}
       [:textbox#editor
-       (merge {:mouse true
-               :ref (fn [editor]
+       (merge {:ref (fn [editor]
                       (when-not @focused?
                         (.focus editor)
                         (reset! focused? true)))
