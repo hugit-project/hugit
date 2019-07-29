@@ -79,6 +79,10 @@
   [file]
   (exec "git rm --cached " file))
 
+(defn checkout-file
+  [file]
+  (exec "git checkout " file))
+
 (defn commit
   [msg]
   (exec "git commit -m \"" msg "\""))

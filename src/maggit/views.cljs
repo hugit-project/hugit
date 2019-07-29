@@ -5,8 +5,10 @@
 
 (defn- enhance-handler-map
   [handlers arg-atom]
-  (into {} (for [[keys f] handlers]
-             [keys #(f @arg-atom)])))
+  (into {} (for [[keys {:keys [f label type]}] handlers]
+             [keys {:f #(f @arg-atom)
+                    :label label
+                    :type type}])))
 
 
 (letfn [(cycle-next-item [curr items]
@@ -24,19 +26,33 @@
    - selected: index of the currently selected item
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
-   - custom-key-handlers: {[\"left\" \"right\"] (fn [idx] (println idx))}"
+   - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
     [{:keys [items item-props selected
              on-select on-back custom-key-handlers]
-      :or {on-select (fn [_])
-           on-back (fn [])}
       :as props}]
     (r/with-let [selected (r/atom (or selected 0))]
       (with-keys @screen
-        (merge {["down"]  #(swap! selected cycle-next-item items)
-                ["up"]    #(swap! selected cycle-prev-item items)
-                ["right"] #(on-select @selected)
-                ["left"]  on-back}
-               (enhance-handler-map custom-key-handlers selected))
+        (-> {["down"]  {:f #(swap! selected cycle-next-item items)
+                        :label "Next Item"
+                        :type "Navigation"}
+             ["up"]    {:f #(swap! selected cycle-prev-item items)
+                        :label "Prev Item"
+                        :type "Navigation"}
+             ["right"] {:f #(on-select @selected)
+                        :label "Select"
+                        :type "Navigation"}
+             ["left"]  {:f on-back
+                        :label "Back"
+                        :type "Navigation"}}
+            (merge (enhance-handler-map custom-key-handlers selected))
+            (dissoc (when (empty? items)
+                      ["up"])
+                    (when (empty? items)
+                      ["down"])
+                    (when-not on-select
+                      ["right"])
+                    (when-not on-back
+                      ["left"])))
         [:box (dissoc props
                       :items :item-props :selected
                       :on-select :on-back)
@@ -67,12 +83,10 @@
    - selected: index of the currently selected item
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
-   - custom-key-handlers: {[\"left\" \"right\"] (fn [idx] (println idx))}"
+   - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
     [{:keys [items item-props
              window-start window-size
              on-select on-back custom-key-handlers]
-      :or {on-select (fn [_])
-           on-back (fn [])}
       :as props}]
     (r/with-let [window-start (r/atom (or window-start 0))
                  window-size (or window-size 5)]
@@ -80,18 +94,33 @@
                                        @window-start
                                        window-size))]
         (with-keys @screen
-          (merge
-           {["down"]  #(do (swap! window-start next-item items)
-                           (reset! window (get-window items
-                                                      @window-start
-                                                      window-size)))
-            ["up"]    #(do (swap! window-start prev-item items)
-                           (reset! window (get-window items
-                                                      @window-start
-                                                      window-size)))
-            ["right"] #(on-select @window-start)
-            ["left"]  on-back}
-           (enhance-handler-map custom-key-handlers window-start))
+          (-> {["down"]  {:f #(do (swap! window-start next-item items)
+                                  (reset! window (get-window items
+                                                             @window-start
+                                                             window-size)))
+                          :label "Next Item"
+                          :type "Navigation"}
+               ["up"]    {:f #(do (swap! window-start prev-item items)
+                                  (reset! window (get-window items
+                                                             @window-start
+                                                             window-size)))
+                          :label "Prev Item"
+                          :type "Navigation"}
+               ["right"] {:f #(on-select @window-start)
+                          :label "Select"
+                          :type "Navigation"}
+               ["left"]  {:f on-back
+                          :label "Back"
+                          :type "Navigation"}}
+              (merge (enhance-handler-map custom-key-handlers window-start))
+              (dissoc (when (empty? items)
+                        ["up"])
+                      (when (empty? items)
+                        ["down"])
+                      (when-not on-select
+                        ["right"])
+                      (when-not on-back
+                        ["left"])))
           [:box (dissoc props
                         :items :item-props :selected
                         :on-select :on-back)
@@ -111,11 +140,20 @@
     :or {on-submit (fn [_])
          on-cancel (fn [])}
     :as props}]
-  [:textbox
-   (merge {:mouse true
-           :keys true
-           :vi true
-           :inputOnFocus true
-           :onSubmit on-submit
-           :on-cancel on-cancel}
-          (dissoc props :on-submit :on-cancel))])
+  (r/with-let [focused? (r/atom false)]
+    (with-keys @screen
+      {["enter"]  {:f (fn [])
+                   :label "Submit"
+                   :type "Input"}
+       ["escape"] {:f (fn [])
+                   :label "Cancel"
+                   :type "Input"}}
+      [:textbox#editor
+       (merge {:ref (fn [editor]
+                      (when-not @focused?
+                        (.focus editor)
+                        (reset! focused? true)))
+               :inputOnFocus true
+               :onSubmit on-submit
+               :onCancel on-cancel}
+              (dissoc props :on-submit :on-cancel))])))

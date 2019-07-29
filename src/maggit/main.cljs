@@ -9,6 +9,7 @@
    [maggit.core :refer [render screen]]
    [maggit.demo.views :refer [home]]
    [maggit.events]
+   [maggit.keys :refer [keymap-component]]
    [maggit.resize :refer [size]]
    [maggit.subs]
    [maggit.views :as views]))
@@ -42,12 +43,25 @@
       (r/create-element #js {})
       (render @screen)))
 
+(defn ui []
+  [:box
+   {:top 0
+    :left 0
+    :width "100%"
+    :height "100%"}
+   [:box
+    {:top 0
+     :left "20%"
+     :width "80%"}
+    [home]]
+   [keymap-component]])
+
 (defn main!
   "Main application entrypoint function. Initializes app, renders root UI view
   and initializes the re-frame app db.
   Takes list of CLI args.
   Returns rendered reagent view."
   [& args]
-  (init! home :opts (args->opts args)))
+  (init! ui :opts (args->opts args)))
 
 (set! *main-cli-fn* main!)
