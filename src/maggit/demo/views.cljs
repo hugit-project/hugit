@@ -65,7 +65,7 @@
            (rf/dispatch [:assoc-in [:router/view] :commits])))}]]))
 
 (defn files []
-  (let [{:keys [files-path label]}
+  (let [{:keys [files-path label selected]}
         @(rf/subscribe [:files-view])
 
         files (rf/subscribe [:get-in files-path])]
@@ -103,15 +103,48 @@
                     (rf/dispatch [:checkout-file (nth @files x)]))
                :label "Checkout"
                :type "Action"}}
+       :on-select
+       (fn [x]
+         (rf/dispatch [:assoc-in [:diffs-view] {:file-path (nth @files x)}])
+         (rf/dispatch [:assoc-in [:router/view] :diffs]))
        :on-back
        #(do
           (rf/dispatch [:assoc-in [:files-view] {}])
           (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
 
-(defn commits []
-  (let [commits @(rf/subscribe [:get-in [:repo :commits]])
+(defn diffs []
+  (let [{:keys [text]} @(rf/subscribe [:diffs-view])
         size @(rf/subscribe [:size])
         rows (r/atom (:rows size))]
+    [:box#diffs
+     {:top 0
+      :right 0
+      :width "100%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label (str " Diff ")}
+     [scrollable-list
+      {:top 1
+       :left 1
+       :right 2
+       :align :left
+       :window-size (-> @rows (* 0.6) (- 4))
+       :items (clojure.string/split text #"\n")
+       :item-props-f
+       (fn [line]
+         (case (first line)
+           \- {:style {:fg :red}}
+           \+ {:style {:fg :green}}
+           {:style {:fg :white}}))
+       :on-back
+       #(rf/dispatch [:assoc-in [:router/view] :commits])}]]))
+
+
+(defn commits []
+  (let [commits (rf/subscribe [:get-in [:repo :commits]])
+        size @(rf/subscribe [:size])
+        rows (r/atom (:rows size))
+        selected @(rf/subscribe [:get-in [:commits-view :selected]])]
     (with-meta
       [:box#commits
        {:top 0
@@ -126,10 +159,15 @@
          :right 2
          :align :left
          :window-size (-> @rows (* 0.6) (- 4))
-         :items (for [{:keys [sha summary]} commits]
+         :items (for [{:keys [sha summary]} @commits]
                   (str (->> sha (take 7) clojure.string/join)
                        " "
                        summary))
+         :selected selected
+         :on-select
+         (fn [idx]
+           (rf/dispatch [:assoc-in [:commits-view :selected] idx])
+           (rf/dispatch [:show-commit (nth @commits idx)]))
          :on-back
          #(rf/dispatch [:assoc-in [:router/view] :status])}]]
       {:component-did-mount
@@ -161,6 +199,7 @@
         :status status
         :files files
         :commits commits
+        :diffs diffs
         :input input)])])
 
 (defn toast []

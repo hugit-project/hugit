@@ -22,13 +22,15 @@
   (defn navigable-list
     "Returns  a vertical list of items that can be navigated and selected from
    - items: list of option strings, can be navigated using <up>/<down>
-   - item-props: properties that will be applied to each item
+   - item-props-f: given a string, returns properties that will be applied to that item
    - selected: index of the currently selected item
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
    - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
-    [{:keys [items item-props selected
+    [{:keys [items selected
+             item-props-f
              on-select on-back custom-key-handlers]
+      :or {item-props-f (fn [_])}
       :as props}]
     (r/with-let [selected (r/atom (or selected 0))]
       (with-keys @screen
@@ -57,12 +59,14 @@
                       :items :item-props :selected
                       :on-select :on-back)
          (doall
-          (for [[idx item] (map-indexed vector items)]
+          (for [[idx item] (map-indexed vector items)
+                :let [current-item-props (item-props-f item)
+                      content (str (if (== @selected idx) "> " "  ")
+                                   item)]]
             ^{:key idx}
-            [:text (merge {:top (inc idx)}
-                          item-props)
-             (str (if (== @selected idx) "> " "  ")
-                  item)]))]))))
+            [:text (merge {:top (inc idx)
+                           :content content}
+                          current-item-props)]))]))))
 
 (letfn [(next-item [curr items]
           (if (== (dec (count items)) curr)
@@ -79,58 +83,58 @@
   (defn scrollable-list
     "Returns  a vertical list of items that can be scrolled and selected from
    - items: list of option strings, can be navigated using <up>/<down>
-   - item-props: properties that will be applied to each item
+   - item-props-f: given a string, returns properties that will be applied to that item
    - selected: index of the currently selected item
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
    - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
-    [{:keys [items item-props
+    [{:keys [items selected
              window-start window-size
+             item-props-f
              on-select on-back custom-key-handlers]
+      :or {item-props-f (fn [_] {})}
       :as props}]
-    (r/with-let [window-start (r/atom (or window-start 0))
+    (r/with-let [selected (r/atom (or selected 0))
+                 window-start (r/atom (or window-start @selected))
                  window-size (or window-size 5)]
-      (let [window (r/atom (get-window items
-                                       @window-start
-                                       window-size))]
-        (with-keys @screen
-          (-> {["down"]  {:f #(do (swap! window-start next-item items)
-                                  (reset! window (get-window items
-                                                             @window-start
-                                                             window-size)))
-                          :label "Next Item"
-                          :type "Navigation"}
-               ["up"]    {:f #(do (swap! window-start prev-item items)
-                                  (reset! window (get-window items
-                                                             @window-start
-                                                             window-size)))
-                          :label "Prev Item"
-                          :type "Navigation"}
-               ["right"] {:f #(on-select @window-start)
-                          :label "Select"
-                          :type "Navigation"}
-               ["left"]  {:f on-back
-                          :label "Back"
-                          :type "Navigation"}}
-              (merge (enhance-handler-map custom-key-handlers window-start))
-              (dissoc (when (empty? items)
-                        ["up"])
-                      (when (empty? items)
-                        ["down"])
-                      (when-not on-select
-                        ["right"])
-                      (when-not on-back
-                        ["left"])))
-          [:box (dissoc props
-                        :items :item-props :selected
-                        :on-select :on-back)
-           (doall
-            (for [[idx item] (map-indexed vector @window)]
-              ^{:key idx}
-              [:text (merge {:top (inc idx)}
-                            item-props)
-               (str (if (zero? idx) "> " "  ")
-                    item)]))])))))
+      (with-keys @screen
+        (-> {["down"]  {:f #(swap! window-start next-item items)
+                        :label "Next Item"
+                        :type "Navigation"}
+             ["up"]    {:f #(swap! window-start prev-item items)
+                        :label "Prev Item"
+                        :type "Navigation"}
+             ["right"] {:f (fn []
+                             (on-select @window-start)
+                             (reset! selected @window-start))
+                        :label "Select"
+                        :type "Navigation"}
+             ["left"]  {:f on-back
+                        :label "Back"
+                        :type "Navigation"}}
+            (merge (enhance-handler-map custom-key-handlers window-start))
+            (dissoc (when (empty? items)
+                      ["up"])
+                    (when (empty? items)
+                      ["down"])
+                    (when-not on-select
+                      ["right"])
+                    (when-not on-back
+                      ["left"])))
+        [:box (dissoc props
+                      :items :item-props :selected
+                      :on-select :on-back)
+         (doall
+          (for [[idx item] (map-indexed vector (get-window items
+                                                           @window-start
+                                                           window-size))
+                :let [current-item-props (item-props-f item)
+                      content (str (if (zero? idx) "> " "  ")
+                                   item)]]
+            ^{:key idx}
+            [:text (merge {:top (inc idx)
+                           :content content}
+                          current-item-props)]))]))))
 
 (defn text-input
   "Text input from user

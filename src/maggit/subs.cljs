@@ -42,3 +42,8 @@
   :input-view
   (fn [db _]
     (:input-view db)))
+
+(rf/reg-sub
+  :diffs-view
+  (fn [db _]
+    (:diffs-view db)))

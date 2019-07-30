@@ -83,12 +83,14 @@
        (a/doseq [diff diffs
                  patch (a/await (.patches diff))
                  hunk (a/await (.hunks patch))]
-         (println "diff"
-                  (-> patch .oldFile .path)
-                  (-> patch .newFile .path))
+         (println "========")
+         (println "-" (-> patch .oldFile .path))
+         (println "+" (-> patch .newFile .path))
+         (println "========")
          (a/doseq [line (a/await (.lines hunk))]
-           (println (js/String.fromCharCode (.origin line))
-                    (-> line .content .trim))))))))
+           (print (js/String.fromCharCode (.origin line))
+                    (-> line .content)))
+         (println "\n\n"))))))
 
 ;; Git commancds
 ;; =============

@@ -9,6 +9,9 @@
 (defonce watch
   (js/require "watch"))
 
+(def fs
+  (js/require "fs"))
+
 (rf/reg-event-db
   :init
   (fn [db [_ opts terminal-size]]
@@ -59,6 +62,8 @@
               (rf/dispatch [:assoc-in [:repo :untracked] []])
               (rf/dispatch [:assoc-in [:repo :unstaged] []])
               (rf/dispatch [:assoc-in [:repo :staged] []])
+              (rf/dispatch [:assoc-in [:repo :staged-diffs] {}])
+              (rf/dispatch [:assoc-in [:repo :unstaged-diffs] {}])
               (.forEach statuses
                         (fn [file]
                           (let [status (-> file .status js->clj set)]
@@ -124,6 +129,6 @@
          repo* (git/repo-promise repo-path)]
      (.then (git/commit-diff-promise repo* (:sha commit))
             (fn [text]
-              (println :HERE)
-              (rf/dispatch [:assoc-in [:diffs-view :text] text]))))
+              (rf/dispatch [:assoc-in [:diffs-view :text] text])
+              (rf/dispatch [:assoc-in [:router/view] :diffs]))))
    db))
