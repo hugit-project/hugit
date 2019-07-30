@@ -49,7 +49,7 @@
 (defn statuses-promise
   [repo-promise]
   (.then repo-promise
-         #(.getStatusExt %)))
+         #(.getStatus %)))
 
 (defn commits-promise
   [repo-promise]
