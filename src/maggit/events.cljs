@@ -133,3 +133,14 @@
     #(rf/dispatch [:assoc-in [:toast-view :text] ""])
     3000)
    (assoc-in db [:toast-view :text] (str/join strings))))
+
+(rf/reg-event-db
+ :show-commit
+ (fn [db [_ commit]]
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)]
+     (.then (git/commit-diff-promise repo* (:sha commit))
+            (fn [text]
+              (println :HERE)
+              (rf/dispatch [:assoc-in [:diffs-view :text] text]))))
+   db))
