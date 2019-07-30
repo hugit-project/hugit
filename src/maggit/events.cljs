@@ -78,19 +78,7 @@
                                [:update-in [:repo :staged] conj (.path file)]))
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
-                               [:update-in [:repo :staged] conj (.path file)])))
-
-                          ;; diffs
-                          (let [diffs (.indexToWorkdir file)]
-                            (rf/dispatch
-                             [:assoc-in [:repo :unstaged-diffs (.path file)]
-                              {:old (->> diffs .oldFile .path (.readFileSync fs) str)
-                               :new (->> diffs .newFile .path (.readFileSync fs) str)}]))
-                          (let [diffs (.headToIndex file)]
-                            (rf/dispatch
-                             [:assoc-in [:repo :staged-diffs (.path file)]
-                              {:old (->> diffs .oldFile .path (.readFileSync fs) str)
-                               :new (->> diffs .newFile .path (.readFileSync fs) str)}]))))))
+                               [:update-in [:repo :staged] conj (.path file)])))))))
      (.then commits*
             (fn [commits]
               (rf/dispatch [:assoc-in [:repo :commits] commits]))))
