@@ -88,24 +88,25 @@
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
    - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
-    [{:keys [items
+    [{:keys [items selected
              window-start window-size
              item-props-f
              on-select on-back custom-key-handlers]
       :or {item-props-f (fn [_] {})}
       :as props}]
-    (r/with-let [window-start (r/atom (or window-start 0))
+    (r/with-let [selected (r/atom (or selected 0))
+                 window-start (r/atom (or window-start @selected))
                  window-size (or window-size 5)]
       (with-keys @screen
-        (-> {["down"]  {:f #(do (swap! window-start next-item items)
-                                )
+        (-> {["down"]  {:f #(swap! window-start next-item items)
                         :label "Next Item"
                         :type "Navigation"}
-             ["up"]    {:f #(do (swap! window-start prev-item items)
-                                )
+             ["up"]    {:f #(swap! window-start prev-item items)
                         :label "Prev Item"
                         :type "Navigation"}
-             ["right"] {:f #(on-select @window-start)
+             ["right"] {:f (fn []
+                             (on-select @window-start)
+                             (reset! selected @window-start))
                         :label "Select"
                         :type "Navigation"}
              ["left"]  {:f on-back

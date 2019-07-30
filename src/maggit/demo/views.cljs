@@ -143,7 +143,8 @@
 (defn commits []
   (let [commits (rf/subscribe [:get-in [:repo :commits]])
         size @(rf/subscribe [:size])
-        rows (r/atom (:rows size))]
+        rows (r/atom (:rows size))
+        selected @(rf/subscribe [:get-in [:commits-view :selected]])]
     (with-meta
       [:box#commits
        {:top 0
@@ -162,8 +163,10 @@
                   (str (->> sha (take 7) clojure.string/join)
                        " "
                        summary))
+         :selected selected
          :on-select
          (fn [idx]
+           (rf/dispatch [:assoc-in [:commits-view :selected] idx])
            (rf/dispatch [:show-commit (nth @commits idx)]))
          :on-back
          #(rf/dispatch [:assoc-in [:router/view] :status])}]]
