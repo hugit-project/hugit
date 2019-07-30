@@ -18,3 +18,28 @@
 (defmacro await
   [promise]
   `(cljs.core.async/<! (->chan ~promise)))
+
+
+;; Utils
+;; =====
+(defmacro doseq*
+  [[item items] & body]
+  `(loop [remaining# ~items]
+     (when-let [remaining# (seq remaining#)]
+       (let [[~item & others#] remaining#]
+         ~@body
+         (recur others#)))))
+
+(defmacro doseq
+  [bindings & body]
+  (let [[b & bs] (->> bindings
+                      (partition-all 2)
+                      reverse)]
+    (loop [body `(doseq* ~(vec b)
+                   ~@body)
+           bs bs]
+      (if-let [bs (seq bs)]
+        (recur `(doseq* ~(vec (first bs))
+                        ~body)
+               (rest bs))
+        body))))

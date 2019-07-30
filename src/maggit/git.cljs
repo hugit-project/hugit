@@ -3,7 +3,7 @@
             [maggit.shell :refer [exec]]
             [cljs.core.async])
   (:require-macros [cljs.core.async.macros]
-                   [maggit.async :refer [async await]]))
+                   [maggit.async :refer [async await doseq]]))
 
 ;; Basic Classes
 ;; =============
@@ -12,6 +12,9 @@
 
 (defonce Repository
   (.-Repository Git))
+
+(defonce Diff
+  (.-Diff Git))
 
 
 ;; Get Basic Objects
@@ -68,6 +71,25 @@
                                :message (.message commit)}))))
                     (.start history))))))))
 
+(defn print-commit-diffs
+  [repo-promise commit-sha]
+  (async
+   (let [repo (await repo-promise)
+         commit (await (.getCommit repo commit-sha))
+         diffs (js->clj (await (.getDiff commit)))]
+     (doseq [diff diffs
+             patch (await (.patches diff))
+             hunk (await (.hunks patch))]
+       (println "diff"
+                (-> patch .oldFile .path)
+                (-> patch .newFile .path))
+       (doseq [line (await (.lines hunk))]
+         (println (js/String.fromCharCode (.origin line))
+                  (-> line .content .trim)))))))
+
+;; Git commancds
+;; =============
+;; To use in bootstrap phase
 (defn stage-file
   [file]
   (exec "git add " file))
