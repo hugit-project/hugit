@@ -133,7 +133,7 @@
               ^{:key idx}
               [:text (merge {:top (inc idx)
                              :content content}
-                            (item-props-f content))]))])))))
+                            (item-props-f item))]))])))))
 
 (defn text-input
   "Text input from user

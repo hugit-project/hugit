@@ -130,6 +130,12 @@
        :align :left
        :window-size (-> @rows (* 0.6) (- 4))
        :items (clojure.string/split text #"\n")
+       :item-props-f
+       (fn [line]
+         (case (first line)
+           \+ {:style {:fg :green}}
+           \- {:style {:fg :red}}
+              {}))
        :on-back
        #(rf/dispatch [:assoc-in [:router/view] :commits])}]]))
 
