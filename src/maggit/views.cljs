@@ -27,8 +27,10 @@
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
    - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
-    [{:keys [items item-props selected
+    [{:keys [items selected
+             item-props-f
              on-select on-back custom-key-handlers]
+      :or {item-props-f (fn [_])}
       :as props}]
     (r/with-let [selected (r/atom (or selected 0))]
       (with-keys @screen
@@ -57,12 +59,14 @@
                       :items :item-props :selected
                       :on-select :on-back)
          (doall
-          (for [[idx item] (map-indexed vector items)]
+          (for [[idx item] (map-indexed vector items)
+                :let [current-item-props (item-props-f item)
+                      content (str (if (== @selected idx) "> " "  ")
+                                   item)]]
             ^{:key idx}
-            [:text (merge {:top (inc idx)}
-                          item-props)
-             (str (if (== @selected idx) "> " "  ")
-                  item)]))]))))
+            [:text (merge {:top (inc idx)
+                           :content content}
+                          current-item-props)]))]))))
 
 (letfn [(next-item [curr items]
           (if (== (dec (count items)) curr)
