@@ -1,4 +1,5 @@
-(ns maggit.async)
+(ns maggit.async
+  (:refer-clojure :exclude [doseq await]))
 
 (defmacro ->chan
   [promise]

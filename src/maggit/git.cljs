@@ -3,7 +3,7 @@
             [maggit.shell :refer [exec]]
             [cljs.core.async])
   (:require-macros [cljs.core.async.macros]
-                   [maggit.async :refer [async await doseq]]))
+                   [maggit.async :as a]))
 
 ;; Basic Classes
 ;; =============
@@ -71,21 +71,24 @@
                                :message (.message commit)}))))
                     (.start history))))))))
 
-(defn print-commit-diffs
+;; Patch: file
+;; Hunk: set of differing lines
+(defn commit-diff-promise
   [repo-promise commit-sha]
-  (async
-   (let [repo (await repo-promise)
-         commit (await (.getCommit repo commit-sha))
-         diffs (js->clj (await (.getDiff commit)))]
-     (doseq [diff diffs
-             patch (await (.patches diff))
-             hunk (await (.hunks patch))]
-       (println "diff"
-                (-> patch .oldFile .path)
-                (-> patch .newFile .path))
-       (doseq [line (await (.lines hunk))]
-         (println (js/String.fromCharCode (.origin line))
-                  (-> line .content .trim)))))))
+  (a/async
+   (with-out-str
+     (let [repo (a/await repo-promise)
+           commit (a/await (.getCommit repo commit-sha))
+           diffs (js->clj (a/await (.getDiff commit)))]
+       (a/doseq [diff diffs
+                 patch (a/await (.patches diff))
+                 hunk (a/await (.hunks patch))]
+         (println "diff"
+                  (-> patch .oldFile .path)
+                  (-> patch .newFile .path))
+         (a/doseq [line (a/await (.lines hunk))]
+           (println (js/String.fromCharCode (.origin line))
+                    (-> line .content .trim))))))))
 
 ;; Git commancds
 ;; =============
