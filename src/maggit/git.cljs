@@ -89,7 +89,7 @@
          (println "========")
          (a/doseq [line (a/await (.lines hunk))]
            (println (js/String.fromCharCode (.origin line))
-                    (-> line .content .trim)))
+                    (-> line .content)))
          (println "\n\n"))))))
 
 ;; Git commancds

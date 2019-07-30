@@ -79,14 +79,16 @@
   (defn scrollable-list
     "Returns  a vertical list of items that can be scrolled and selected from
    - items: list of option strings, can be navigated using <up>/<down>
-   - item-props: properties that will be applied to each item
+   - item-props-f: given a string, returns properties that will be applied to that item
    - selected: index of the currently selected item
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
    - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
-    [{:keys [items item-props
+    [{:keys [items
              window-start window-size
+             item-props-f
              on-select on-back custom-key-handlers]
+      :or {item-props-f (fn [_] {})}
       :as props}]
     (r/with-let [window-start (r/atom (or window-start 0))
                  window-size (or window-size 5)]
@@ -125,12 +127,13 @@
                         :items :item-props :selected
                         :on-select :on-back)
            (doall
-            (for [[idx item] (map-indexed vector @window)]
+            (for [[idx item] (map-indexed vector @window)
+                  :let [content (str (if (zero? idx) "> " "  ")
+                                     item)]]
               ^{:key idx}
-              [:text (merge {:top (inc idx)}
-                            item-props)
-               (str (if (zero? idx) "> " "  ")
-                    item)]))])))))
+              [:text (merge {:top (inc idx)
+                             :content content}
+                            (item-props-f content))]))])))))
 
 (defn text-input
   "Text input from user
