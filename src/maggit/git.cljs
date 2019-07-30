@@ -1,8 +1,9 @@
 (ns maggit.git
-  #_(:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  #_(:require [cljs.core.async :refer [<! >!] :as a])
   (:require [clojure.string :as str]
-            [maggit.shell :refer [exec]]))
+            [maggit.shell :refer [exec]]
+            [cljs.core.async])
+  (:require-macros [cljs.core.async.macros]
+                   [maggit.async :as a]))
 
 ;; Basic Classes
 ;; =============
@@ -11,6 +12,9 @@
 
 (defonce Repository
   (.-Repository Git))
+
+(defonce Diff
+  (.-Diff Git))
 
 
 ;; Get Basic Objects
@@ -67,6 +71,28 @@
                                :message (.message commit)}))))
                     (.start history))))))))
 
+;; Patch: file
+;; Hunk: set of differing lines
+(defn commit-diff-promise
+  [repo-promise commit-sha]
+  (a/async
+   (with-out-str
+     (let [repo (a/await repo-promise)
+           commit (a/await (.getCommit repo commit-sha))
+           diffs (js->clj (a/await (.getDiff commit)))]
+       (a/doseq [diff diffs
+                 patch (a/await (.patches diff))
+                 hunk (a/await (.hunks patch))]
+         (println "diff"
+                  (-> patch .oldFile .path)
+                  (-> patch .newFile .path))
+         (a/doseq [line (a/await (.lines hunk))]
+           (println (js/String.fromCharCode (.origin line))
+                    (-> line .content .trim))))))))
+
+;; Git commancds
+;; =============
+;; To use in bootstrap phase
 (defn stage-file
   [file]
   (exec "git add " file))
