@@ -88,7 +88,7 @@
          (println "+" (-> patch .newFile .path))
          (println "========")
          (a/doseq [line (a/await (.lines hunk))]
-           (println (js/String.fromCharCode (.origin line))
+           (print (js/String.fromCharCode (.origin line))
                     (-> line .content)))
          (println "\n\n"))))))
 
