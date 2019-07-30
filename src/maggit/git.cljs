@@ -1,8 +1,9 @@
 (ns maggit.git
-  #_(:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  #_(:require [cljs.core.async :refer [<! >!] :as a])
   (:require [clojure.string :as str]
-            [maggit.shell :refer [exec]]))
+            [maggit.shell :refer [exec]]
+            [cljs.core.async])
+  (:require-macros [cljs.core.async.macros]
+                   [maggit.async :refer [async await]]))
 
 ;; Basic Classes
 ;; =============
