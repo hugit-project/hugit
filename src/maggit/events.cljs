@@ -141,6 +141,6 @@
          repo* (git/repo-promise repo-path)]
      (.then (git/commit-diff-promise repo* (:sha commit))
             (fn [text]
-              (println :HERE)
-              (rf/dispatch [:assoc-in [:diffs-view :text] text]))))
+              (rf/dispatch [:assoc-in [:diffs-view :text] text])
+              (rf/dispatch [:assoc-in [:router/view] :diffs]))))
    db))

@@ -113,41 +113,29 @@
           (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
 
 (defn diffs []
-  (let [{:keys [file-path]} @(rf/subscribe [:diffs-view])
-        {:keys [old new]} @(rf/subscribe [:get-in [:repo :unstaged-diffs file-path]])
+  (let [{:keys [text]} @(rf/subscribe [:diffs-view])
         size @(rf/subscribe [:size])
         rows (r/atom (:rows size))]
-    [:box#commits
+    [:box#diffs
      {:top 0
       :right 0
       :width "100%"
       :style {:border {:fg :magenta}}
       :border {:type :line}
-      :label (str " ( " file-path " ) ")}
+      :label (str " Diff ")}
      [scrollable-list
       {:top 1
        :left 1
        :right 2
-       :width "50%"
        :align :left
        :window-size (-> @rows (* 0.6) (- 4))
-       :items (clojure.string/split old #"\n")
+       :items (clojure.string/split text #"\n")
        :on-back
-       #(rf/dispatch [:assoc-in [:router/view] :files])}]
-     [scrollable-list
-      {:top 1
-       :left "50%" 
-       :right 2
-       :width "50%"
-       :align :left
-       :window-size (-> @rows (* 0.6) (- 4))
-       :items (clojure.string/split new #"\n")
-       :on-back
-       #(rf/dispatch [:assoc-in [:router/view] :files])}]]))
+       #(rf/dispatch [:assoc-in [:router/view] :commits])}]]))
 
 
 (defn commits []
-  (let [commits @(rf/subscribe [:get-in [:repo :commits]])
+  (let [commits (rf/subscribe [:get-in [:repo :commits]])
         size @(rf/subscribe [:size])
         rows (r/atom (:rows size))]
     (with-meta
@@ -164,10 +152,13 @@
          :right 2
          :align :left
          :window-size (-> @rows (* 0.6) (- 4))
-         :items (for [{:keys [sha summary]} commits]
+         :items (for [{:keys [sha summary]} @commits]
                   (str (->> sha (take 7) clojure.string/join)
                        " "
                        summary))
+         :on-select
+         (fn [idx]
+           (rf/dispatch [:show-commit (nth @commits idx)]))
          :on-back
          #(rf/dispatch [:assoc-in [:router/view] :status])}]]
       {:component-did-mount
