@@ -92,48 +92,44 @@
       :as props}]
     (r/with-let [window-start (r/atom (or window-start 0))
                  window-size (or window-size 5)]
-      (let [window (r/atom (get-window items
-                                       @window-start
-                                       window-size))]
-        (with-keys @screen
-          (-> {["down"]  {:f #(do (swap! window-start next-item items)
-                                  (reset! window (get-window items
-                                                             @window-start
-                                                             window-size)))
-                          :label "Next Item"
-                          :type "Navigation"}
-               ["up"]    {:f #(do (swap! window-start prev-item items)
-                                  (reset! window (get-window items
-                                                             @window-start
-                                                             window-size)))
-                          :label "Prev Item"
-                          :type "Navigation"}
-               ["right"] {:f #(on-select @window-start)
-                          :label "Select"
-                          :type "Navigation"}
-               ["left"]  {:f on-back
-                          :label "Back"
-                          :type "Navigation"}}
-              (merge (enhance-handler-map custom-key-handlers window-start))
-              (dissoc (when (empty? items)
-                        ["up"])
-                      (when (empty? items)
-                        ["down"])
-                      (when-not on-select
-                        ["right"])
-                      (when-not on-back
-                        ["left"])))
-          [:box (dissoc props
-                        :items :item-props :selected
-                        :on-select :on-back)
-           (doall
-            (for [[idx item] (map-indexed vector @window)
-                  :let [content (str (if (zero? idx) "> " "  ")
-                                     item)]]
-              ^{:key idx}
-              [:text (merge {:top (inc idx)
-                             :content content}
-                            (item-props-f item))]))])))))
+      (with-keys @screen
+        (-> {["down"]  {:f #(do (swap! window-start next-item items)
+                                )
+                        :label "Next Item"
+                        :type "Navigation"}
+             ["up"]    {:f #(do (swap! window-start prev-item items)
+                                )
+                        :label "Prev Item"
+                        :type "Navigation"}
+             ["right"] {:f #(on-select @window-start)
+                        :label "Select"
+                        :type "Navigation"}
+             ["left"]  {:f on-back
+                        :label "Back"
+                        :type "Navigation"}}
+            (merge (enhance-handler-map custom-key-handlers window-start))
+            (dissoc (when (empty? items)
+                      ["up"])
+                    (when (empty? items)
+                      ["down"])
+                    (when-not on-select
+                      ["right"])
+                    (when-not on-back
+                      ["left"])))
+        [:box (dissoc props
+                      :items :item-props :selected
+                      :on-select :on-back)
+         (doall
+          (for [[idx item] (map-indexed vector (get-window items
+                                                           @window-start
+                                                           window-size))
+                :let [current-item-props (item-props-f item)
+                      content (str (if (zero? idx) "> " "  ")
+                                   item)]]
+            ^{:key idx}
+            [:text (merge {:top (inc idx)
+                           :content content}
+                          current-item-props)]))]))))
 
 (defn text-input
   "Text input from user

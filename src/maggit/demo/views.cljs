@@ -133,9 +133,9 @@
        :item-props-f
        (fn [line]
          (case (first line)
-           \+ {:style {:fg :green}}
            \- {:style {:fg :red}}
-              {}))
+           \+ {:style {:fg :green}}
+           {:style {:fg :white}}))
        :on-back
        #(rf/dispatch [:assoc-in [:router/view] :commits])}]]))
 
