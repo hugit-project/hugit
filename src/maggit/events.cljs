@@ -9,6 +9,9 @@
 (defonce watch
   (js/require "watch"))
 
+(defonce fs
+  (js/require "fs"))
+
 (rf/reg-event-db
   :init
   (fn [db [_ opts terminal-size]]
@@ -153,5 +156,16 @@
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)]
      (.then (git/commit-diff-promise repo* (:sha commit))
-            #(rf/dispatch [:router/goto :diffs {:text %}])))
+            #(rf/dispatch [:router/goto :diffs
+                           {:label (:sha commit)
+                            :text %}])))
+   db))
+
+(rf/reg-event-db
+ :show-file
+ (fn [db [_ path]]
+   (let [contents (.readFileSync fs path)]
+     (rf/dispatch [:router/goto :diffs
+                   {:label path
+                    :text contents}]))
    db))

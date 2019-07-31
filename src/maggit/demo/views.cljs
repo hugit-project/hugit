@@ -108,12 +108,13 @@
        :on-select
        (fn [idx]
          (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
-         (rf/dispatch [:router/goto :diffs]))
+         (rf/dispatch [:show-file (nth @files idx)]))
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 
 (defn diffs []
-  (let [text (<sub [:router/view-state :text])
+  (let [label (<sub [:router/view-state :label])
+        text (<sub [:router/view-state :text])
         size (<sub [:terminal/size])
         rows (:rows @size)]
     [:box#diffs
@@ -122,7 +123,10 @@
       :width "100%"
       :style {:border {:fg :magenta}}
       :border {:type :line}
-      :label (str " Diff ")}
+      :label (str " "
+                  (or @label
+                      "Diff")
+                  " ")}
      [scrollable-list
       {:top 1
        :left 1
