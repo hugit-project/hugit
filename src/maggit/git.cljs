@@ -106,3 +106,24 @@
 (defn commit
   [msg]
   (exec "git commit -m \"" msg "\""))
+
+
+(defn staged-diff-promise
+  [repo-promise]
+  (a/async
+   (with-out-str
+     (let [repo (a/await repo-promise)
+           head (a/await (.getHeadCommit repo))
+           tree (a/await (.getTree head))
+           diff (a/await (.treeToIndex Diff repo tree))
+           patches (js->clj (a/await (.patches diff)))]
+       (a/doseq [patch patches
+                 hunk (a/await (.hunks patch))]
+         (println "========")
+         (println "-" (-> patch .oldFile .path))
+         (println "+" (-> patch .newFile .path))
+         (println "========")
+         (a/doseq [line (a/await (.lines hunk))]
+           (print (js/String.fromCharCode (.origin line))
+                    (-> line .content)))
+         (println "\n\n"))))))

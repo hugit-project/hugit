@@ -169,3 +169,14 @@
                    {:label path
                     :text contents}]))
    db))
+
+(rf/reg-event-db
+ :show-staged-diffs
+ (fn [db _]
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)
+         text* (git/staged-diff-promise repo*)]
+     (.then text* #(rf/dispatch [:router/goto :diffs
+                                {:label path
+                                 :text %}])))
+   db))
