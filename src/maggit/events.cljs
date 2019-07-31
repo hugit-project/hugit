@@ -179,3 +179,13 @@
      (.then text* #(rf/dispatch [:router/goto :diffs
                                 {:text %}])))
    db))
+
+(rf/reg-event-db
+ :show-unstaged-diffs
+ (fn [db _]
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)
+         text* (git/unstaged-diff-promise repo*)]
+     (.then text* #(rf/dispatch [:router/goto :diffs
+                                {:text %}])))
+   db))

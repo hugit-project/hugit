@@ -59,11 +59,14 @@
                              0 {:label "Untracked"
                                 :files-path [:repo :untracked]}
                              1 {:label "Unstaged"
-                                :files-path [:repo :unstaged]}
+                                :files-path [:repo :unstaged]
+                                :on-select
+                                (fn [_]
+                                  (rf/dispatch [:show-unstaged-diffs]))}
                              2 {:label "Staged"
                                 :files-path [:repo :staged]
                                 :on-select
-                                (fn [x]
+                                (fn [_]
                                   (rf/dispatch [:show-staged-diffs]))})])
            (== x 3)
            (rf/dispatch [:router/goto :commits])))}]]))
