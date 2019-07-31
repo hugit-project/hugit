@@ -14,7 +14,7 @@
                 staged]}
         @(<sub [:repo])
 
-        selected (<sub [:status-state :selected])]
+        selected (<sub [:router/view-state :selected])]
     [:box#status
      {:top 0
       :right 0
@@ -39,36 +39,35 @@
        :selected @selected
        :custom-key-handlers
        {["c"] {:f (fn [idx]
-                    (rf/dispatch [:assoc-in [:input-state]
+                    (rf/dispatch [:router/goto :input
                                   {:label "Commit Message"
                                    :on-submit (fn [msg]
+                                                (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
                                                 (rf/dispatch [:toast "Commiting"])
                                                 (rf/dispatch [:commit msg])
-                                                (rf/dispatch [:assoc-in [:status-state :selected] idx])
-                                                (rf/dispatch [:assoc-in [:router/view] :commits]))
-                                   :on-cancel #(rf/dispatch [:assoc-in [:router/view] :status])}])
-                    (rf/dispatch [:assoc-in [:router/view] :input]))
+                                                (rf/dispatch [:router/goto :commits]))
+                                   :on-cancel #(rf/dispatch [:router/go-back])}]))
                :label "Commit"
                :type "Action"}}
        :on-select
        (fn [x]
-         (rf/dispatch [:assoc-in [:status-state :selected] x])
-         (if (< x 3)
-           (do
-             (rf/dispatch [:assoc-in [:files-state]
-                           (case x
+         (rf/dispatch [:assoc-in [:router/view-state :selected] x])
+         (cond
+           (< x 3)
+           (rf/dispatch [:router/goto :files
+                         (case x
                              0 {:label "Untracked"
                                 :files-path [:repo :untracked]}
                              1 {:label "Unstaged"
                                 :files-path [:repo :unstaged]}
                              2 {:label "Staged"
                                 :files-path [:repo :staged]})])
-             (rf/dispatch [:assoc-in [:router/view] :files]))
-           (rf/dispatch [:assoc-in [:router/view] :commits])))}]]))
+           (== x 3)
+           (rf/dispatch [:router/goto :commits])))}]]))
 
 (defn files []
   (let [{:keys [files-path label selected]}
-        @(<sub [:files-state])
+        @(<sub [:router/view-state])
 
         files (<sub files-path)]
     [:box#files
@@ -106,16 +105,13 @@
                :label "Checkout"
                :type "Action"}}
        :on-select
-       (fn [x]
-         (rf/dispatch [:assoc-in [:diffs-state] {:file-path (nth @files x)}])
-         (rf/dispatch [:assoc-in [:router/view] :diffs]))
+       #(rf/dispatch [:router/goto :diffs
+                      {:file-path (nth @files %)}])
        :on-back
-       (fn []
-         (rf/dispatch [:assoc-in [:files-state] {}])
-         (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
+       #(rf/dispatch [:router/go-back])}]]))
 
 (defn diffs []
-  (let [text (<sub [:diffs-state :text])
+  (let [text (<sub [:router/view-state :text])
         size (<sub [:terminal/size])
         rows (:rows @size)]
     [:box#diffs
@@ -139,16 +135,14 @@
            \+ {:style {:fg :green}}
            {:style {:fg :white}}))
        :on-back
-       (fn []
-         (rf/dispatch [:assoc-in [:diffs-state] {}])
-         (rf/dispatch [:assoc-in [:router/view] :commits]))}]]))
+       #(rf/dispatch [:router/go-back])}]]))
 
 
 (defn commits []
   (let [commits (<sub [:repo :commits])
+        selected (<sub [:router/view-state :selected])
         size (<sub [:terminal/size])
-        rows (:rows @size)
-        selected (<sub [:commits-state :selected])]
+        rows (:rows @size)]
     (with-meta
       [:box#commits
        {:top 0
@@ -170,19 +164,17 @@
          :selected @selected
          :on-select
          (fn [idx]
-           (rf/dispatch [:assoc-in [:commits-state :selected] idx])
+           (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
            (rf/dispatch [:show-commit (nth @commits idx)]))
          :on-back
-         (fn []
-           (rf/dispatch [:assoc-in [:commits-state] {}])
-           (rf/dispatch [:assoc-in [:router/view] :status]))}]]
+         #(rf/dispatch [:router/go-back])}]]
       {:component-did-mount
        (fn [this]
          (reset! rows (-> this .-refs .-commits .-height)))})))
 
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
-        @(<sub [:input-state])]
+        @(<sub [:router/view-state])]
     [:box
      {:top 0
       :right 0
@@ -209,7 +201,7 @@
         :input input)])])
 
 (defn toast []
-  (let [text @(<sub [:toast-state :text])]
+  (let [text @(<sub [:toast/view-state :text])]
     [:box#toast
      {:bottom 0
       :height 3
