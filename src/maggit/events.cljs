@@ -118,9 +118,9 @@
  :toast
  (fn [db [_ & strings]]
    (js/setTimeout
-    #(rf/dispatch [:assoc-in [:toast-view :text] ""])
+    #(rf/dispatch [:assoc-in [:toast-state :text] ""])
     3000)
-   (assoc-in db [:toast-view :text] (str/join strings))))
+   (assoc-in db [:toast-state :text] (str/join strings))))
 
 (rf/reg-event-db
  :show-commit
@@ -129,6 +129,6 @@
          repo* (git/repo-promise repo-path)]
      (.then (git/commit-diff-promise repo* (:sha commit))
             (fn [text]
-              (rf/dispatch [:assoc-in [:diffs-view :text] text])
+              (rf/dispatch [:assoc-in [:diffs-state :text] text])
               (rf/dispatch [:assoc-in [:router/view] :diffs]))))
    db))

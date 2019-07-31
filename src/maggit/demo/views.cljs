@@ -15,7 +15,7 @@
         @(<sub [:repo])
 
         {:keys [selected]}
-        @(<sub [:status-view])]
+        @(<sub [:status-state])]
     [:box#status
      {:top 0
       :right 0
@@ -40,12 +40,12 @@
        :selected selected
        :custom-key-handlers
        {["c"] {:f (fn [_]
-                    (rf/dispatch [:assoc-in [:input-view]
+                    (rf/dispatch [:assoc-in [:input-state]
                                   {:label "Commit Message"
                                    :on-submit (fn [msg]
                                                 (rf/dispatch [:toast "Commiting"])
                                                 (rf/dispatch [:commit msg])
-                                                (rf/dispatch [:assoc-in [:status-view :selected] 3])
+                                                (rf/dispatch [:assoc-in [:status-state :selected] 3])
                                                 (rf/dispatch [:assoc-in [:router/view] :commits]))
                                    :on-cancel #(rf/dispatch [:assoc-in [:router/view] :status])}])
                     (rf/dispatch [:assoc-in [:router/view] :input]))
@@ -53,10 +53,10 @@
                :type "Action"}}
        :on-select
        (fn [x]
-         (rf/dispatch [:assoc-in [:status-view :selected] x])
+         (rf/dispatch [:assoc-in [:status-state :selected] x])
          (if (< x 3)
            (do
-             (rf/dispatch [:assoc-in [:files-view]
+             (rf/dispatch [:assoc-in [:files-state]
                            (case x
                              0 {:label "Untracked"
                                 :files-path [:repo :untracked]}
@@ -69,7 +69,7 @@
 
 (defn files []
   (let [{:keys [files-path label selected]}
-        @(<sub [:files-view])
+        @(<sub [:files-state])
 
         files (<sub files-path)]
     [:box#files
@@ -108,15 +108,15 @@
                :type "Action"}}
        :on-select
        (fn [x]
-         (rf/dispatch [:assoc-in [:diffs-view] {:file-path (nth @files x)}])
+         (rf/dispatch [:assoc-in [:diffs-state] {:file-path (nth @files x)}])
          (rf/dispatch [:assoc-in [:router/view] :diffs]))
        :on-back
        #(do
-          (rf/dispatch [:assoc-in [:files-view] {}])
+          (rf/dispatch [:assoc-in [:files-state] {}])
           (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
 
 (defn diffs []
-  (let [{:keys [text]} @(<sub [:diffs-view])
+  (let [{:keys [text]} @(<sub [:diffs-state])
         size @(<sub [:terminal/size])
         rows (r/atom (:rows size))]
     [:box#diffs
@@ -147,7 +147,7 @@
   (let [commits (<sub [:repo :commits])
         size @(<sub [:terminal/size])
         rows (r/atom (:rows size))
-        selected @(<sub [:commits-view :selected])]
+        selected @(<sub [:commits-state :selected])]
     (with-meta
       [:box#commits
        {:top 0
@@ -169,7 +169,7 @@
          :selected selected
          :on-select
          (fn [idx]
-           (rf/dispatch [:assoc-in [:commits-view :selected] idx])
+           (rf/dispatch [:assoc-in [:commits-state :selected] idx])
            (rf/dispatch [:show-commit (nth @commits idx)]))
          :on-back
          #(rf/dispatch [:assoc-in [:router/view] :status])}]]
@@ -179,7 +179,7 @@
 
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
-        @(<sub [:input-view])]
+        @(<sub [:input-state])]
     [:box
      {:top 0
       :right 0
@@ -206,7 +206,7 @@
         :input input)])])
 
 (defn toast []
-  (let [text @(<sub [:toast-view :text])]
+  (let [text @(<sub [:toast-state :text])]
     [:box#toast
      {:bottom 0
       :height 3
