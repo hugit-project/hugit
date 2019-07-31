@@ -45,24 +45,23 @@
          #(.getStatus %)))
 
 (defn commits-promise
-  [repo-promise]
+  [head-commit-promise]
   (js/Promise.
    (fn [resolve]
-     (-> repo-promise
-         head-commit-promise
-         (.then (fn [head-commit]
-                  (let [history (.history head-commit)]
-                    (.on history "end"
-                         (fn [commits]
-                           (resolve
-                            (for [commit (js->clj commits)]
-                              {:sha (.sha commit)
-                               :author {:name (-> commit .author .name)
-                                        :email (-> commit .author .email)}
-                               :date (.date commit)
-                               :summary (.summary commit)
-                               :message (.message commit)}))))
-                    (.start history))))))))
+     (.then head-commit-promise
+            (fn [head-commit]
+              (let [history (.history head-commit)]
+                (.on history "end"
+                     (fn [commits]
+                       (resolve
+                        (for [commit (js->clj commits)]
+                          {:sha (.sha commit)
+                           :author {:name (-> commit .author .name)
+                                    :email (-> commit .author .email)}
+                           :date (.date commit)
+                           :summary (.summary commit)
+                           :message (.message commit)}))))
+                (.start history)))))))
 
 ;; Patch: file
 ;; Hunk: set of differing lines

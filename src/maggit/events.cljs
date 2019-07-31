@@ -65,7 +65,8 @@
          repo* (git/repo-promise repo-path)
          branch-name* (git/current-branch-name-promise repo*)
          file-statuses* (git/statuses-promise repo*)
-         commits* (git/commits-promise repo*)]
+         head-commit* (git/head-commit-promise repo*)
+         commits* (git/commits-promise head-commit*)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
@@ -92,11 +93,13 @@
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj (.path file)])))))))
+     (.then head-commit*
+            (fn [head-commit]
+              (rf/dispatch [:assoc-in [:repo :head-commit-summary]
+                            (.summary head-commit)])))
      (.then commits*
             (fn [commits]
-              (rf/dispatch [:assoc-in [:repo :commits] commits])
-              (rf/dispatch [:assoc-in [:repo :head-commit-message]
-                            (-> commits first :summary)]))))
+              (rf/dispatch [:assoc-in [:repo :commits] commits]))))
      db))
 
 (rf/reg-event-db

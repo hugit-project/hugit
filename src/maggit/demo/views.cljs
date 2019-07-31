@@ -8,7 +8,7 @@
 
 (defn status []
   (let [{:keys [branch-name
-                head-commit-message
+                head-commit-summary
                 untracked
                 unstaged
                 staged]}
@@ -27,7 +27,7 @@
        :left 1
        :right 2
        :align :left}
-      [:text (str "Head: [" branch-name "] " head-commit-message)]]
+      [:text (str "Head: [" branch-name "] " head-commit-summary)]]
      [navigable-list
       {:top 4
        :left 1
