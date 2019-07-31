@@ -61,14 +61,17 @@
                              1 {:label "Unstaged"
                                 :files-path [:repo :unstaged]}
                              2 {:label "Staged"
-                                :files-path [:repo :staged]})])
+                                :files-path [:repo :staged]
+                                :on-select
+                                (fn [x]
+                                  (rf/dispatch [:show-staged-diffs]))})])
            (== x 3)
            (rf/dispatch [:router/goto :commits])))}]]))
 
 (defn files []
-  (let [{:keys [files-path label selected]}
+  (let [{:keys [files-path label selected on-select]}
         @(<sub [:router/view-state])
-
+ 
         files (<sub files-path)]
     [:box#files
      {:top 0
@@ -108,7 +111,9 @@
        :on-select
        (fn [idx]
          (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
-         (rf/dispatch [:show-file (nth @files idx)]))
+         (if (some? on-select)
+           (on-select idx)
+           (rf/dispatch [:show-file (nth @files idx)])))
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 

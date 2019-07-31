@@ -177,6 +177,5 @@
          repo* (git/repo-promise repo-path)
          text* (git/staged-diff-promise repo*)]
      (.then text* #(rf/dispatch [:router/goto :diffs
-                                {:label path
-                                 :text %}])))
+                                {:text %}])))
    db))
