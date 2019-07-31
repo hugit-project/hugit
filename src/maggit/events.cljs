@@ -9,9 +9,6 @@
 (defonce watch
   (js/require "watch"))
 
-(def fs
-  (js/require "fs"))
-
 (rf/reg-event-db
   :init
   (fn [db [_ opts terminal-size]]
