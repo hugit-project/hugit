@@ -67,8 +67,9 @@
                              2 {:label "Staged"
                                 :files-path [:repo :staged]
                                 :on-select
-                                (fn [_]
-                                  (rf/dispatch [:show-staged-diffs]))})])
+                                (fn [file-idx]
+                                  (rf/dispatch [:show-staged-file-diffs (nth @(<sub [:repo :staged])
+                                                                             file-idx)]))})])
            (== x 3)
            (rf/dispatch [:router/goto :commits])))}]]))
 
