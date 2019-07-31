@@ -19,6 +19,8 @@
                               (rf/dispatch [:get-status])))
       {:opts opts
        :router/view :status
+       :router/view-state {}
+       :router/nav-stack []
        :terminal/size terminal-size
        :repo {:path cwd}})))
 
@@ -38,13 +40,40 @@
     (update-in db path #(apply f % args))))
 
 (rf/reg-event-db
+ :router/goto
+ (fn [db [_ view & [state]]]
+   (-> db
+       (update-in [:router/nav-stack]
+                  concat [{:view (:router/view db)
+                           :state (:router/view-state db)}])
+       (assoc-in [:router/view] view)
+       (assoc-in [:router/view-state] state))))
+
+(rf/reg-event-db
+ :router/goto-and-forget
+ (fn [db [_ view & [state]]]
+   (-> db
+       (assoc-in [:router/view] view)
+       (assoc-in [:router/view-state] state))))
+
+(rf/reg-event-db
+ :router/go-back
+ (fn [db _]
+   (let [{:keys [view state]} (last (:router/nav-stack db))]
+     (-> db
+         (update-in [:router/nav-stack] butlast)
+         (assoc-in [:router/view] view)
+         (assoc-in [:router/view-state] state)))))
+
+(rf/reg-event-db
  :get-status
  (fn [db _]
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)
          branch-name* (git/current-branch-name-promise repo*)
          file-statuses* (git/statuses-promise repo*)
-         commits* (git/commits-promise repo*)]
+         head-commit* (git/head-commit-promise repo*)
+         commits* (git/commits-promise head-commit*)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
@@ -71,11 +100,13 @@
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj (.path file)])))))))
+     (.then head-commit*
+            (fn [head-commit]
+              (rf/dispatch [:assoc-in [:repo :head-commit-summary]
+                            (.summary head-commit)])))
      (.then commits*
             (fn [commits]
-              (rf/dispatch [:assoc-in [:repo :commits] commits])
-              (rf/dispatch [:assoc-in [:repo :head-commit-message]
-                            (-> commits first :summary)]))))
+              (rf/dispatch [:assoc-in [:repo :commits] commits]))))
      db))
 
 (rf/reg-event-db
@@ -112,9 +143,9 @@
  :toast
  (fn [db [_ & strings]]
    (js/setTimeout
-    #(rf/dispatch [:assoc-in [:toast-state :text] ""])
+    #(rf/dispatch [:assoc-in [:toast/view-state :text] ""])
     3000)
-   (assoc-in db [:toast-state :text] (str/join strings))))
+   (assoc-in db [:toast/view-state :text] (str/join strings))))
 
 (rf/reg-event-db
  :show-commit
@@ -122,7 +153,5 @@
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)]
      (.then (git/commit-diff-promise repo* (:sha commit))
-            (fn [text]
-              (rf/dispatch [:assoc-in [:diffs-state :text] text])
-              (rf/dispatch [:assoc-in [:router/view] :diffs]))))
+            #(rf/dispatch [:router/goto :diffs {:text %}])))
    db))
