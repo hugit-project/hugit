@@ -14,8 +14,7 @@
                 staged]}
         @(<sub [:repo])
 
-        {:keys [selected]}
-        @(<sub [:status-state])]
+        selected (<sub [:status-state :selected])]
     [:box#status
      {:top 0
       :right 0
@@ -37,15 +36,15 @@
                (str "Unstaged (" (count unstaged) ")")
                (str "Staged (" (count staged) ")")
                (str "Commit Log")]
-       :selected selected
+       :selected @selected
        :custom-key-handlers
-       {["c"] {:f (fn [_]
+       {["c"] {:f (fn [idx]
                     (rf/dispatch [:assoc-in [:input-state]
                                   {:label "Commit Message"
                                    :on-submit (fn [msg]
                                                 (rf/dispatch [:toast "Commiting"])
                                                 (rf/dispatch [:commit msg])
-                                                (rf/dispatch [:assoc-in [:status-state :selected] 3])
+                                                (rf/dispatch [:assoc-in [:status-state :selected] idx])
                                                 (rf/dispatch [:assoc-in [:router/view] :commits]))
                                    :on-cancel #(rf/dispatch [:assoc-in [:router/view] :status])}])
                     (rf/dispatch [:assoc-in [:router/view] :input]))
@@ -116,9 +115,9 @@
           (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
 
 (defn diffs []
-  (let [{:keys [text]} @(<sub [:diffs-state])
-        size @(<sub [:terminal/size])
-        rows (r/atom (:rows size))]
+  (let [text (<sub [:diffs-state :text])
+        size (<sub [:terminal/size])
+        rows (:rows @size)]
     [:box#diffs
      {:top 0
       :right 0
@@ -131,8 +130,8 @@
        :left 1
        :right 2
        :align :left
-       :window-size (-> @rows (* 0.6) (- 4))
-       :items (clojure.string/split text #"\n")
+       :window-size (-> rows (* 0.6) (- 4))
+       :items (clojure.string/split @text #"\n")
        :item-props-f
        (fn [line]
          (case (first line)
@@ -145,9 +144,9 @@
 
 (defn commits []
   (let [commits (<sub [:repo :commits])
-        size @(<sub [:terminal/size])
-        rows (r/atom (:rows size))
-        selected @(<sub [:commits-state :selected])]
+        size (<sub [:terminal/size])
+        rows (:rows @size)
+        selected (<sub [:commits-state :selected])]
     (with-meta
       [:box#commits
        {:top 0
@@ -161,12 +160,12 @@
          :left 1
          :right 2
          :align :left
-         :window-size (-> @rows (* 0.6) (- 4))
+         :window-size (-> rows (* 0.6) (- 4))
          :items (for [{:keys [sha summary]} @commits]
                   (str (->> sha (take 7) clojure.string/join)
                        " "
                        summary))
-         :selected selected
+         :selected @selected
          :on-select
          (fn [idx]
            (rf/dispatch [:assoc-in [:commits-state :selected] idx])
@@ -215,8 +214,8 @@
      text]))
 
 (defn home []
-  (let [size @(<sub [:terminal/size])
-        rows (:rows size)]
+  (let [size (<sub [:terminal/size])
+        rows (:rows @size)]
     [:box#home
      {:top 0
       :left 0
