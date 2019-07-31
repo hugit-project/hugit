@@ -128,7 +128,7 @@
                       "Diff")
                   " ")}
      [scrollable-list
-      {:top 1
+      {:top 0
        :left 1
        :right 2
        :align :left
@@ -158,7 +158,7 @@
         :border {:type :line}
         :label " Commit Log "}
        [scrollable-list
-        {:top 1
+        {:top 0
          :left 1
          :right 2
          :align :left
@@ -213,7 +213,9 @@
       :height 3
       :style {:border {:fg :magenta}}
       :border {:type :line}}
-     text]))
+     [:text
+      {:left 1}
+      text]]))
 
 (defn home []
   (let [size (<sub [:terminal/size])
