@@ -83,6 +83,7 @@
        :right 2
        :align :left
        :items @files
+       :selected selected
        :custom-key-handlers
        {["s"] {:f (fn [x]
                     (rf/dispatch [:toast "Staging " (nth @files x)])
@@ -105,8 +106,9 @@
                :label "Checkout"
                :type "Action"}}
        :on-select
-       #(rf/dispatch [:router/goto :diffs
-                      {:file-path (nth @files %)}])
+       (fn [idx]
+         (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
+         (rf/dispatch [:router/goto :diffs]))
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 
