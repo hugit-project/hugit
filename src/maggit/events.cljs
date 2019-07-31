@@ -46,17 +46,12 @@
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)
          branch-name* (git/current-branch-name-promise repo*)
-         commit-message* (git/current-head-commit-message-promise repo*)
          file-statuses* (git/statuses-promise repo*)
          commits* (git/commits-promise repo*)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
                [:assoc-in [:repo :branch-name] branch-name])))
-     (.then commit-message*
-            (fn [msg]
-              (rf/dispatch
-               [:assoc-in [:repo :head-commit-message] msg])))
      (.then file-statuses*
             (fn [statuses]
               (rf/dispatch [:assoc-in [:repo :untracked] []])
@@ -81,7 +76,9 @@
                                [:update-in [:repo :staged] conj (.path file)])))))))
      (.then commits*
             (fn [commits]
-              (rf/dispatch [:assoc-in [:repo :commits] commits]))))
+              (rf/dispatch [:assoc-in [:repo :commits] commits])
+              (rf/dispatch [:assoc-in [:repo :head-commit-message]
+                            (-> commits first :summary)]))))
      db))
 
 (rf/reg-event-db

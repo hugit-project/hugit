@@ -39,13 +39,6 @@
   (.then repo-promise
          #(.getHeadCommit %)))
 
-(defn current-head-commit-message-promise
-  [repo-promise]
-  (-> repo-promise
-      head-commit-promise
-      (.then (fn [commit]
-               (.message commit)))))
-
 (defn statuses-promise
   [repo-promise]
   (.then repo-promise
