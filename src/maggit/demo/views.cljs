@@ -59,16 +59,24 @@
                              0 {:label "Untracked"
                                 :files-path [:repo :untracked]}
                              1 {:label "Unstaged"
-                                :files-path [:repo :unstaged]}
+                                :files-path [:repo :unstaged]
+                                :on-select
+                                (fn [file-idx]
+                                  (rf/dispatch [:show-unstaged-file-diffs (nth @(<sub [:repo :unstaged])
+                                                                               file-idx)]))}
                              2 {:label "Staged"
-                                :files-path [:repo :staged]})])
+                                :files-path [:repo :staged]
+                                :on-select
+                                (fn [file-idx]
+                                  (rf/dispatch [:show-staged-file-diffs (nth @(<sub [:repo :staged])
+                                                                             file-idx)]))})])
            (== x 3)
            (rf/dispatch [:router/goto :commits])))}]]))
 
 (defn files []
-  (let [{:keys [files-path label selected]}
+  (let [{:keys [files-path label selected on-select]}
         @(<sub [:router/view-state])
-
+ 
         files (<sub files-path)]
     [:box#files
      {:top 0
@@ -108,7 +116,9 @@
        :on-select
        (fn [idx]
          (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
-         (rf/dispatch [:show-file (nth @files idx)]))
+         (if (some? on-select)
+           (on-select idx)
+           (rf/dispatch [:show-file (nth @files idx)])))
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 

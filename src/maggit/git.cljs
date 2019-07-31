@@ -84,6 +84,48 @@
                     (-> line .content)))
          (println "\n\n"))))))
 
+(defn staged-file-diff-promise
+  [repo-promise path]
+  (a/async
+   (with-out-str
+     (let [repo (a/await repo-promise)
+           head (a/await (.getHeadCommit repo))
+           tree (a/await (.getTree head))
+           diff (a/await (.treeToIndex Diff repo tree))
+           patches (js->clj (a/await (.patches diff)))]
+       (a/doseq [patch patches]
+         (let [patch-path (-> patch .newFile .path)]
+           (when (= path patch-path)
+             (println "========")
+             (println "-" (-> patch .oldFile .path))
+             (println "+" (-> patch .newFile .path))
+             (println "========")
+             (a/doseq [hunk (a/await (.hunks patch))
+                       line (a/await (.lines hunk))]
+               (print (js/String.fromCharCode (.origin line))
+                      (-> line .content))))))))))
+
+(defn unstaged-file-diff-promise
+  [repo-promise path]
+  (a/async
+   (with-out-str
+     (let [repo (a/await repo-promise)
+           index (a/await (.index repo))
+           diff (a/await (.indexToWorkdir Diff repo index))
+           patches (js->clj (a/await (.patches diff)))]
+       (a/doseq [patch patches]
+         (let [patch-path (-> patch .newFile .path)]
+           (when (= path patch-path)
+             (println "========")
+             (println "-" (-> patch .oldFile .path))
+             (println "+" (-> patch .newFile .path))
+             (println "========")
+             (a/doseq [hunk (a/await (.hunks patch))
+                       line (a/await (.lines hunk))]
+               (print (js/String.fromCharCode (.origin line))
+                      (-> line .content))))))))))
+
+
 ;; Git commancds
 ;; =============
 ;; To use in bootstrap phase
