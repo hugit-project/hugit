@@ -110,9 +110,9 @@
          (rf/dispatch [:assoc-in [:diffs-state] {:file-path (nth @files x)}])
          (rf/dispatch [:assoc-in [:router/view] :diffs]))
        :on-back
-       #(do
-          (rf/dispatch [:assoc-in [:files-state] {}])
-          (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
+       (fn []
+         (rf/dispatch [:assoc-in [:files-state] {}])
+         (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
 
 (defn diffs []
   (let [text (<sub [:diffs-state :text])
@@ -139,7 +139,9 @@
            \+ {:style {:fg :green}}
            {:style {:fg :white}}))
        :on-back
-       #(rf/dispatch [:assoc-in [:router/view] :commits])}]]))
+       (fn []
+         (rf/dispatch [:assoc-in [:diffs-state] {}])
+         (rf/dispatch [:assoc-in [:router/view] :commits]))}]]))
 
 
 (defn commits []
@@ -171,7 +173,9 @@
            (rf/dispatch [:assoc-in [:commits-state :selected] idx])
            (rf/dispatch [:show-commit (nth @commits idx)]))
          :on-back
-         #(rf/dispatch [:assoc-in [:router/view] :status])}]]
+         (fn []
+           (rf/dispatch [:assoc-in [:commits-state] {}])
+           (rf/dispatch [:assoc-in [:router/view] :status]))}]]
       {:component-did-mount
        (fn [this]
          (reset! rows (-> this .-refs .-commits .-height)))})))
