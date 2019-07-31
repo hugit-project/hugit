@@ -45,7 +45,7 @@
                                                 (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
                                                 (rf/dispatch [:toast "Commiting"])
                                                 (rf/dispatch [:commit msg])
-                                                (rf/dispatch [:router/goto :commits]))
+                                                (rf/dispatch [:router/goto-and-forget :commits]))
                                    :on-cancel #(rf/dispatch [:router/go-back])}]))
                :label "Commit"
                :type "Action"}}

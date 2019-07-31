@@ -50,6 +50,13 @@
        (assoc-in [:router/view-state] state))))
 
 (rf/reg-event-db
+ :router/goto-and-forget
+ (fn [db [_ view & [state]]]
+   (-> db
+       (assoc-in [:router/view] view)
+       (assoc-in [:router/view-state] state))))
+
+(rf/reg-event-db
  :router/go-back
  (fn [db _]
    (let [{:keys [view state]} (last (:router/nav-stack db))]
