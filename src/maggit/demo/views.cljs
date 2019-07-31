@@ -3,16 +3,19 @@
             [re-frame.core :as rf]
             [maggit.views :refer [navigable-list scrollable-list text-input]]))
 
+(defn <sub [query]
+  (rf/subscribe [:get-in query]))
+
 (defn status []
   (let [{:keys [branch-name
                 head-commit-message
                 untracked
                 unstaged
                 staged]}
-        @(rf/subscribe [:repo])
+        @(<sub [:repo])
 
         {:keys [selected]}
-        @(rf/subscribe [:status-view])]
+        @(<sub [:status-view])]
     [:box#status
      {:top 0
       :right 0
@@ -66,9 +69,9 @@
 
 (defn files []
   (let [{:keys [files-path label selected]}
-        @(rf/subscribe [:files-view])
+        @(<sub [:files-view])
 
-        files (rf/subscribe [:get-in files-path])]
+        files (<sub files-path)]
     [:box#files
      {:top 0
       :right 0
@@ -113,8 +116,8 @@
           (rf/dispatch [:assoc-in [:router/view] :status]))}]]))
 
 (defn diffs []
-  (let [{:keys [text]} @(rf/subscribe [:diffs-view])
-        size @(rf/subscribe [:size])
+  (let [{:keys [text]} @(<sub [:diffs-view])
+        size @(<sub [:terminal/size])
         rows (r/atom (:rows size))]
     [:box#diffs
      {:top 0
@@ -141,10 +144,10 @@
 
 
 (defn commits []
-  (let [commits (rf/subscribe [:get-in [:repo :commits]])
-        size @(rf/subscribe [:size])
+  (let [commits (<sub [:repo :commits])
+        size @(<sub [:terminal/size])
         rows (r/atom (:rows size))
-        selected @(rf/subscribe [:get-in [:commits-view :selected]])]
+        selected @(<sub [:commits-view :selected])]
     (with-meta
       [:box#commits
        {:top 0
@@ -176,7 +179,7 @@
 
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
-        @(rf/subscribe [:input-view])]
+        @(<sub [:input-view])]
     [:box
      {:top 0
       :right 0
@@ -194,7 +197,7 @@
 (defn viewport [height]
   [:box#viewport
    {:height height}
-   (let [view @(rf/subscribe [:view])]
+   (let [view @(<sub [:router/view])]
      [(case view
         :status status
         :files files
@@ -203,7 +206,7 @@
         :input input)])])
 
 (defn toast []
-  (let [text @(rf/subscribe [:get-in [:toast-view :text]])]
+  (let [text @(<sub [:toast-view :text])]
     [:box#toast
      {:bottom 0
       :height 3
@@ -212,7 +215,7 @@
      text]))
 
 (defn home []
-  (let [size @(rf/subscribe [:size])
+  (let [size @(<sub [:terminal/size])
         rows (:rows size)]
     [:box#home
      {:top 0

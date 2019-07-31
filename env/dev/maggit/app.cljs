@@ -8,7 +8,7 @@
    [maggit.main :as main]))
 
 (defn ui []
-  (let [{:keys [rows]} @(rf/subscribe [:size])]
+  (let [{:keys [rows]} @(rf/subscribe [:get-in [:terminal/size]])]
     [:box
      {:top 0
       :left 0
