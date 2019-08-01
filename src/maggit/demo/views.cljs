@@ -7,7 +7,7 @@
   (rf/subscribe [:get-in query]))
 
 (defn toast> [& msgs]
-  (rf/dispatch-sync (cons :toast msgs)))
+  (rf/dispatch-sync (vec (cons :toast msgs))))
 
 (defn status []
   (let [{:keys [branch-name
