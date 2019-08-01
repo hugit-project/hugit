@@ -165,34 +165,30 @@
         selected (<sub [:router/view-state :selected])
         size (<sub [:terminal/size])
         rows (:rows @size)]
-    (with-meta
-      [:box#commits
-       {:top 0
-        :right 0
-        :width "100%"
-        :style {:border {:fg :magenta}}
-        :border {:type :line}
-        :label " Commit Log "}
-       [scrollable-list
-        {:top 0
-         :left 1
-         :right 2
-         :align :left
-         :window-size (-> rows (* 0.6) (- 4))
-         :items (for [{:keys [sha summary]} @commits]
-                  (str (->> sha (take 7) clojure.string/join)
-                       " "
-                       summary))
-         :selected @selected
-         :on-select
-         (fn [idx]
-           (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
-           (rf/dispatch [:show-commit (nth @commits idx)]))
-         :on-back
-         #(rf/dispatch [:router/go-back])}]]
-      {:component-did-mount
-       (fn [this]
-         (reset! rows (-> this .-refs .-commits .-height)))})))
+    [:box#commits
+     {:top 0
+      :right 0
+      :width "100%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label " Commit Log "}
+     [scrollable-list
+      {:top 0
+       :left 1
+       :right 2
+       :align :left
+       :window-size (-> rows (* 0.6) (- 4))
+       :items (for [{:keys [sha summary]} @commits]
+                (str (->> sha (take 7) clojure.string/join)
+                     " "
+                     summary))
+       :selected @selected
+       :on-select
+       (fn [idx]
+         (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
+         (rf/dispatch [:show-commit (nth @commits idx)]))
+       :on-back
+       #(rf/dispatch [:router/go-back])}]]))
 
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
