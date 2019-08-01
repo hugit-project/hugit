@@ -62,8 +62,8 @@
                                 :files-path [:repo :unstaged]
                                 :on-select
                                 (fn [file-info-idx]
-                                  (rf/dispatch [:show-unstaged-file-diffs (:path (nth @(<sub [:repo :unstaged])
-                                                                                      file-info-idx))]))}
+                                  (rf/dispatch [:show-unstaged-file-diffs (nth @(<sub [:repo :unstaged])
+                                                                               file-info-idx)]))}
                              2 {:label "Staged"
                                 :files-path [:repo :staged]
                                 :on-select

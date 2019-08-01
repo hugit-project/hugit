@@ -86,33 +86,31 @@
               (rf/dispatch [:assoc-in [:repo :untracked] []])
               (rf/dispatch [:assoc-in [:repo :unstaged] []])
               (rf/dispatch [:assoc-in [:repo :staged] []])
-              (rf/dispatch [:assoc-in [:repo :staged-diffs] {}])
-              (rf/dispatch [:assoc-in [:repo :unstaged-diffs] {}])
+              (rf/dispatch [:assoc-in [:repo :unstaged-hunks] {}])
               (.forEach statuses
                         (fn [file]
-                          (let [status (-> file .status js->clj set)]
+                          (let [status (-> file .status js->clj set)
+                                path (.path file)]
                             (when (contains? status "WT_NEW")
                               (rf/dispatch
                                [:update-in [:repo :untracked] conj
-                                {:path (.path file)
-                                 ;; TODO: Fetch entire file as hunk
-                                 :hunks []}]))
+                                {:path path}]))
                             (when (contains? status "WT_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj
-                                {:path (.path file)
-                                 :hunks []}]))
+                                {:path path}])
+                              (.then (git/unstaged-file-hunks-promise
+                                      repo* path)
+                                     #(rf/dispatch
+                                       [:assoc-in [:repo :unstaged-hunks path] %])))
                             (when (contains? status "INDEX_NEW")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj
-                                {:path (.path file)
-                                 ;; TODO: Fetch entire file as hunk
-                                 :hunks []}]))
+                                {:path path}]))
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj
-                                {:path (.path file)
-                                 :hunks []}])))))))
+                                {:path path}])))))))
      (.then head-commit*
             (fn [head-commit]
               (rf/dispatch [:assoc-in [:repo :head-commit-summary]
@@ -194,11 +192,13 @@
 
 (rf/reg-event-db
  :show-unstaged-file-diffs
- (fn [db [_ path]]
-   (let [repo-path (get-in db [:repo :path])
+ (fn [db [_ file-info]]
+   (let [{:keys [path]} file-info
+         hunks (get-in db [:repo :unstaged-hunks path])
+         repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)
-         text* (git/unstaged-file-diff-promise repo* path)]
-     (.then text* #(rf/dispatch [:router/goto :diffs
-                                 {:label path
-                                  :text %}])))
+         text (str/join "\n" hunks)]
+     (rf/dispatch [:router/goto :diffs
+                   {:label path
+                    :text text}]))
    db))
