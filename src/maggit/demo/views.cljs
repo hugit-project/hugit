@@ -61,23 +61,24 @@
                              1 {:label "Unstaged"
                                 :files-path [:repo :unstaged]
                                 :on-select
-                                (fn [file-idx]
-                                  (rf/dispatch [:show-unstaged-file-diffs (nth @(<sub [:repo :unstaged])
-                                                                               file-idx)]))}
+                                (fn [file-info-idx]
+                                  (rf/dispatch [:show-unstaged-file-diffs (:path (nth @(<sub [:repo :unstaged])
+                                                                                      file-info-idx))]))}
                              2 {:label "Staged"
                                 :files-path [:repo :staged]
                                 :on-select
-                                (fn [file-idx]
-                                  (rf/dispatch [:show-staged-file-diffs (nth @(<sub [:repo :staged])
-                                                                             file-idx)]))})])
+                                (fn [file-info-idx]
+                                  (rf/dispatch [:show-staged-file-diffs (:path (nth @(<sub [:repo :staged])
+                                                                                    file-info-idx))]))})])
            (== x 3)
            (rf/dispatch [:router/goto :commits])))}]]))
 
 (defn files []
   (let [{:keys [files-path label selected on-select]}
         @(<sub [:router/view-state])
- 
-        files (<sub files-path)]
+
+        file-infos @(<sub files-path)
+        paths (map :path file-infos)]
     [:box#files
      {:top 0
       :right 0
@@ -90,27 +91,27 @@
        :left 1
        :right 2
        :align :left
-       :items @files
+       :items paths
        :selected selected
        :custom-key-handlers
        {["s"] {:f (fn [x]
-                    (rf/dispatch [:toast "Staging " (nth @files x)])
-                    (rf/dispatch [:stage-file (nth @files x)]))
+                    (rf/dispatch [:toast "Staging " (nth paths x)])
+                    (rf/dispatch [:stage-file (nth paths x)]))
                :label "Stage"
                :type "Action"}
         ["u"] {:f (fn [x]
-                    (rf/dispatch [:toast "Unstaging " (nth @files x)])
-                    (rf/dispatch [:unstage-file (nth @files x)]))
+                    (rf/dispatch [:toast "Unstaging " (nth paths x)])
+                    (rf/dispatch [:unstage-file (nth paths x)]))
                :label "Unstage"
                :type "Action"}
         ["r"] {:f (fn [x]
-                    (rf/dispatch [:toast "Untracking " (nth @files x)])
-                    (rf/dispatch [:untrack-file (nth @files x)]))
+                    (rf/dispatch [:toast "Untracking " (nth paths x)])
+                    (rf/dispatch [:untrack-file (nth paths x)]))
                :label "Untrack"
                :type "Action"}
         ["k"] {:f (fn [x]
-                    (rf/dispatch [:toast "Checking out " (nth @files x)])
-                    (rf/dispatch [:checkout-file (nth @files x)]))
+                    (rf/dispatch [:toast "Checking out " (nth paths x)])
+                    (rf/dispatch [:checkout-file (nth paths x)]))
                :label "Checkout"
                :type "Action"}}
        :on-select
@@ -118,7 +119,7 @@
          (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
          (if (some? on-select)
            (on-select idx)
-           (rf/dispatch [:show-file (nth @files idx)])))
+           (rf/dispatch [:show-file (nth paths idx)])))
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 

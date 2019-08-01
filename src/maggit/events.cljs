@@ -93,16 +93,26 @@
                           (let [status (-> file .status js->clj set)]
                             (when (contains? status "WT_NEW")
                               (rf/dispatch
-                               [:update-in [:repo :untracked] conj (.path file)]))
+                               [:update-in [:repo :untracked] conj
+                                {:path (.path file)
+                                 ;; TODO: Fetch entire file as hunk
+                                 :hunks []}]))
                             (when (contains? status "WT_MODIFIED")
                               (rf/dispatch
-                               [:update-in [:repo :unstaged] conj (.path file)]))
+                               [:update-in [:repo :unstaged] conj
+                                {:path (.path file)
+                                 :hunks []}]))
                             (when (contains? status "INDEX_NEW")
                               (rf/dispatch
-                               [:update-in [:repo :staged] conj (.path file)]))
+                               [:update-in [:repo :staged] conj
+                                {:path (.path file)
+                                 ;; TODO: Fetch entire file as hunk
+                                 :hunks []}]))
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
-                               [:update-in [:repo :staged] conj (.path file)])))))))
+                               [:update-in [:repo :staged] conj
+                                {:path (.path file)
+                                 :hunks []}])))))))
      (.then head-commit*
             (fn [head-commit]
               (rf/dispatch [:assoc-in [:repo :head-commit-summary]
