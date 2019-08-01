@@ -6,6 +6,9 @@
 (defn <sub [query]
   (rf/subscribe [:get-in query]))
 
+(defn toast> [& msgs]
+  (rf/dispatch-sync (cons :toast msgs)))
+
 (defn status []
   (let [{:keys [branch-name
                 head-commit-summary
@@ -42,15 +45,14 @@
                     (rf/dispatch [:router/goto :input
                                   {:label "Commit Message"
                                    :on-submit (fn [msg]
-                                                (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
-                                                (rf/dispatch [:toast "Commiting"])
+                                                (toast> "Commiting")
                                                 (rf/dispatch [:commit msg])
                                                 (rf/dispatch [:router/goto-and-forget :commits]))
                                    :on-cancel #(rf/dispatch [:router/go-back])}]))
                :label "Commit"
                :type "Action"}
         ["p"] {:f (fn [_]
-                    (rf/dispatch [:toast "Pushing"])
+                    (toast> "Pushing")
                     (rf/dispatch [:push]))
                :label "Push"
                :type "Action"}}
