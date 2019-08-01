@@ -121,42 +121,6 @@
                                (-> line .content)))))))))
      @hunks)))
 
-(defn unstaged-file-hunks-promise
-  [repo-promise path]
-  (a/async
-   (let [repo (a/await repo-promise)
-         index (a/await (.index repo))
-         diff (a/await (.indexToWorkdir Diff repo index))
-         patches (js->clj (a/await (.patches diff)))
-         hunks (atom [])]
-     (a/doseq [patch patches]
-       (let [patch-path (-> patch .newFile .path)]
-         (when (= path patch-path)
-           (a/doseq [hunk (a/await (.hunks patch))]
-             (swap! hunks conj
-                    (with-out-str
-                      (a/doseq [line (a/await (.lines hunk))]
-                        (print (js/String.fromCharCode (.origin line))
-                               (-> line .content)))))))))
-     @hunks)))
-
-(defn unstaged-file-diff-promise
-  [repo-promise path]
-  (a/async
-   (with-out-str
-     (let [repo (a/await repo-promise)
-           index (a/await (.index repo))
-           diff (a/await (.indexToWorkdir Diff repo index))
-           patches (js->clj (a/await (.patches diff)))]
-       (a/doseq [patch patches]
-         (let [patch-path (-> patch .newFile .path)]
-           (when (= path patch-path)
-             (a/doseq [hunk (a/await (.hunks patch))]
-               (a/doseq [line (a/await (.lines hunk))]
-                 (print (js/String.fromCharCode (.origin line))
-                        (-> line .content)))
-               (println "\n=======\n")))))))))
-
 (defn unstaged-hunks-promise
   [repo-promise]
   (a/async
