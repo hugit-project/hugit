@@ -102,8 +102,28 @@
              (println "========")
              (a/doseq [hunk (a/await (.hunks patch))
                        line (a/await (.lines hunk))]
-               (print (js/String.fromCharCode (.origin line))
-                      (-> line .content))))))))))
+               (str (js/String.fromCharCode (.origin line))
+                    (-> line .content))))))))))
+
+(defn staged-file-hunks-promise
+  [repo-promise path]
+  (a/async
+   (let [repo (a/await repo-promise)
+         head (a/await (.getHeadCommit repo))
+         tree (a/await (.getTree head))
+         diff (a/await (.treeToIndex Diff repo tree))
+         patches (js->clj (a/await (.patches diff)))
+         hunks (atom [])]
+     (a/doseq [patch patches]
+       (let [patch-path (-> patch .newFile .path)]
+         (when (= path patch-path)
+           (a/doseq [hunk (a/await (.hunks patch))]
+             (swap! hunks conj
+                    (with-out-str
+                      (a/doseq [line (a/await (.lines hunk))]
+                        (print (js/String.fromCharCode (.origin line))
+                               (-> line .content)))))))))
+     @hunks)))
 
 (defn unstaged-file-diff-promise
   [repo-promise path]
