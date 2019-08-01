@@ -48,6 +48,11 @@
                                                 (rf/dispatch [:router/goto-and-forget :commits]))
                                    :on-cancel #(rf/dispatch [:router/go-back])}]))
                :label "Commit"
+               :type "Action"}
+        ["p"] {:f (fn [_]
+                    (rf/dispatch [:toast "Pushing"])
+                    (rf/dispatch [:push]))
+               :label "Push"
                :type "Action"}}
        :on-select
        (fn [x]

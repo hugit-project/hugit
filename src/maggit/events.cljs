@@ -143,6 +143,12 @@
    db))
 
 (rf/reg-event-db
+ :push
+ (fn [db _]
+   (git/push)
+   db))
+
+(rf/reg-event-db
  :toast
  (fn [db [_ & strings]]
    (js/setTimeout

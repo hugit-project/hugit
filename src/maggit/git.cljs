@@ -141,3 +141,7 @@
 (defn commit
   [msg]
   (exec "git commit -m \"" msg "\""))
+
+(defn push
+  []
+  (exec "git push"))
