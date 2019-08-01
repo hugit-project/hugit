@@ -82,6 +82,10 @@
             (fn [branch-name]
               (rf/dispatch
                [:assoc-in [:repo :branch-name] branch-name])))
+     (.then head-commit*
+            (fn [head-commit]
+              (rf/dispatch [:assoc-in [:repo :head-commit-summary]
+                            (.summary head-commit)])))
      (.then file-statuses*
             (fn [statuses]
               (rf/dispatch [:assoc-in [:repo :untracked] []])
@@ -106,22 +110,17 @@
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj
-                                path])))))
-
-              (rf/dispatch [:assoc-in [:repo :unstaged-hunks] {}])
-              (.then unstaged-hunks*
-                     (fn [unstaged-hunks]
-                       (doseq [{:keys [path text]} unstaged-hunks]
-                         (rf/dispatch
-                          [:update-in [:repo :unstaged-hunks path]
-                           concat
-                           [{:text text
-                             :line-start 0
-                             :line-end 0}]]))))))
-     (.then head-commit*
-            (fn [head-commit]
-              (rf/dispatch [:assoc-in [:repo :head-commit-summary]
-                            (.summary head-commit)])))
+                                path])))))))
+     (.then unstaged-hunks*
+            (fn [unstaged-hunks]
+              (rf/dispatch-sync [:assoc-in [:repo :unstaged-hunks] {}])
+              (doseq [{:keys [path text]} unstaged-hunks]
+                (rf/dispatch
+                 [:update-in [:repo :unstaged-hunks path]
+                  concat
+                  [{:text text
+                    :line-start 0
+                    :line-end 0}]]))))
      (.then commits*
             (fn [commits]
               (rf/dispatch [:assoc-in [:repo :commits] commits]))))
