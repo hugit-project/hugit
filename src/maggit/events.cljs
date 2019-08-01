@@ -76,7 +76,8 @@
          branch-name* (git/current-branch-name-promise repo*)
          file-statuses* (git/statuses-promise repo*)
          head-commit* (git/head-commit-promise repo*)
-         commits* (git/commits-promise head-commit*)]
+         commits* (git/commits-promise head-commit*)
+         unstaged-hunks* (git/unstaged-hunks-promise repo*)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
@@ -86,7 +87,6 @@
               (rf/dispatch [:assoc-in [:repo :untracked] []])
               (rf/dispatch [:assoc-in [:repo :unstaged] []])
               (rf/dispatch [:assoc-in [:repo :staged] []])
-              (rf/dispatch [:assoc-in [:repo :unstaged-hunks] {}])
               (.forEach statuses
                         (fn [file]
                           (let [status (-> file .status js->clj set)
@@ -106,7 +106,18 @@
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj
-                                path])))))))
+                                path])))))
+
+              (rf/dispatch [:assoc-in [:repo :unstaged-hunks] {}])
+              (.then unstaged-hunks*
+                     (fn [unstaged-hunks]
+                       (doseq [{:keys [path text]} unstaged-hunks]
+                         (rf/dispatch
+                          [:update-in [:repo :unstaged-hunks path]
+                           concat
+                           [{:text text
+                             :line-start 0
+                             :line-end 0}]]))))))
      (.then head-commit*
             (fn [head-commit]
               (rf/dispatch [:assoc-in [:repo :head-commit-summary]
@@ -194,12 +205,9 @@
 
 (rf/reg-event-db
  :show-unstaged-file-diffs
- (fn [db [_ file-info]]
-   (let [{:keys [path]} file-info
-         hunks (get-in db [:repo :unstaged-hunks path])
-         repo-path (get-in db [:repo :path])
-         repo* (git/repo-promise repo-path)
-         text (str/join "\n" hunks)]
+ (fn [db [_ path]]
+   (let [hunks (get-in db [:repo :unstaged-hunks path])
+         text (str/join "\n=======\n\n" (map :text hunks))]
      (rf/dispatch [:router/goto :diffs
                    {:label path
                     :text text}]))

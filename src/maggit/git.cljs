@@ -99,7 +99,7 @@
                (a/doseq [line (a/await (.lines hunk))]
                  (print (js/String.fromCharCode (.origin line))
                         (-> line .content)))
-               (println "=======\n")))))))))
+               (println "\n=======\n")))))))))
 
 (defn staged-file-hunks-promise
   [repo-promise path]
@@ -155,7 +155,28 @@
                (a/doseq [line (a/await (.lines hunk))]
                  (print (js/String.fromCharCode (.origin line))
                         (-> line .content)))
-               (println "=======\n")))))))))
+               (println "\n=======\n")))))))))
+
+(defn unstaged-hunks-promise
+  [repo-promise]
+  (a/async
+   (let [hunks (atom [])
+         repo (a/await repo-promise)
+         index (a/await (.index repo))
+         diff (a/await (.indexToWorkdir Diff repo index))]
+     (a/doseq [patch (a/await (.patches diff))
+               hunk (a/await (.hunks patch))]
+       (let [path (-> patch .newFile .path)
+             lines (a/await (.lines hunk))
+             annotated-lines (for [line lines]
+                               (str (js/String.fromCharCode (.origin line))
+                                    " "
+                                    (-> line .content)))
+             text (str/join annotated-lines)]
+         (swap! hunks conj
+                {:path path
+                 :text text})))
+     @hunks)))
 
 
 ;; Git commancds
