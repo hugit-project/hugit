@@ -175,11 +175,11 @@
  (fn [db [_ path]]
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)
-         hunks* (git/staged-file-hunks-promise repo* path)]
-     (.then hunks*
-            #(rf/dispatch [:router/goto :hunks
+         text* (git/staged-file-diff-promise repo* path)]
+     (.then text*
+            #(rf/dispatch [:router/goto :diffs
                            {:label path
-                            :hunks %}])))
+                            :text %}])))
    db))
 
 (rf/reg-event-db

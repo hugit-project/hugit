@@ -153,37 +153,6 @@
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 
-(defn hunks []
-  (let [label (<sub [:router/view-state :label])
-        hunks (<sub [:router/view-state :hunks])
-        size (<sub [:terminal/size])
-        rows (:rows @size)]
-    [:box#diffs
-     {:top 0
-      :right 0
-      :width "100%"
-      :style {:border {:fg :magenta}}
-      :border {:type :line}
-      :label (str " "
-                  (or @label
-                      "Diff")
-                  " ")}
-     [scrollable-list
-      {:top 0
-       :left 1
-       :right 2
-       :align :left
-       :window-size (-> rows (* 0.6) (- 4))
-       :items @hunks
-       :item-props-f
-       (fn [line]
-         (case (first line)
-           \- {:style {:fg :red}}
-           \+ {:style {:fg :green}}
-           {:style {:fg :white}}))
-       :on-back
-       #(rf/dispatch [:router/go-back])}]]))
-
 (defn commits []
   (let [commits (<sub [:repo :commits])
         selected (<sub [:router/view-state :selected])
@@ -244,7 +213,6 @@
         :files files
         :commits commits
         :diffs diffs
-        :hunks hunks
         :input input)])])
 
 (defn toast []
