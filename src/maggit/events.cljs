@@ -94,23 +94,19 @@
                             (when (contains? status "WT_NEW")
                               (rf/dispatch
                                [:update-in [:repo :untracked] conj
-                                {:path path}]))
+                                path]))
                             (when (contains? status "WT_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj
-                                {:path path}])
-                              (.then (git/unstaged-file-hunks-promise
-                                      repo* path)
-                                     #(rf/dispatch
-                                       [:assoc-in [:repo :unstaged-hunks path] %])))
+                                path]))
                             (when (contains? status "INDEX_NEW")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj
-                                {:path path}]))
+                                path]))
                             (when (contains? status "INDEX_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :staged] conj
-                                {:path path}])))))))
+                                path])))))))
      (.then head-commit*
             (fn [head-commit]
               (rf/dispatch [:assoc-in [:repo :head-commit-summary]
