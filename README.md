@@ -46,9 +46,9 @@ The general philosophy is:
 **Compile**
 
 - `npm start` will start the compiler and watch for changes and recompile automatically
-- `node --inspect /target/js/compiled/maggit.js` to run the app. It will reflect changes automatically.
+- `node --inspect target/js/compiled/maggit.js` to run the app. It will reflect changes automatically.
 
-### Issues
+**Issues**
 
 - install `nodegit` via `yarn` if `npm` complains
 
