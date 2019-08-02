@@ -38,8 +38,21 @@ The general philosophy is:
 
 ## Development
 
-- `node 9.11.1`
+**Install**
+
+- [nvm]()
+- [node]() `9.11.1`
+
+**Compile**
+
+- `npm start` will start the compiler and watch for changes and recompile automatically
+- `node --inspect /target/js/compiled/maggit.js` to run the app. It will reflect changes automatically.
+
+### Issues
+
 - install `nodegit` via `yarn` if `npm` complains
+
+### 
 
 ## License
 Copyright 2019 Divyansh Prakash, Manisha Pillai
