@@ -1,6 +1,6 @@
 (ns maggit.git
   (:require [clojure.string :as str]
-            [maggit.shell :refer [exec]]
+            [maggit.shell :refer [exec exec-promise]]
             [cljs.core.async])
   (:require-macros [cljs.core.async.macros]
                    [maggit.async :as a]))
@@ -145,4 +145,9 @@
 
 (defn push
   []
-  (exec "git push origin HEAD"))
+  (println
+   (let [{:keys [stdout stderr] :as res}
+         (exec "git push origin HEAD")]
+     (if (seq stderr)
+       stderr
+       stdout))))
