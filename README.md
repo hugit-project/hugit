@@ -38,12 +38,6 @@ The general philosophy is:
 
 - [x] Push to `origin/<current-branch>`
 
-## Thanks
-
-* [magit]()
-* [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template) and all its dependencies
-* [nodegit]()
-
 ## Development
 
 **Install**
@@ -60,7 +54,11 @@ The general philosophy is:
 
 - install `nodegit` via `yarn` if `npm` complains
 
-### 
+## Thanks
+
+* [magit]()
+* [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template) and all its dependencies
+* [nodegit]()
 
 ## License
 Copyright 2019 Divyansh Prakash, Manisha Pillai
