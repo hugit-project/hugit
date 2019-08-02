@@ -34,6 +34,10 @@ The general philosophy is:
 - [x] show current branch
 - [ ] checkout branch
 
+### Remote
+
+- [x] Push to `origin/<current-branch>`
+
 ## Thanks
 
 * [magit]()
