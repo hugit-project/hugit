@@ -195,7 +195,7 @@
  (fn [db [_ path line-number]]
    (let [hunks (get-in db [:repo :unstaged-hunks path])
          hunk (u/nth-weighted-item hunks :size line-number)]
-     (println :STAGING-HUNKS-NOT-IMPLEMENTED))
+     nil)
    db))
 
 (rf/reg-event-db
