@@ -145,9 +145,12 @@
 
 (defn push
   []
-  (println
-   (let [{:keys [stdout stderr] :as res}
-         (exec "git push origin HEAD")]
-     (if (seq stderr)
-       stderr
-       stdout))))
+  (a/async
+   (println
+    (let [{:keys [stdout stderr] :as res}
+          (a/await (exec-promise "git push origin HEAD"))]
+      (if (seq stderr)
+        {:success? false
+         :output stderr}
+        {:success? true
+         :output stdout})))))
