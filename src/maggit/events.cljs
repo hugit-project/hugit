@@ -116,7 +116,7 @@
             (fn [unstaged-hunks]
               (rf/dispatch-sync [:assoc-in [:repo :unstaged-hunks] {}])
               (doseq [{:keys [path text size]} unstaged-hunks]
-                (rf/dispatch
+                (rf/dispatch-sync
                  [:update-in [:repo :unstaged-hunks path]
                   concat
                   [{:text text
