@@ -1,4 +1,5 @@
-(ns maggit.shell)
+(ns maggit.shell
+  (:require [clojure.string :as str]))
 
 (defonce shelljs
   (js/require "shelljs"))
@@ -13,7 +14,7 @@
   (let [opts (dissoc options :callback)
         res (.exec shelljs
                    command
-                   (clj->js options)
+                   (clj->js opts)
                    callback)]
     {:code (.-code res)
      :stdout (.-stdout res)
@@ -29,11 +30,10 @@
   (js/Promise.
    (fn [resolve]
      (letfn [(callback [code stdout stderr]
-               (println stdout)
                (resolve {:code code
                          :stdout stdout
                          :stderr stderr}))]
        (exec* (str/join strings)
-              :silent true
               :async true
+              :silent true
               :callback callback)))))
