@@ -1,3 +1,7 @@
+<span style="backround-color: #AAAAAA">
+    <b>NOTE:</b> Under active development.
+</span>
+
 # hugit
 
 The `hu`mane Terminal UI for `git`!
