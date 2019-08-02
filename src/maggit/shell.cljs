@@ -4,25 +4,29 @@
 (defonce shelljs
   (js/require "shelljs"))
 
-(defn exec*
+(defn- exec*
   [command & {:keys [async silent encoding callback]
               :or {async false
                    silent false
-                   encoding "utf8"
-                   callback (fn [_])}
+                   encoding "utf8"}
               :as options}]
-  (let [opts (dissoc options :callback)
-        res (.exec shelljs
-                   command
-                   (clj->js opts)
-                   callback)]
-    {:code (.-code res)
-     :stdout (.-stdout res)
-     :stderr (.-stderr res)}))
+  (let [opts (dissoc options :callback)]
+    (if (some? callback)
+      (.exec shelljs
+             command
+             (clj->js opts)
+             callback)
+      (let [res (.exec shelljs
+                       command
+                       (clj->js opts))]
+        {:code (.-code res)
+         :stdout (.-stdout res)
+         :stderr (.-stderr res)}))))
 
 (defn exec
   [& strings]
   (exec*  (str/join strings)
+          :async false
           :silent true))
 
 (defn exec-promise
