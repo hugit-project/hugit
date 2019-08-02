@@ -26,7 +26,6 @@
 (defn exec
   [& strings]
   (exec*  (str/join strings)
-          :async false
           :silent true))
 
 (defn exec-promise
