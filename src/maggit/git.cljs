@@ -145,4 +145,4 @@
 
 (defn push
   []
-  (exec "git push"))
+  (exec "git push origin HEAD"))
