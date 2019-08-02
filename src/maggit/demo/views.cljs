@@ -132,6 +132,7 @@
 (defn diffs []
   (let [label (<sub [:router/view-state :label])
         text (<sub [:router/view-state :text])
+        file  (<sub [:router/view-state :file])
         size (<sub [:terminal/size])
         rows (:rows @size)]
     [:box#diffs
@@ -157,6 +158,12 @@
            \- {:style {:fg :red}}
            \+ {:style {:fg :green}}
            {:style {:fg :white}}))
+       :custom-key-handlers
+       {["s"] {:f (fn [idx]
+                    (rf/dispatch [:toast "Staging"])
+                    (rf/dispatch [:stage-hunk @file idx]))
+               :label "Stage"
+               :type "Action"}}
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 

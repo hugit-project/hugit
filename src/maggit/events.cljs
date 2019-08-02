@@ -4,6 +4,7 @@
   https://github.com/Day8/re-frame/blob/master/docs/EffectfulHandlers.md"
   (:require [re-frame.core :as rf]
             [maggit.git :as git]
+            [maggit.util :as u]
             [clojure.string :as str]))
 
 (defonce watch
@@ -190,6 +191,14 @@
    db))
 
 (rf/reg-event-db
+ :stage-hunk
+ (fn [db [_ path line-number]]
+   (let [hunks (get-in db [:repo :unstaged-hunks path])
+         hunk (u/nth-weighted-item hunks :size line-number)]
+     (println :STAGING-HUNKS-NOT-IMPLEMENTED))
+   db))
+
+(rf/reg-event-db
  :show-staged-file-diffs
  (fn [db [_ path]]
    (let [repo-path (get-in db [:repo :path])
@@ -204,9 +213,11 @@
 (rf/reg-event-db
  :show-unstaged-file-diffs
  (fn [db [_ path]]
+   ;; TODO: add separator between hunks
    (let [hunks (get-in db [:repo :unstaged-hunks path])
-         text (str/join "\n=======\n\n" (map :text hunks))]
+         text (str/join (map :text hunks))]
      (rf/dispatch [:router/goto :diffs
                    {:label path
-                    :text text}]))
+                    :text text
+                    :file path}]))
    db))
