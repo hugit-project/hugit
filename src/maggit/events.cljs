@@ -114,13 +114,12 @@
      (.then unstaged-hunks*
             (fn [unstaged-hunks]
               (rf/dispatch-sync [:assoc-in [:repo :unstaged-hunks] {}])
-              (doseq [{:keys [path text]} unstaged-hunks]
+              (doseq [{:keys [path text size]} unstaged-hunks]
                 (rf/dispatch
                  [:update-in [:repo :unstaged-hunks path]
                   concat
                   [{:text text
-                    :line-start 0
-                    :line-end 0}]]))))
+                    :size size}]]))))
      (.then commits*
             (fn [commits]
               (rf/dispatch [:assoc-in [:repo :commits] commits]))))

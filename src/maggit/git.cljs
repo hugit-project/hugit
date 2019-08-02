@@ -140,7 +140,8 @@
              text (str/join annotated-lines)]
          (swap! hunks conj
                 {:path path
-                 :text text})))
+                 :text text
+                 :size (count lines)})))
      @hunks)))
 
 
