@@ -81,7 +81,8 @@
          (println "========")
          (a/doseq [line (a/await (.lines hunk))]
            (print (js/String.fromCharCode (.origin line))
-                    (-> line .content))))))))
+                  (-> line .content)))
+         (println "\n"))))))
 
 (defn staged-file-diff-promise
   [repo-promise path]
