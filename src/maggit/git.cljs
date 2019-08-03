@@ -120,12 +120,9 @@
 ;; Utils
 ;; =====
 (defn ->out-map
-  [{:keys [stderr stdout]}]
-  (if (seq stderr)
-    {:success? false
-     :output stderr}
-    {:success? true
-     :output stdout}))
+  [{:keys [stderr stdout]
+    :as shell-result}]
+  shell-result)
 
 
 ;; Git commancds
