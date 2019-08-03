@@ -151,8 +151,6 @@
   [msg]
   (exec "git commit -m \"" msg "\""))
 
-
-
 (defn push-promise
   []
   (a/async
