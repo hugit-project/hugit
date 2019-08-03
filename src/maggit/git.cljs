@@ -117,14 +117,6 @@
                (println "=======\n")))))))))
 
 
-;; Utils
-;; =====
-(defn ->out-map
-  [{:keys [stderr stdout]
-    :as shell-result}]
-  shell-result)
-
-
 ;; Git commancds
 ;; =============
 ;; To use in bootstrap phase
@@ -150,7 +142,4 @@
 
 (defn push-promise
   []
-  (a/async
-   (-> (exec-promise "git push origin HEAD")
-       a/await
-       ->out-map)))
+  (exec-promise "git push origin HEAD"))

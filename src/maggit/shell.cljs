@@ -20,8 +20,8 @@
                        command
                        (clj->js opts))]
         {:code (.-code res)
-         :stdout (.-stdout res)
-         :stderr (.-stderr res)}))))
+         :stdout (.trim (.-stdout res))
+         :stderr (.trim (.-stderr res))}))))
 
 (defn exec
   [& strings]
@@ -34,8 +34,8 @@
    (fn [resolve]
      (letfn [(callback [code stdout stderr]
                (resolve {:code code
-                         :stdout stdout
-                         :stderr stderr}))]
+                         :stdout (.trim stdout)
+                         :stderr (.trim stderr)}))]
        (exec* (str/join strings)
               :async true
               :silent true
