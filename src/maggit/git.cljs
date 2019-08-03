@@ -22,9 +22,6 @@
 (defn repo-promise [path]
   (.open Repository path))
 
-
-;; Utils
-;; =====
 (defn current-branch-name-promise
   [repo-promise]
   (-> repo-promise
@@ -120,6 +117,17 @@
                (println "=======\n")))))))))
 
 
+;; Utils
+;; =====
+(defn ->out-map
+  [{:keys [stderr stdout]}]
+  (if (seq stderr)
+    {:success? false
+     :output stderr}
+    {:success? true
+     :output stdout}))
+
+
 ;; Git commancds
 ;; =============
 ;; To use in bootstrap phase
@@ -143,14 +151,9 @@
   [msg]
   (exec "git commit -m \"" msg "\""))
 
-(defn push
+(defn push-promise
   []
   (a/async
-   (println
-    (let [{:keys [stdout stderr] :as res}
-          (a/await (exec-promise "git push origin HEAD"))]
-      (if (seq stderr)
-        {:success? false
-         :output stderr}
-        {:success? true
-         :output stdout})))))
+   (-> (exec-promise "git push origin HEAD")
+       a/await
+       ->out-map)))

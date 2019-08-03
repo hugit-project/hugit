@@ -145,7 +145,8 @@
 (rf/reg-event-db
  :push
  (fn [db _]
-   (git/push)
+   (.then (git/push-promise)
+          println)
    db))
 
 (rf/reg-event-db
