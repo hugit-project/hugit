@@ -176,14 +176,12 @@
    (assoc-in db [:toast/view-state :text] (str/join strings))))
 
 (rf/reg-event-db
- :show-commit
+ :get-commit-hunks
  (fn [db [_ commit]]
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)]
-     (.then (git/commit-diff-promise repo* (:sha commit))
-            #(rf/dispatch [:router/goto :diffs
-                           {:label (:sha commit)
-                            :text %}])))
+     (.then (git/commit-hunks-promise repo* (:sha commit))
+            #(rf/dispatch [:assoc-in [:repo :commit-hunks] %])))
    db))
 
 (rf/reg-event-db

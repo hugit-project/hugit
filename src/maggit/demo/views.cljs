@@ -229,7 +229,12 @@
        :on-select
        (fn [idx]
          (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
-         (rf/dispatch [:show-commit (nth @commits idx)]))
+         (rf/dispatch [:get-commit-hunks (nth @commits idx)])
+         (rf/dispatch
+          [:router/goto :diffs
+           {:label file
+            :file file
+            :hunks-path [:repo :commit-hunks]}]))
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 

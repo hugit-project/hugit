@@ -63,26 +63,31 @@
                            :message (.message commit)}))))
                 (.start history)))))))
 
-;; Patch: file
-;; Hunk: set of differing lines
-(defn commit-diff-promise
+(defn commit-hunks-promise
   [repo-promise commit-sha]
   (a/async
-   (with-out-str
-     (let [repo (a/await repo-promise)
-           commit (a/await (.getCommit repo commit-sha))
-           diffs (js->clj (a/await (.getDiff commit)))]
-       (a/doseq [diff diffs
-                 patch (a/await (.patches diff))
-                 hunk (a/await (.hunks patch))]
-         (println "========")
-         (println "-" (-> patch .oldFile .path))
-         (println "+" (-> patch .newFile .path))
-         (println "========")
-         (a/doseq [line (a/await (.lines hunk))]
-           (print (js/String.fromCharCode (.origin line))
-                  (-> line .content)))
-         (println "\n"))))))
+   (let [repo (a/await repo-promise)
+         commit (a/await (.getCommit repo commit-sha))
+         diffs (js->clj (a/await (.getDiff commit)))
+         hunks (atom [])]
+     (a/doseq [diff diffs
+               patch (a/await (.patches diff))
+               hunk (a/await (.hunks patch))]
+       (let [path (-> patch .newFile .path)
+             lines (a/await (.lines hunk))
+             annotated-lines (for [line lines]
+                               (str (js/String.fromCharCode (.origin line))
+                                    " "
+                                    (-> line .content)))
+             text (str/join annotated-lines)]
+         (swap! hunks conj
+                {:path path
+                 :text (str path "\n"
+                            (str/join (repeat (count path) "_")) "\n"
+                            text)
+                 :size (+ 2 (count lines))
+                 :diff-lines lines})))
+     @hunks)))
 
 (defn staged-hunks-promise
   [repo-promise]
