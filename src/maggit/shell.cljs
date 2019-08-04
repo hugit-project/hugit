@@ -19,7 +19,8 @@
       (let [res (.exec shelljs
                        command
                        (clj->js opts))]
-        {:code (.-code res)
+        {:command command
+         :code (.-code res)
          :stdout (.trim (.-stdout res))
          :stderr (.trim (.-stderr res))}))))
 
@@ -32,11 +33,13 @@
   [& strings]
   (js/Promise.
    (fn [resolve]
-     (letfn [(callback [code stdout stderr]
-               (resolve {:code code
-                         :stdout (.trim stdout)
-                         :stderr (.trim stderr)}))]
-       (exec* (str/join strings)
-              :async true
-              :silent true
-              :callback callback)))))
+     (let [command (str/join strings)
+           callback (fn [code stdout stderr]
+                      (resolve {:command command
+                                :code code
+                                :stdout (.trim stdout)
+                                :stderr (.trim stderr)}))]
+       (exec* command
+        :async true
+        :silent true
+        :callback callback)))))
