@@ -207,7 +207,11 @@
   (let [commits (<sub [:repo :commits])
         selected (<sub [:router/view-state :selected])
         size (<sub [:terminal/size])
-        rows (:rows @size)]
+        rows (:rows @size)
+        commit-str (fn [{:keys [sha summary]}]
+                     (str (->> sha (take 7) clojure.string/join)
+                          " "
+                          summary))]
     [:box#commits
      {:top 0
       :right 0
@@ -221,20 +225,17 @@
        :right 2
        :align :left
        :window-size (-> rows (* 0.6) (- 4))
-       :items (for [{:keys [sha summary]} @commits]
-                (str (->> sha (take 7) clojure.string/join)
-                     " "
-                     summary))
+       :items (map commit-str @commits)
        :selected @selected
        :on-select
        (fn [idx]
-         (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
-         (rf/dispatch [:get-commit-hunks (nth @commits idx)])
-         (rf/dispatch
-          [:router/goto :diffs
-           {:label file
-            :file file
-            :hunks-path [:repo :commit-hunks]}]))
+         (let [commit (nth @commits idx)]
+           (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
+           (rf/dispatch [:get-commit-hunks commit])
+           (rf/dispatch
+            [:router/goto :diffs
+             {:label (commit-str commit)
+              :hunks-path [:repo :commit-hunks]}])))
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 
