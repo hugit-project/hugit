@@ -78,7 +78,8 @@
          file-statuses* (git/statuses-promise repo*)
          head-commit* (git/head-commit-promise repo*)
          commits* (git/commits-promise head-commit*)
-         unstaged-hunks* (git/unstaged-hunks-promise repo*)]
+         unstaged-hunks* (git/unstaged-hunks-promise repo*)
+         staged-hunks* (git/staged-hunks-promise repo*)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
@@ -118,6 +119,13 @@
               (doseq [{:keys [path] :as hunk} unstaged-hunks]
                 (rf/dispatch-sync
                  [:update-in [:repo :unstaged-hunks path]
+                  concat [hunk]]))))
+     (.then staged-hunks*
+            (fn [staged-hunks]
+              (rf/dispatch-sync [:assoc-in [:repo :staged-hunks] {}])
+              (doseq [{:keys [path] :as hunk} staged-hunks]
+                (rf/dispatch-sync
+                 [:update-in [:repo :staged-hunks path]
                   concat [hunk]]))))
      (.then commits*
             (fn [commits]
@@ -199,25 +207,31 @@
    db))
 
 (rf/reg-event-db
- :show-staged-file-diffs
- (fn [db [_ path]]
+ :unstage-hunk
+ (fn [db [_ path line-number]]
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)
-         text* (git/staged-file-diff-promise repo* path)]
-     (.then text*
-            #(rf/dispatch [:router/goto :diffs
-                           {:label path
-                            :text %}])))
+         hunks (get-in db [:repo :staged-hunks path])
+         hunk (u/nth-weighted-item hunks :size line-number)]
+     (git/unstage-hunk-promise repo* hunk))
+   db))
+
+(rf/reg-event-db
+ :show-staged-file-diffs
+ (fn [db [_ path]]
+   ;; TODO: add separator between hunks
+   (rf/dispatch [:router/goto :diffs
+                 {:label path
+                  :file path
+                  :hunks-path [:repo :staged-hunks path]}])
    db))
 
 (rf/reg-event-db
  :show-unstaged-file-diffs
  (fn [db [_ path]]
    ;; TODO: add separator between hunks
-   (let [hunks (get-in db [:repo :unstaged-hunks path])
-         text (str/join (map :text hunks))]
-     (rf/dispatch [:router/goto :diffs
-                   {:label path
-                    :text text
-                    :file path}]))
+   (rf/dispatch [:router/goto :diffs
+                 {:label path
+                  :file path
+                  :hunks-path [:repo :unstaged-hunks path]}])
    db))

@@ -122,6 +122,30 @@
                                (-> line .content)))))))))
      @hunks)))
 
+(defn staged-hunks-promise
+  [repo-promise]
+  (a/async
+   (let [hunks (atom [])
+         repo (a/await repo-promise)
+         head (a/await (.getHeadCommit repo))
+         tree (a/await (.getTree head))
+         diff (a/await (.treeToIndex Diff repo tree))]
+     (a/doseq [patch (a/await (.patches diff))
+               hunk (a/await (.hunks patch))]
+       (let [path (-> patch .newFile .path)
+             lines (a/await (.lines hunk))
+             annotated-lines (for [line lines]
+                               (str (js/String.fromCharCode (.origin line))
+                                    " "
+                                    (-> line .content)))
+             text (str/join annotated-lines)]
+         (swap! hunks conj
+                {:path path
+                 :text text
+                 :size (count lines)
+                 :diff-lines lines})))
+     @hunks)))
+
 (defn unstaged-hunks-promise
   [repo-promise]
   (a/async
@@ -148,13 +172,18 @@
 (defn stage-hunk-promise
   [repo-promise hunk]
   (a/async
-   (try
-     (let [repo (a/await repo-promise)
-           file-path (:path hunk)
-           diff-lines (:diff-lines hunk)]
-       (.stageLines repo file-path diff-lines false))
-     (catch js/Error e
-       (println e)))))
+   (let [repo (a/await repo-promise)
+         file-path (:path hunk)
+         diff-lines (:diff-lines hunk)]
+     (.stageLines repo file-path diff-lines false))))
+
+(defn unstage-hunk-promise
+  [repo-promise hunk]
+  (a/async
+   (let [repo (a/await repo-promise)
+         file-path (:path hunk)
+         diff-lines (:diff-lines hunk)]
+     (.stageLines repo file-path diff-lines true))))
 
 
 ;; Git commancds
