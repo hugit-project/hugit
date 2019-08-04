@@ -1,6 +1,7 @@
 (ns maggit.demo.views
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
+            [maggit.keys :refer [with-keys]]
             [maggit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn <sub [query]
@@ -232,13 +233,17 @@
       {:left 1}
       text]]))
 
-(defn home []
+(defn home [screen]
   (let [size (<sub [:terminal/size])
         rows (:rows @size)]
-    [:box#home
-     {:top 0
-      :left 0
-      :height "100%"
-      :width "100%"}
-     [viewport (- rows 3)]
-     [toast]]))
+    (with-keys @screen
+      {["l"] {:f #(rf/dispatch [:logs/show-logs])
+              :label "View Logs"
+              :type "Action"}}
+      [:box#home
+       {:top 0
+        :left 0
+        :height "100%"
+        :width "100%"}
+       [viewport (- rows 3)]
+       [toast]])))

@@ -10,6 +10,7 @@
    [maggit.demo.views :refer [home]]
    [maggit.events]
    [maggit.keys :refer [keymap-component]]
+   [maggit.logs :refer [log-box]]
    [maggit.resize :refer [size]]
    [maggit.subs]
    [maggit.views :as views]))
@@ -44,17 +45,22 @@
       (render @screen)))
 
 (defn ui []
-  [:box
-   {:top 0
-    :left 0
-    :width "100%"
-    :height "100%"}
-   [:box
-    {:top 0
-     :left "20%"
-     :width "80%"}
-    [home]]
-   [keymap-component]])
+  (let [show-logs? (rf/subscribe [:get-in [:logs/show-logs?]])
+        size (rf/subscribe [:get-in [:terminal/size]])
+        rows (:rows @size)]
+    [:box
+     {:top 0
+      :left 0
+      :width "100%"
+      :height "100%"}
+     [:box
+      {:top 0
+       :left "20%"
+       :width "80%"}
+      (if @show-logs?
+        [log-box screen]
+        [home screen])]
+     [keymap-component]]))
 
 (defn main!
   "Main application entrypoint function. Initializes app, renders root UI view
