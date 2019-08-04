@@ -141,8 +141,20 @@
          (swap! hunks conj
                 {:path path
                  :text text
-                 :size (count lines)})))
+                 :size (count lines)
+                 :diff-lines lines})))
      @hunks)))
+
+(defn stage-hunk-promise
+  [repo-promise hunk]
+  (a/async
+   (try
+     (let [repo (a/await repo-promise)
+           file-path (:path hunk)
+           diff-lines (:diff-lines hunk)]
+       (.stageLines repo file-path diff-lines false))
+     (catch js/Error e
+       (println e)))))
 
 
 ;; Git commancds

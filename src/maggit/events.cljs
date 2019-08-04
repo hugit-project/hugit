@@ -115,12 +115,10 @@
      (.then unstaged-hunks*
             (fn [unstaged-hunks]
               (rf/dispatch-sync [:assoc-in [:repo :unstaged-hunks] {}])
-              (doseq [{:keys [path text size]} unstaged-hunks]
+              (doseq [{:keys [path] :as hunk} unstaged-hunks]
                 (rf/dispatch-sync
                  [:update-in [:repo :unstaged-hunks path]
-                  concat
-                  [{:text text
-                    :size size}]]))))
+                  concat [hunk]]))))
      (.then commits*
             (fn [commits]
               (rf/dispatch [:assoc-in [:repo :commits] commits]))))
@@ -193,9 +191,11 @@
 (rf/reg-event-db
  :stage-hunk
  (fn [db [_ path line-number]]
-   (let [hunks (get-in db [:repo :unstaged-hunks path])
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)
+         hunks (get-in db [:repo :unstaged-hunks path])
          hunk (u/nth-weighted-item hunks :size line-number)]
-     nil)
+     (git/stage-hunk-promise repo* hunk))
    db))
 
 (rf/reg-event-db
