@@ -69,14 +69,24 @@
                                 :files-path [:repo :unstaged]
                                 :on-select
                                 (fn [file-idx]
-                                  (rf/dispatch [:show-unstaged-file-diffs (nth @(<sub [:repo :unstaged])
-                                                                               file-idx)]))}
+                                  (let [file (nth @(<sub [:repo :unstaged])
+                                                  file-idx)]
+                                    (rf/dispatch
+                                     [:router/goto :diffs
+                                      {:label file
+                                       :file file
+                                       :hunks-path [:repo :unstaged-hunks file]}])))}
                              2 {:label "Staged"
                                 :files-path [:repo :staged]
                                 :on-select
                                 (fn [file-idx]
-                                  (rf/dispatch [:show-staged-file-diffs (nth @(<sub [:repo :staged])
-                                                                             file-idx)]))})])
+                                  (let [file (nth @(<sub [:repo :staged])
+                                                  file-idx)]
+                                    (rf/dispatch
+                                     [:router/goto :diffs
+                                      {:label file
+                                       :file file
+                                       :hunks-path [:repo :staged-hunks file]}])))})])
            (== x 3)
            (rf/dispatch [:router/goto :commits])))}]]))
 

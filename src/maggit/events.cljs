@@ -216,22 +216,3 @@
      (git/unstage-hunk-promise repo* hunk))
    db))
 
-(rf/reg-event-db
- :show-staged-file-diffs
- (fn [db [_ path]]
-   ;; TODO: add separator between hunks
-   (rf/dispatch [:router/goto :diffs
-                 {:label path
-                  :file path
-                  :hunks-path [:repo :staged-hunks path]}])
-   db))
-
-(rf/reg-event-db
- :show-unstaged-file-diffs
- (fn [db [_ path]]
-   ;; TODO: add separator between hunks
-   (rf/dispatch [:router/goto :diffs
-                 {:label path
-                  :file path
-                  :hunks-path [:repo :unstaged-hunks path]}])
-   db))
