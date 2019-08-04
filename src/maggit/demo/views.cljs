@@ -1,6 +1,7 @@
 (ns maggit.demo.views
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
+            [maggit.util :as u]
             [maggit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn <sub [query]
@@ -145,11 +146,10 @@
         hunks-path (<sub [:router/view-state :hunks-path])
         hunks (<sub @hunks-path)
         dummy-hunks (repeat (count @hunks)
-                            {:path file
-                             :size 0
-                             :diff-lines #js[]
+                            {:dummy? true
+                             :size 1
                              :text "====="}) 
-        separated-hunks (interleave @hunks dummy-hunks)
+        separated-hunks (r/atom (interleave @hunks dummy-hunks))
         size (<sub [:terminal/size])
         rows (:rows @size)]
     [:box#diffs
@@ -168,7 +168,7 @@
        :right 2
        :align :left
        :window-size (-> rows (* 0.6) (- 4))
-       :items (for [{:keys [text]} separated-hunks
+       :items (for [{:keys [text]} @separated-hunks
                     :let [lines (clojure.string/split text #"\n")]
                     line lines]
                 line)
@@ -180,13 +180,23 @@
            {:style {:fg :white}}))
        :custom-key-handlers
        {["s"] {:f (fn [idx]
-                    (rf/dispatch [:toast "Staging"])
-                    (rf/dispatch [:stage-hunk @file idx]))
+                    (let [hunk (u/nth-weighted-item
+                                @separated-hunks
+                                :size
+                                idx)]
+                      (when-not (:dummy? hunk)
+                        (toast> "Staging hunk")
+                        (rf/dispatch [:stage-hunk hunk]))))
                :label "Stage Hunk"
                :type "Action"}
         ["u"] {:f (fn [idx]
-                    (rf/dispatch [:toast "Unstaging"])
-                    (rf/dispatch [:unstage-hunk @file idx]))
+                    (let [hunk (u/nth-weighted-item
+                                @separated-hunks
+                                :size
+                                idx)]
+                      (when-not (:dummy? hunk)
+                        (toast> "Staging hunk")
+                        (rf/dispatch [:unstage-hunk hunk]))))
                :label "Unstage Hunk"
                :type "Action"}}
        :on-back

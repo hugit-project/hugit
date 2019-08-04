@@ -4,7 +4,6 @@
   https://github.com/Day8/re-frame/blob/master/docs/EffectfulHandlers.md"
   (:require [re-frame.core :as rf]
             [maggit.git :as git]
-            [maggit.util :as u]
             [clojure.string :as str]))
 
 (defonce watch
@@ -198,21 +197,16 @@
 
 (rf/reg-event-db
  :stage-hunk
- (fn [db [_ path line-number]]
+ (fn [db [_ hunk]]
    (let [repo-path (get-in db [:repo :path])
-         repo* (git/repo-promise repo-path)
-         hunks (get-in db [:repo :unstaged-hunks path])
-         hunk (u/nth-weighted-item hunks :size line-number)]
+         repo* (git/repo-promise repo-path)]
      (git/stage-hunk-promise repo* hunk))
    db))
 
 (rf/reg-event-db
  :unstage-hunk
- (fn [db [_ path line-number]]
+ (fn [db [_ hunk]]
    (let [repo-path (get-in db [:repo :path])
-         repo* (git/repo-promise repo-path)
-         hunks (get-in db [:repo :staged-hunks path])
-         hunk (u/nth-weighted-item hunks :size line-number)]
+         repo* (git/repo-promise repo-path)]
      (git/unstage-hunk-promise repo* hunk))
    db))
-

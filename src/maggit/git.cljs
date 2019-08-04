@@ -84,44 +84,6 @@
                   (-> line .content)))
          (println "\n"))))))
 
-(defn staged-file-diff-promise
-  [repo-promise path]
-  (a/async
-   (with-out-str
-     (let [repo (a/await repo-promise)
-           head (a/await (.getHeadCommit repo))
-           tree (a/await (.getTree head))
-           diff (a/await (.treeToIndex Diff repo tree))
-           patches (js->clj (a/await (.patches diff)))]
-       (a/doseq [patch patches]
-         (let [patch-path (-> patch .newFile .path)]
-           (when (= path patch-path)
-             (a/doseq [hunk (a/await (.hunks patch))]
-               (a/doseq [line (a/await (.lines hunk))]
-                 (print (js/String.fromCharCode (.origin line))
-                        (-> line .content)))
-               (println "\n=======\n")))))))))
-
-(defn staged-file-hunks-promise
-  [repo-promise path]
-  (a/async
-   (let [repo (a/await repo-promise)
-         head (a/await (.getHeadCommit repo))
-         tree (a/await (.getTree head))
-         diff (a/await (.treeToIndex Diff repo tree))
-         patches (js->clj (a/await (.patches diff)))
-         hunks (atom [])]
-     (a/doseq [patch patches]
-       (let [patch-path (-> patch .newFile .path)]
-         (when (= path patch-path)
-           (a/doseq [hunk (a/await (.hunks patch))]
-             (swap! hunks conj
-                    (with-out-str
-                      (a/doseq [line (a/await (.lines hunk))]
-                        (print (js/String.fromCharCode (.origin line))
-                               (-> line .content)))))))))
-     @hunks)))
-
 (defn staged-hunks-promise
   [repo-promise]
   (a/async
@@ -173,17 +135,15 @@
   [repo-promise hunk]
   (a/async
    (let [repo (a/await repo-promise)
-         file-path (:path hunk)
-         diff-lines (:diff-lines hunk)]
-     (.stageLines repo file-path diff-lines false))))
+         {:keys [path diff-lines]} hunk]
+     (.stageLines repo path diff-lines false))))
 
 (defn unstage-hunk-promise
   [repo-promise hunk]
   (a/async
    (let [repo (a/await repo-promise)
-         file-path (:path hunk)
-         diff-lines (:diff-lines hunk)]
-     (.stageLines repo file-path diff-lines true))))
+         {:keys [path diff-lines]} hunk]
+     (.stageLines repo path diff-lines true))))
 
 
 ;; Git commancds
