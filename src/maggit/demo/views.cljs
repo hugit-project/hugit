@@ -148,7 +148,7 @@
        :left 1
        :right 2
        :align :left
-       :window-size (-> rows (* 0.6) (- 4))
+       :window-size (- rows 6)
        :items (clojure.string/split @text #"\n")
        :item-props-f
        (fn [line]
@@ -178,7 +178,7 @@
          :left 1
          :right 2
          :align :left
-         :window-size (-> rows (* 0.6) (- 4))
+         :window-size (- rows 6)
          :items (for [{:keys [sha summary]} @commits]
                   (str (->> sha (take 7) clojure.string/join)
                        " "
