@@ -66,7 +66,16 @@
            (rf/dispatch [:router/goto :files
                          (case x
                              0 {:label "Untracked"
-                                :files-path [:repo :untracked]}
+                                :files-path [:repo :untracked]
+                                :on-select
+                                (fn [file-idx]
+                                  (let [file (nth @(<sub [:repo :untracked])
+                                                  file-idx)]
+                                    (rf/dispatch
+                                     [:router/goto :diffs
+                                      {:label file
+                                       :file file
+                                       :hunks-path [:repo :untracked-hunks file]}])))}
                              1 {:label "Unstaged"
                                 :files-path [:repo :unstaged]
                                 :on-select

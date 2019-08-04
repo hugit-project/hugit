@@ -90,9 +90,10 @@
                             (.summary head-commit)])))
      (.then file-statuses*
             (fn [statuses]
-              (rf/dispatch [:assoc-in [:repo :untracked] []])
-              (rf/dispatch [:assoc-in [:repo :unstaged] []])
-              (rf/dispatch [:assoc-in [:repo :staged] []])
+              (rf/dispatch-sync [:assoc-in [:repo :untracked] []])
+              (rf/dispatch-sync [:assoc-in [:repo :unstaged] []])
+              (rf/dispatch-sync [:assoc-in [:repo :staged] []])
+              (rf/dispatch-sync [:assoc-in [:repo :untracked-hunks] {}])
               (.forEach statuses
                         (fn [file]
                           (let [status (-> file .status js->clj set)
@@ -100,7 +101,15 @@
                             (when (contains? status "WT_NEW")
                               (rf/dispatch
                                [:update-in [:repo :untracked] conj
-                                path]))
+                                path])
+                              (let [text (.readFileSync fs path)
+                                    lines (str/split text "\n")]
+                                (rf/dispatch
+                                 [:update-in [:repo :untracked-hunks path]
+                                  concat [{:path path
+                                           :text text
+                                           :size (count lines)
+                                           :diff-lines #js[]}]])))
                             (when (contains? status "WT_MODIFIED")
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj
