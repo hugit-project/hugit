@@ -1,6 +1,6 @@
 (ns maggit.git
   (:require [clojure.string :as str]
-            [maggit.shell :refer [exec]]
+            [maggit.shell :refer [exec exec-promise]]
             [cljs.core.async])
   (:require-macros [cljs.core.async.macros]
                    [maggit.async :as a]))
@@ -22,9 +22,6 @@
 (defn repo-promise [path]
   (.open Repository path))
 
-
-;; Utils
-;; =====
 (defn current-branch-name-promise
   [repo-promise]
   (-> repo-promise
@@ -174,6 +171,6 @@
   [msg]
   (exec "git commit -m \"" msg "\""))
 
-(defn push
+(defn push-promise
   []
-  (exec "git push"))
+  (exec-promise "git push origin HEAD"))

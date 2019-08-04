@@ -2,6 +2,7 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [maggit.util :as u]
+            [maggit.keys :refer [with-keys]]
             [maggit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn <sub [query]
@@ -168,7 +169,7 @@
        :left 1
        :right 2
        :align :left
-       :window-size (-> rows (* 0.6) (- 4))
+       :window-size (- rows 6)
        :items (for [{:keys [text]} (separated-hunks @hunks)
                     :let [lines (clojure.string/split text #"\n")]
                     line lines]
@@ -224,7 +225,7 @@
        :left 1
        :right 2
        :align :left
-       :window-size (-> rows (* 0.6) (- 4))
+       :window-size (- rows 6)
        :items (map commit-str @commits)
        :selected @selected
        :on-select
@@ -278,13 +279,17 @@
       {:left 1}
       text]]))
 
-(defn home []
+(defn home [screen]
   (let [size (<sub [:terminal/size])
         rows (:rows @size)]
-    [:box#home
-     {:top 0
-      :left 0
-      :height "100%"
-      :width "100%"}
-     [viewport (- rows 3)]
-     [toast]]))
+    (with-keys @screen
+      {["l"] {:f #(rf/dispatch [:logs/show-logs])
+              :label "View Logs"
+              :type "Action"}}
+      [:box#home
+       {:top 0
+        :left 0
+        :height "100%"
+        :width "100%"}
+       [viewport (- rows 3)]
+       [toast]])))
