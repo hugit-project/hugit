@@ -73,4 +73,4 @@
          :items @log-lines
          :window-size (- rows 6)
          :selected (- (count @log-lines)
-                      rows)}]])))
+                      (- rows 6))}]])))
