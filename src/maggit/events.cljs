@@ -4,6 +4,7 @@
   https://github.com/Day8/re-frame/blob/master/docs/EffectfulHandlers.md"
   (:require [re-frame.core :as rf]
             [maggit.git :as git]
+            [maggit.logs :refer [log]]
             [clojure.string :as str]))
 
 (defonce watch
@@ -145,7 +146,12 @@
 (rf/reg-event-db
  :push
  (fn [db _]
-   (git/push)
+   (.then (git/push-promise)
+          (fn [{:keys [command stdout stderr]}]
+            (println "\n$" command)
+            (println stdout)
+            (println stderr)
+            (println)))
    db))
 
 (rf/reg-event-db
