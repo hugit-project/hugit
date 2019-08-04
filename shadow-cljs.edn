@@ -12,7 +12,7 @@
                 :output-dir "target/js/compiled/prod"
                 :target     :node-script
                 :devtools   {:after-load       maggit.app/reload!}
-                :dev        {:main             maggit.app/main!
+                :dev        {:main             maggit.main/main!
                              :output-to        "target/js/compiled/maggit.js"
                              :output-dir       "target/js/compiled/dev"}
                 :release    {:main             maggit.main/main!
