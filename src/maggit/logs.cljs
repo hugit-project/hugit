@@ -54,9 +54,9 @@
   (let [size (rf/subscribe [:get-in [:terminal/size]])
         rows (:rows @size)]
     (keys/with-keys @screen
-      {["escape"] {:f #(rf/dispatch [:logs/hide-logs])
-                   :label "Hide Logs"
-                   :type "Navigation"}}
+      {["left"] {:f #(rf/dispatch [:logs/hide-logs])
+                 :label "Hide Logs"
+                 :type "Navigation"}}
       [:box#log
        {:top          0
         :bottom       0
