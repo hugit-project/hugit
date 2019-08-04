@@ -147,7 +147,10 @@
  :push
  (fn [db _]
    (.then (git/push-promise)
-          log)
+          (fn [{:keys [command stdout stderr]}]
+            (println "$" command)
+            (println stdout)
+            (println stderr)))
    db))
 
 (rf/reg-event-db
