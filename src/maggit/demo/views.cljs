@@ -195,7 +195,7 @@
                                 :size
                                 idx)]
                       (when-not (:dummy? hunk)
-                        (toast> "Staging hunk")
+                        (toast> "Unstaging hunk")
                         (rf/dispatch [:unstage-hunk hunk]))))
                :label "Unstage Hunk"
                :type "Action"}}
