@@ -144,6 +144,12 @@
         file  (<sub [:router/view-state :file])
         hunks-path (<sub [:router/view-state :hunks-path])
         hunks (<sub @hunks-path)
+        dummy-hunks (repeat (count @hunks)
+                            {:path file
+                             :size 0
+                             :diff-lines #js[]
+                             :text "====="}) 
+        separated-hunks (interleave @hunks dummy-hunks)
         size (<sub [:terminal/size])
         rows (:rows @size)]
     [:box#diffs
@@ -162,7 +168,7 @@
        :right 2
        :align :left
        :window-size (-> rows (* 0.6) (- 4))
-       :items (for [{:keys [text]} @hunks
+       :items (for [{:keys [text]} separated-hunks
                     :let [lines (clojure.string/split text #"\n")]
                     line lines]
                 line)
