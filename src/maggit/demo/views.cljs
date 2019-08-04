@@ -133,6 +133,7 @@
   (let [label (<sub [:router/view-state :label])
         text (<sub [:router/view-state :text])
         file  (<sub [:router/view-state :file])
+        hunks (<sub [:repo :unstaged-hunks @file])
         size (<sub [:terminal/size])
         rows (:rows @size)]
     [:box#diffs
@@ -151,7 +152,10 @@
        :right 2
        :align :left
        :window-size (-> rows (* 0.6) (- 4))
-       :items (clojure.string/split @text #"\n")
+       :items (for [{:keys [text]} @hunks
+                    :let [lines (clojure.string/split text #"\n")]
+                    line lines]
+                line)
        :item-props-f
        (fn [line]
          (case (first line)
