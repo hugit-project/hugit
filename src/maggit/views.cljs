@@ -10,7 +10,6 @@
                     :label label
                     :type type}])))
 
-
 (letfn [(cycle-next-item [curr items]
           (if (== (dec (count items)) curr)
             0
@@ -83,36 +82,35 @@
   (defn scrollable-list
     "Returns  a vertical list of items that can be scrolled and selected from
    - items: list of option strings, can be navigated using <up>/<down>
+   - window-size: how many items to show at a time
+   - selected: index of the item that will be at the top initially
    - item-props-f: given a string, returns properties that will be applied to that item
    - selected: index of the currently selected item
    - on-select: function that will be called with the selected index when <right> is pressed
    - on-back: function that will be called when <left> is pressed
    - custom-key-handlers: {[\"left\" \"right\"] {:f (fn [idx] (println idx)) :label \"Print\"}}"
     [{:keys [items selected
-             window-start window-size
+             window-size
              item-props-f
              on-select on-back custom-key-handlers]
       :or {item-props-f (fn [_] {})}
       :as props}]
     (r/with-let [selected (r/atom (or selected 0))
-                 window-start (r/atom (or window-start @selected))
                  window-size (or window-size 5)]
       (with-keys @screen
-        (-> {["down"]  {:f #(swap! window-start next-item items)
+        (-> {["down"]  {:f #(swap! selected next-item items)
                         :label "Next Item"
                         :type "Navigation"}
-             ["up"]    {:f #(swap! window-start prev-item items)
+             ["up"]    {:f #(swap! selected prev-item items)
                         :label "Prev Item"
                         :type "Navigation"}
-             ["right"] {:f (fn []
-                             (on-select @window-start)
-                             (reset! selected @window-start))
+             ["right"] {:f #(on-select @selected)
                         :label "Select"
                         :type "Navigation"}
              ["left"]  {:f on-back
                         :label "Back"
                         :type "Navigation"}}
-            (merge (enhance-handler-map custom-key-handlers window-start))
+            (merge (enhance-handler-map custom-key-handlers selected))
             (dissoc (when (empty? items)
                       ["up"])
                     (when (empty? items)
@@ -122,11 +120,13 @@
                     (when-not on-back
                       ["left"])))
         [:box (dissoc props
-                      :items :item-props :selected
-                      :on-select :on-back)
+                      :items :item-props-f
+                      :selected :window-size
+                      :on-select :on-back
+                      :custom-key-handlers)
          (doall
           (for [[idx item] (map-indexed vector (get-window items
-                                                           @window-start
+                                                           @selected
                                                            window-size))
                 :let [current-item-props (item-props-f item)
                       content (str (if (zero? idx) "> " "  ")

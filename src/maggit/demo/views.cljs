@@ -145,11 +145,12 @@
         file  (<sub [:router/view-state :file])
         hunks-path (<sub [:router/view-state :hunks-path])
         hunks (<sub @hunks-path)
-        dummy-hunks (repeat (count @hunks)
-                            {:dummy? true
-                             :size 1
-                             :text "====="}) 
-        separated-hunks (r/atom (interleave @hunks dummy-hunks))
+        separated-hunks (fn [hunks]
+                          (interleave hunks
+                                      (repeat (count hunks)
+                                              {:dummy? true
+                                               :size 1
+                                               :text "====="})))
         size (<sub [:terminal/size])
         rows (:rows @size)]
     [:box#diffs
@@ -168,7 +169,7 @@
        :right 2
        :align :left
        :window-size (-> rows (* 0.6) (- 4))
-       :items (for [{:keys [text]} @separated-hunks
+       :items (for [{:keys [text]} (separated-hunks @hunks)
                     :let [lines (clojure.string/split text #"\n")]
                     line lines]
                 line)
@@ -181,7 +182,7 @@
        :custom-key-handlers
        {["s"] {:f (fn [idx]
                     (let [hunk (u/nth-weighted-item
-                                @separated-hunks
+                                (separated-hunks @hunks)
                                 :size
                                 idx)]
                       (when-not (:dummy? hunk)
@@ -191,7 +192,7 @@
                :type "Action"}
         ["u"] {:f (fn [idx]
                     (let [hunk (u/nth-weighted-item
-                                @separated-hunks
+                                (separated-hunks @hunks)
                                 :size
                                 idx)]
                       (when-not (:dummy? hunk)
