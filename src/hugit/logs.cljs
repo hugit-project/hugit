@@ -1,9 +1,9 @@
-(ns maggit.logs
+(ns hugit.logs
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [re-frame.core :as rf]
-            [maggit.keys :as keys]
-            [maggit.views :refer [scrollable-list]]))
+            [hugit.keys :as keys]
+            [hugit.views :refer [scrollable-list]]))
 
 (defonce log-lines
   (r/atom []))

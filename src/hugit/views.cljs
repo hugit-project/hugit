@@ -1,7 +1,7 @@
-(ns maggit.views
+(ns hugit.views
   (:require [reagent.core :as r]
-            [maggit.core :refer [screen]]
-            [maggit.keys :refer [with-keys]]))
+            [hugit.core :refer [screen]]
+            [hugit.keys :refer [with-keys]]))
 
 (defn- enhance-handler-map
   [handlers arg-atom]

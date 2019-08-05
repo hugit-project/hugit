@@ -1,9 +1,9 @@
-(ns maggit.git
+(ns hugit.git
   (:require [clojure.string :as str]
-            [maggit.shell :refer [exec exec-promise]]
+            [hugit.shell :refer [exec exec-promise]]
             [cljs.core.async])
   (:require-macros [cljs.core.async.macros]
-                   [maggit.async :as a]))
+                   [hugit.async :as a]))
 
 ;; Basic Classes
 ;; =============

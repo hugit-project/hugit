@@ -1,4 +1,4 @@
-(ns maggit.main
+(ns hugit.main
   "Main application entrypoint. Defines root UI view, cli-options,
   arg parsing logic, and initialization routine"
   (:require
@@ -6,14 +6,14 @@
    [mount.core :refer [defstate] :as mount]
    [re-frame.core :as rf]
    [reagent.core :as r]
-   [maggit.core :refer [render screen]]
-   [maggit.demo.views :refer [home]]
-   [maggit.events]
-   [maggit.keys :refer [keymap-component]]
-   [maggit.logs :refer [log-box]]
-   [maggit.resize :refer [size]]
-   [maggit.subs]
-   [maggit.views :as views]))
+   [hugit.core :refer [render screen]]
+   [hugit.demo.views :refer [home]]
+   [hugit.events]
+   [hugit.keys :refer [keymap-component]]
+   [hugit.logs :refer [log-box]]
+   [hugit.resize :refer [size]]
+   [hugit.subs]
+   [hugit.views :as views]))
 
 (def cli-options
   [["-p" "--port PORT" "port number"

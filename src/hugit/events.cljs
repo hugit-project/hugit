@@ -1,10 +1,10 @@
-(ns maggit.events
+(ns hugit.events
   "Event handlers for re-frame dispatch events.
   Used to manage app db updates and side-effects.
   https://github.com/Day8/re-frame/blob/master/docs/EffectfulHandlers.md"
   (:require [re-frame.core :as rf]
-            [maggit.git :as git]
-            [maggit.logs :refer [log]]
+            [hugit.git :as git]
+            [hugit.logs :refer [log]]
             [clojure.string :as str]))
 
 (defonce watch

@@ -1,4 +1,4 @@
-(ns maggit.shell
+(ns hugit.shell
   (:require [clojure.string :as str]))
 
 (defonce shelljs
