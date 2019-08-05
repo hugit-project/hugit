@@ -72,10 +72,9 @@
                                   (let [file (nth @(<sub [:repo :untracked])
                                                   file-idx)]
                                     (rf/dispatch
-                                     [:router/goto :diffs
+                                     [:router/goto :file
                                       {:label file
-                                       :file file
-                                       :hunks-path [:repo :untracked-hunks file]}])))}
+                                       :content-path [:repo :untracked-content file]}])))}
                              1 {:label "Unstaged"
                                 :files-path [:repo :unstaged]
                                 :on-select
@@ -147,6 +146,29 @@
          (if (some? on-select)
            (on-select idx)
            (rf/dispatch [:show-file (nth @files idx)])))
+       :on-back
+       #(rf/dispatch [:router/go-back])}]]))
+
+(defn file []
+  (let [label (<sub [:router/view-state :label])
+        content-path (<sub [:router/view-state :content-path])
+        text (<sub @content-path)
+        size (<sub [:terminal/size])
+        rows (:rows @size)]
+    [:box#diffs
+     {:top 0
+      :right 0
+      :width "100%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label (str " " @label " ")}
+     [scrollable-list
+      {:top 0
+       :left 1
+       :right 2
+       :align :left
+       :window-size (- rows 6)
+       :items (clojure.string/split @text #"\n")
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 
@@ -273,6 +295,7 @@
      [(case view
         :status status
         :files files
+        :file file
         :commits commits
         :diffs diffs
         :input input)])])
