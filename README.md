@@ -11,6 +11,11 @@ The general philosophy is:
 * **Help** all available actions and their keybindings are displayed at all times
 * **Logs** are always accessible
 
+## Demo
+
+![hugit screencast](hugit-screencast.gif)
+
+
 ## Installation
 
 ## Features
