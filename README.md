@@ -30,6 +30,8 @@ The general philosophy is:
 
 ### Commits
 
+- [x] show commit log
+- [x] show commit
 - [x] show current head
 - [x] commit with message
 - [ ] show unmerged (unpushed) commits
