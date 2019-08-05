@@ -1,4 +1,4 @@
-<span style="backround-color: #AAAAAA">
+<span> 
     <b>NOTE:</b> Under active development.
 </span>
 
@@ -9,6 +9,7 @@ The `hu`mane Terminal UI for `git`!
 The general philosophy is:
 * **Live** tracks changes in the repo, and updates the UI automatically
 * **Help** all available actions and their keybindings are displayed at all times
+* **Logs** are always accessible
 
 ## Installation
 
@@ -21,11 +22,17 @@ The general philosophy is:
 - [x] checkout files
 - [x] untrack files
 
+### Hunks
+
+- [x] stage hunks
+- [x] unstage hunks
+- [ ] discard hunks
+
 ### Commits
 
 - [x] show current head
 - [x] commit with message
-- [ ] show unmerged commits
+- [ ] show unmerged (unpushed) commits
 - [ ] ammend
 - [ ] rebase
 
@@ -36,32 +43,44 @@ The general philosophy is:
 
 ### Remote
 
-- [x] Push to `origin/<current-branch>`
+- [x] Push to `origin HEAD` (upstream branch with the same name)
+- [ ] Change remote
+- [ ] Push to custom branch
 
 ## Development
 
 **Install**
 
-- [nvm]()
-- [node]() `9.11.1`
+* Install [nvm](https://github.com/nvm-sh/nvm)
+* `nvm use 9.11.1`
+* `npm install`
 
 **Compile**
 
-- `npm start` will start the compiler and watch for changes and recompile automatically
-- `node --inspect target/js/compiled/maggit.js` to run the app. It will reflect changes automatically.
+* `nvm use 9.11.1`
+* `npm start` will start the compiler and watch for changes and recompile automatically
+
+**Run**
+
+* `nvm use 9.11.1`
+* `node --inspect target/js/compiled/maggit.js` to run the app. It will reflect changes automatically.
 
 **Issues**
 
-- install `nodegit` via `yarn` if `npm` complains
+* install `nodegit` via `yarn` if `npm` complains: `yarn add nodegit@0.24.3`
 
 ## Thanks
 
-* [magit]()
 * [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template) and all its dependencies
-* [nodegit]()
+* [nodegit](https://github.com/nodegit/nodegit)
+
+## Contributors
+
+* [Manisha Pillai](https://github.com/Manisha38)
+* [Divyansh Prakash](https://github.com/divs1210)
 
 ## License
-Copyright 2019 Divyansh Prakash, Manisha Pillai
+Copyright 2019 Manisha Pillai, Divyansh Prakash
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this project except in compliance with the License.
