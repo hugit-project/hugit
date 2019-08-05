@@ -7,7 +7,7 @@
    [re-frame.core :as rf]
    [reagent.core :as r]
    [hugit.core :refer [render screen]]
-   [hugit.demo.views :refer [home]]
+   [hugit.app.views :refer [home]]
    [hugit.events]
    [hugit.keys :refer [keymap-component]]
    [hugit.logs :refer [log-box]]

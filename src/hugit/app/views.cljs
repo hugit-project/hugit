@@ -1,4 +1,4 @@
-(ns hugit.demo.views
+(ns hugit.app.views
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [hugit.util :as u]
