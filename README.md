@@ -71,15 +71,15 @@ The general philosophy is:
 
 * install `nodegit` via `yarn` if `npm` complains: `yarn add nodegit@0.24.3`
 
-## Thanks
-
-* [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template)
-* [nodegit](https://github.com/nodegit/nodegit)
-
 ## Contributors
 
 * [Manisha Pillai](https://github.com/Manisha38)
 * [Divyansh Prakash](https://github.com/divs1210)
+
+## Thanks
+
+* [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template)
+* [nodegit](https://github.com/nodegit/nodegit)
 
 ## License
 Copyright 2019 Manisha Pillai, Divyansh Prakash
