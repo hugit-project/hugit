@@ -30,6 +30,8 @@ The general philosophy is:
 
 ### Commits
 
+- [x] show commit log
+- [x] show commit
 - [x] show current head
 - [x] commit with message
 - [ ] show unmerged (unpushed) commits
@@ -47,37 +49,56 @@ The general philosophy is:
 - [ ] Change remote
 - [ ] Push to custom branch
 
-## Development
-
-**Install**
+## Install
 
 * Install [nvm](https://github.com/nvm-sh/nvm)
+* `git clone https://github.com/divs1210/hugit.git`
+* `cd hugit`
 * `nvm use 9.11.1`
 * `npm install`
+* `npx shadow-cljs release app`
+
+## Run
+
+`cd` to a git repo, and run:
+* `nvm use 9.11.1`
+* `node path/to/hugit/target/main.js`
+
+## Develop
 
 **Compile**
 
+* `cd path/to/hugit`
 * `nvm use 9.11.1`
-* `npm start` will start the compiler and watch for changes and recompile automatically
+* `npm start`
+
+This will:
+  * start the compiler and watch for changes and recompile automatically
+  * start a Clojure nrepl, connecting to which and running `(repl)` will start a ClojureScript repl
 
 **Run**
 
+* `cd path/to/hugit`
 * `nvm use 9.11.1`
-* `node --inspect target/js/compiled/hugit.js` to run the app. It will reflect changes automatically.
+* `node --inspect target/js/compiled/hugit.js` to run the app
+
+Changes to the `hugit` source should automatically reflect in the UI.
+`hugit` is used to develop `hugit` whenever possible!
+We will keep at it till we never have to use anything else.
 
 **Issues**
 
-* install `nodegit` via `yarn` if `npm` complains: `yarn add nodegit@0.24.3`
-
-## Thanks
-
-* [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template)
-* [nodegit](https://github.com/nodegit/nodegit)
+* Install `nodegit` via `yarn` if `npm` complains: `yarn add nodegit@0.24.3`
 
 ## Contributors
 
 * [Manisha Pillai](https://github.com/Manisha38)
 * [Divyansh Prakash](https://github.com/divs1210)
+
+## Thanks
+
+* [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template)
+* [nodegit](https://github.com/nodegit/nodegit)
 
 ## License
 Copyright 2019 Manisha Pillai, Divyansh Prakash
