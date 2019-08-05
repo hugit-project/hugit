@@ -1,10 +1,10 @@
-(ns maggit.core
+(ns hugit.core
   "Create application state with mount."
   (:require
    [cljs.nodejs :as nodejs]
    [mount.core :refer [defstate] :as mount]
-   [maggit.keys :as keys]
-   [maggit.resize :as resize]))
+   [hugit.keys :as keys]
+   [hugit.resize :as resize]))
 
 ;; Import required npm & node dependencies
 (def blessed (js/require "blessed"))
@@ -22,7 +22,7 @@
     (.screen blessed
              #js {:autoPadding true
                   :smartCSR true
-                  :title "maggit"})
+                  :title "hugit"})
     resize/setup
     keys/setup))
 

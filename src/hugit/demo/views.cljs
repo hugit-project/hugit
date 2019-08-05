@@ -1,9 +1,9 @@
-(ns maggit.demo.views
+(ns hugit.demo.views
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [maggit.util :as u]
-            [maggit.keys :refer [with-keys]]
-            [maggit.views :refer [navigable-list scrollable-list text-input]]))
+            [hugit.util :as u]
+            [hugit.keys :refer [with-keys]]
+            [hugit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn <sub [query]
   (rf/subscribe [:get-in query]))

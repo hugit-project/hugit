@@ -1,4 +1,4 @@
-(ns maggit.resize
+(ns hugit.resize
   (:require
    [re-frame.core :as rf]))
 

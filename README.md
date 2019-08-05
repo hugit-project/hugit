@@ -63,7 +63,7 @@ The general philosophy is:
 **Run**
 
 * `nvm use 9.11.1`
-* `node --inspect target/js/compiled/maggit.js` to run the app. It will reflect changes automatically.
+* `node --inspect target/js/compiled/hugit.js` to run the app. It will reflect changes automatically.
 
 **Issues**
 

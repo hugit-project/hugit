@@ -11,11 +11,11 @@
  :builds {:app {:output-to  "target/main.js"
                 :output-dir "target/js/compiled/prod"
                 :target     :node-script
-                :devtools   {:after-load       maggit.app/reload!}
-                :dev        {:main             maggit.main/main!
-                             :output-to        "target/js/compiled/maggit.js"
+                :devtools   {:after-load       hugit.app/reload!}
+                :dev        {:main             hugit.main/main!
+                             :output-to        "target/js/compiled/hugit.js"
                              :output-dir       "target/js/compiled/dev"}
-                :release    {:main             maggit.main/main!
+                :release    {:main             hugit.main/main!
                              :compiler-options {:optimizations :simple}}}
           :test {:output-to "target/test.js"
                  :output-dir "target/js/compiled/test"

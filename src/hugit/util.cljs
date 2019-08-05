@@ -1,4 +1,4 @@
-(ns maggit.util)
+(ns hugit.util)
 
 (defn nth-weighted-item
   [weighted-items weight-fn n]

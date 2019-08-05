@@ -1,5 +1,5 @@
 {
-  "name": "maggit",
+  "name": "hugit",
   "version": "0.1.0",
   "description": "FIXME",
   "main": "target/main.js",
@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/FIXME/maggit"
+    "url": "https://github.com/FIXME/hugit"
   },
   "directories": {
     "bin": "bin",
@@ -16,7 +16,7 @@
     "src": "src"
   },
   "bin": {
-    "maggit": "bin/maggit"
+    "hugit": "bin/hugit"
   },
   "scripts": {
     "build": "./scripts/build",
