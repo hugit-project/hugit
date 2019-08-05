@@ -231,6 +231,16 @@
                         (toast> "Unstaging hunk")
                         (rf/dispatch [:unstage-hunk hunk]))))
                :label "Unstage Hunk"
+               :type "Action"}
+        ["k"] {:f (fn [idx]
+                    (let [hunk (u/nth-weighted-item
+                                (separated-hunks @hunks)
+                                :size
+                                idx)]
+                      (when-not (:dummy? hunk)
+                        (toast> "NOT IMPLEMENTED: Discarding hunk")
+                        (rf/dispatch [:discard-hunk hunk]))))
+               :label "Discard Hunk"
                :type "Action"}}
        :on-back
        #(rf/dispatch [:router/go-back])}]]))

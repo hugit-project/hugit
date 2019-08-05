@@ -198,15 +198,6 @@
    db))
 
 (rf/reg-event-db
- :show-file
- (fn [db [_ path]]
-   (let [contents (.readFileSync fs path)]
-     (rf/dispatch [:router/goto :diffs
-                   {:label path
-                    :text contents}]))
-   db))
-
-(rf/reg-event-db
  :stage-hunk
  (fn [db [_ hunk]]
    (let [repo-path (get-in db [:repo :path])
@@ -220,4 +211,13 @@
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)]
      (git/unstage-hunk-promise repo* hunk))
+   db))
+
+(rf/reg-event-db
+ :discard-hunk
+ (fn [db [_ hunk]]
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)]
+     ;; TODO: implement
+     )
    db))
