@@ -1,5 +1,5 @@
 <span> 
-    <b>NOTE:</b> Under active development.
+    <b>NOTE:</b> Pre-alpha software! Under active development.
 </span>
 
 # hugit
