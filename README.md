@@ -71,7 +71,7 @@ The general philosophy is:
 
 ## Thanks
 
-* [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template) and all its dependencies
+* [Cljs TUI Template](https://github.com/eccentric-j/cljs-tui-template)
 * [nodegit](https://github.com/nodegit/nodegit)
 
 ## Contributors
