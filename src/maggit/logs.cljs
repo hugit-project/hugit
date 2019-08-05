@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [re-frame.core :as rf]
-            [maggit.keys :as keys]))
+            [maggit.keys :as keys]
+            [maggit.views :refer [scrollable-list]]))
 
 (defonce log-lines
   (r/atom []))
@@ -53,9 +54,9 @@
   (let [size (rf/subscribe [:get-in [:terminal/size]])
         rows (:rows @size)]
     (keys/with-keys @screen
-      {["escape"] {:f #(rf/dispatch [:logs/hide-logs])
-                   :label "Hide Logs"
-                   :type "Navigation"}}
+      {["left"] {:f #(rf/dispatch [:logs/hide-logs])
+                 :label "Hide Logs"
+                 :type "Navigation"}}
       [:box#log
        {:top          0
         :bottom       0
@@ -63,14 +64,13 @@
         :width        "100%"
         :height       "100%"
         :style {:border {:fg :magenta}}
-        :border {:type :line}
-        :scrollable   true
-        :scrollbar    true
-        :alwaysScroll true}
-       [:text {:left    1
-               :top     2
-               :bottom  2
-               :right   1
-               :content (->> @log-lines
-                             (take-last (- rows 6))
-                             (str/join "\n"))}]])))
+        :border {:type :line}}
+       [scrollable-list
+        {:top 0
+         :left 1
+         :right 2
+         :align :left
+         :items @log-lines
+         :window-size (- rows 6)
+         :selected (- (count @log-lines)
+                      (- rows 6))}]])))

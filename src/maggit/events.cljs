@@ -77,37 +77,63 @@
          branch-name* (git/current-branch-name-promise repo*)
          file-statuses* (git/statuses-promise repo*)
          head-commit* (git/head-commit-promise repo*)
-         commits* (git/commits-promise head-commit*)]
+         commits* (git/commits-promise head-commit*)
+         unstaged-hunks* (git/unstaged-hunks-promise repo*)
+         staged-hunks* (git/staged-hunks-promise repo*)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
                [:assoc-in [:repo :branch-name] branch-name])))
-     (.then file-statuses*
-            (fn [statuses]
-              (rf/dispatch [:assoc-in [:repo :untracked] []])
-              (rf/dispatch [:assoc-in [:repo :unstaged] []])
-              (rf/dispatch [:assoc-in [:repo :staged] []])
-              (rf/dispatch [:assoc-in [:repo :staged-diffs] {}])
-              (rf/dispatch [:assoc-in [:repo :unstaged-diffs] {}])
-              (.forEach statuses
-                        (fn [file]
-                          (let [status (-> file .status js->clj set)]
-                            (when (contains? status "WT_NEW")
-                              (rf/dispatch
-                               [:update-in [:repo :untracked] conj (.path file)]))
-                            (when (contains? status "WT_MODIFIED")
-                              (rf/dispatch
-                               [:update-in [:repo :unstaged] conj (.path file)]))
-                            (when (contains? status "INDEX_NEW")
-                              (rf/dispatch
-                               [:update-in [:repo :staged] conj (.path file)]))
-                            (when (contains? status "INDEX_MODIFIED")
-                              (rf/dispatch
-                               [:update-in [:repo :staged] conj (.path file)])))))))
      (.then head-commit*
             (fn [head-commit]
               (rf/dispatch [:assoc-in [:repo :head-commit-summary]
                             (.summary head-commit)])))
+     (.then file-statuses*
+            (fn [statuses]
+              (rf/dispatch-sync [:assoc-in [:repo :untracked] []])
+              (rf/dispatch-sync [:assoc-in [:repo :unstaged] []])
+              (rf/dispatch-sync [:assoc-in [:repo :staged] []])
+              (rf/dispatch-sync [:assoc-in [:repo :untracked-content] {}])
+              (.forEach statuses
+                        (fn [file]
+                          (let [status (-> file .status js->clj set)
+                                path (.path file)]
+                            (when (contains? status "WT_NEW")
+                              (rf/dispatch
+                               [:update-in [:repo :untracked] conj
+                                path])
+                              (.readFile
+                               fs path
+                               (fn [_ text]
+                                 (rf/dispatch
+                                  [:assoc-in [:repo :untracked-content path]
+                                   (str text)]))))
+                            (when (contains? status "WT_MODIFIED")
+                              (rf/dispatch
+                               [:update-in [:repo :unstaged] conj
+                                path]))
+                            (when (contains? status "INDEX_NEW")
+                              (rf/dispatch
+                               [:update-in [:repo :staged] conj
+                                path]))
+                            (when (contains? status "INDEX_MODIFIED")
+                              (rf/dispatch
+                               [:update-in [:repo :staged] conj
+                                path])))))))
+     (.then unstaged-hunks*
+            (fn [unstaged-hunks]
+              (rf/dispatch-sync [:assoc-in [:repo :unstaged-hunks] {}])
+              (doseq [{:keys [path] :as hunk} unstaged-hunks]
+                (rf/dispatch-sync
+                 [:update-in [:repo :unstaged-hunks path]
+                  concat [hunk]]))))
+     (.then staged-hunks*
+            (fn [staged-hunks]
+              (rf/dispatch-sync [:assoc-in [:repo :staged-hunks] {}])
+              (doseq [{:keys [path] :as hunk} staged-hunks]
+                (rf/dispatch-sync
+                 [:update-in [:repo :staged-hunks path]
+                  concat [hunk]]))))
      (.then commits*
             (fn [commits]
               (rf/dispatch [:assoc-in [:repo :commits] commits]))))
@@ -163,43 +189,35 @@
    (assoc-in db [:toast/view-state :text] (str/join strings))))
 
 (rf/reg-event-db
- :show-commit
+ :get-commit-hunks
  (fn [db [_ commit]]
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)]
-     (.then (git/commit-diff-promise repo* (:sha commit))
-            #(rf/dispatch [:router/goto :diffs
-                           {:label (:sha commit)
-                            :text %}])))
+     (.then (git/commit-hunks-promise repo* (:sha commit))
+            #(rf/dispatch [:assoc-in [:repo :commit-hunks] %])))
    db))
 
 (rf/reg-event-db
- :show-file
- (fn [db [_ path]]
-   (let [contents (.readFileSync fs path)]
-     (rf/dispatch [:router/goto :diffs
-                   {:label path
-                    :text contents}]))
-   db))
-
-(rf/reg-event-db
- :show-staged-file-diffs
- (fn [db [_ path]]
+ :stage-hunk
+ (fn [db [_ hunk]]
    (let [repo-path (get-in db [:repo :path])
-         repo* (git/repo-promise repo-path)
-         text* (git/staged-file-diff-promise repo* path)]
-     (.then text* #(rf/dispatch [:router/goto :diffs
-                                 {:label path
-                                  :text %}])))
+         repo* (git/repo-promise repo-path)]
+     (git/stage-hunk-promise repo* hunk))
    db))
 
 (rf/reg-event-db
- :show-unstaged-file-diffs
- (fn [db [_ path]]
+ :unstage-hunk
+ (fn [db [_ hunk]]
    (let [repo-path (get-in db [:repo :path])
-         repo* (git/repo-promise repo-path)
-         text* (git/unstaged-file-diff-promise repo* path)]
-     (.then text* #(rf/dispatch [:router/goto :diffs
-                                 {:label path
-                                  :text %}])))
+         repo* (git/repo-promise repo-path)]
+     (git/unstage-hunk-promise repo* hunk))
+   db))
+
+(rf/reg-event-db
+ :discard-hunk
+ (fn [db [_ hunk]]
+   (let [repo-path (get-in db [:repo :path])
+         repo* (git/repo-promise repo-path)]
+     ;; TODO: implement
+     )
    db))
