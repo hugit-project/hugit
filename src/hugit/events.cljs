@@ -116,6 +116,10 @@
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj
                                 path]))
+                            (when (contains? status "WT_DELETED")
+                              (rf/dispatch
+                               [:update-in [:repo :unstaged] conj
+                                path]))
                             (when (or (contains? status "INDEX_NEW")
                                       (contains? status "INDEX_MODIFIED")
                                       (contains? status "INDEX_DELETED"))
