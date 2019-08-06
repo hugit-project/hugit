@@ -116,11 +116,8 @@
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj
                                 path]))
-                            (when (contains? status "INDEX_NEW")
-                              (rf/dispatch
-                               [:update-in [:repo :staged] conj
-                                path]))
-                            (when (contains? status "INDEX_MODIFIED")
+                            (when (or (contains? status "INDEX_NEW")
+                                      (contains? status "INDEX_MODIFIED"))
                               (rf/dispatch
                                [:update-in [:repo :staged] conj
                                 path])))))))
