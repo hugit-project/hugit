@@ -112,11 +112,8 @@
                                  (rf/dispatch
                                   [:assoc-in [:repo :untracked-content path]
                                    (str text)]))))
-                            (when (contains? status "WT_MODIFIED")
-                              (rf/dispatch
-                               [:update-in [:repo :unstaged] conj
-                                path]))
-                            (when (contains? status "WT_DELETED")
+                            (when (or (contains? status "WT_MODIFIED")
+                                      (contains? status "WT_DELETED"))
                               (rf/dispatch
                                [:update-in [:repo :unstaged] conj
                                 path]))
