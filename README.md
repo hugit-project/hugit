@@ -63,6 +63,10 @@ The general philosophy is:
 * `npm install`
 * `npx shadow-cljs release app`
 
+**Issues**
+
+* Install `nodegit` via `yarn` if `npm` complains: `yarn add nodegit@0.24.3`
+
 ## Run
 
 `cd` to a git repo, and run:
@@ -90,10 +94,6 @@ This will:
 Changes to the `hugit` source should automatically reflect in the UI.
 `hugit` is used to develop `hugit` whenever possible!
 We will keep at it till we never have to use anything else.
-
-**Issues**
-
-* Install `nodegit` via `yarn` if `npm` complains: `yarn add nodegit@0.24.3`
 
 ## Contributors
 
