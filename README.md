@@ -57,7 +57,7 @@ The general philosophy is:
 ## Install
 
 * Install [nvm](https://github.com/nvm-sh/nvm)
-* `git clone https://github.com/divs1210/hugit.git`
+* `git clone https://github.com/hugit-project/hugit.git`
 * `cd hugit`
 * `nvm use 9.11.1`
 * `npm install`
