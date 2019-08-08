@@ -73,7 +73,7 @@
                                        (evt> [:stage-file file]))
                                  :label "Stage"
                                  :type "Action"}}}
-                      2 {:label "Unstaged"
+                      1 {:label "Unstaged"
                          :files-path [:repo :unstaged]
                          :on-select
                          #(let [file (get-file :unstaged %)]
