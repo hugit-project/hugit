@@ -121,22 +121,22 @@
        :selected selected
        :custom-key-handlers
        {["s"] {:f (fn [x]
-                    (rf/dispatch [:toast "Staging " (nth @files x)])
+                    (toast> "Staging " (nth @files x))
                     (rf/dispatch [:stage-file (nth @files x)]))
                :label "Stage"
                :type "Action"}
         ["u"] {:f (fn [x]
-                    (rf/dispatch [:toast "Unstaging " (nth @files x)])
+                    (toast> "Unstaging " (nth @files x))
                     (rf/dispatch [:unstage-file (nth @files x)]))
                :label "Unstage"
                :type "Action"}
         ["r"] {:f (fn [x]
-                    (rf/dispatch [:toast "Untracking " (nth @files x)])
+                    (toast> "Untracking " (nth @files x))
                     (rf/dispatch [:untrack-file (nth @files x)]))
                :label "Untrack"
                :type "Action"}
         ["k"] {:f (fn [x]
-                    (rf/dispatch [:toast "Checking out " (nth @files x)])
+                    (toast> "Checking out " (nth @files x))
                     (rf/dispatch [:checkout-file (nth @files x)]))
                :label "Checkout"
                :type "Action"}}
