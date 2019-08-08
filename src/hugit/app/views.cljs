@@ -173,6 +173,21 @@
                         (str "[unstaged] " item))
                       (for [item @staged-files]
                         (str "[staged] " item)))
+       :custom-key-handlers
+       {["s"] {:f (fn [idx]
+                    (if (< idx (count @unstaged-files))
+                      (let [file (nth @unstaged-files idx)]
+                        (toast> "Staging " file)
+                        (evt> [:stage-file file]))))
+               :label "Stage"
+               :type "Action"}
+        ["u"] {:f (fn [idx]
+                    (let [index (- idx (count @unstaged-files))
+                          file (nth @staged-files index)]
+                      (toast> "Unstaging " file)
+                      (evt> [:unstage-file file])))
+               :label "Unstage"
+               :type "Action"}}
        :on-back
        #(evt> [:router/go-back])}]]))
 
