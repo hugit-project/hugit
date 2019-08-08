@@ -98,15 +98,19 @@
               (rf/dispatch-sync [:assoc-in [:repo :unstaged] []])
               (rf/dispatch-sync [:assoc-in [:repo :staged] []])
               (rf/dispatch-sync [:assoc-in [:repo :untracked-content] {}])
-              (rf/dispatch-sync [:assoc-in [:repo :deleted] []])
+              (rf/dispatch-sync [:assoc-in [:repo :unstaged-deleted] []])
+              (rf/dispatch-sync [:assoc-in [:repo :staged-deleted] []])
               (.forEach statuses
                         (fn [file]
                           (let [status (-> file .status js->clj set)
                                 path (.path file)]
-                            (when (or (contains? status "WT_DELETED")
-                                      (contains? status "INDEX_DELETED"))
+                            (when (contains? status "WT_DELETED")
                               (rf/dispatch
-                               [:update-in [:repo :deleted] conj
+                               [:update-in [:repo :unstaged-deleted] conj
+                                path]))
+                            (when (contains? status "INDEX_DELETED")
+                              (rf/dispatch
+                               [:update-in [:repo :staged-deleted] conj
                                 path]))
                             (when (contains? status "WT_NEW")
                               (rf/dispatch

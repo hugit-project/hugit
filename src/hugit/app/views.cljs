@@ -6,7 +6,8 @@
   (let [{:keys [branch-name
                 branch-status
                 head-commit-summary
-                deleted
+                staged-deleted
+                unstaged-deleted
                 untracked
                 unstaged
                 branches
@@ -34,7 +35,8 @@
        :bottom 1
        :left 1
        :align :left
-       :items [(str "Deleted (" (count deleted) ")")
+       :items [(str "Deleted (" (+ (count staged-deleted)
+                                   (count unstaged-deleted)) ")")
                (str "Untracked (" (count untracked) ")")
                (str "Unstaged (" (count unstaged) ")")
                (str "Staged (" (count staged) ")")
@@ -66,19 +68,18 @@
        (fn [x]
          (evt> [:assoc-in [:router/view-state :selected] x])
          (cond
-           (< x 4)
+           (zero? x)
+           (evt> [:router/goto :deleted-files
+                  {:label "Deleted"
+                   :unstaged-files-path [:repo :unstaged-deleted]
+                   :staged-files-path [:repo :staged-deleted]}])
+
+           (< 0 x 4)
            (letfn [(get-file [type idx]
                      (nth @(<sub [:repo type])
                           idx))]
              (evt> [:router/goto :files
                     (case x
-                      0 {:label "Deleted"
-                         :files-path [:repo :deleted]
-                         :on-select
-                         #(let [file (get-file :deleted %)]
-                            (evt> [:router/goto :file
-                                   {:label file
-                                    :content-path [:repo :deleted file]}]))}
                       1 {:label "Untracked"
                          :files-path [:repo :untracked]
                          :on-select
@@ -149,6 +150,31 @@
 
            (== x 5)
            (evt> [:router/goto :commits])))}]]))
+
+(defn deleted-files []
+  (let [{:keys [staged-files-path unstaged-files-path]}
+        @(<sub [:router/view-state])
+
+        staged-files (<sub staged-files-path)
+        unstaged-files (<sub unstaged-files-path)]
+    [:box#deleted-files
+     {:top 0
+      :right 0
+      :width "100%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label "Deleted files"}
+     [navigable-list
+      {:top 1
+       :left 1
+       :right 2
+       :align :left
+       :items (concat (for [item @unstaged-files]
+                        (str "[unstaged] " item))
+                      (for [item @staged-files]
+                        (str "[staged] " item)))
+       :on-back
+       #(evt> [:router/go-back])}]]))
 
 (defn files []
   (let [{:keys [files-path label selected
@@ -389,6 +415,7 @@
    (let [view @(<sub [:router/view])]
      [(case view
         :status status
+        :deleted-files deleted-files
         :files files
         :file file
         :branches branches
