@@ -1,14 +1,6 @@
 (ns hugit.app.views
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
-            [hugit.util :as u]
+  (:require [hugit.util :as u :refer [<sub evt> toast>]]
             [hugit.views :refer [navigable-list scrollable-list text-input]]))
-
-(defn <sub [query]
-  (rf/subscribe [:get-in query]))
-
-(defn toast> [& msgs]
-  (rf/dispatch-sync (vec (cons :toast msgs))))
 
 (defn status []
   (let [{:keys [branch-name
@@ -43,85 +35,84 @@
        :selected @selected
        :custom-key-handlers
        {["c"] {:f (fn [idx]
-                    (rf/dispatch [:router/goto :input
-                                  {:label "Commit Message"
-                                   :on-submit (fn [msg]
-                                                (toast> "Commiting")
-                                                (rf/dispatch [:commit msg])
-                                                (rf/dispatch [:router/goto-and-forget :commits]))
-                                   :on-cancel #(rf/dispatch [:router/go-back])}]))
+                    (evt> [:router/goto :input
+                           {:label "Commit Message"
+                            :on-submit (fn [msg]
+                                         (toast> "Commiting")
+                                         (evt> [:commit msg])
+                                         (evt> [:router/goto-and-forget :commits]))
+                            :on-cancel #(evt> [:router/go-back])}]))
                :label "Commit"
                :type "Action"}
         ["p"] {:f (fn [_]
                     (toast> "Pushing")
-                    (rf/dispatch [:push]))
+                    (evt> [:push]))
                :label "Push"
                :type "Action"}}
        :on-select
        (fn [x]
-         (rf/dispatch [:assoc-in [:router/view-state :selected] x])
+         (evt> [:assoc-in [:router/view-state :selected] x])
          (cond
            (< x 3)
            (letfn [(get-file [type idx]
                      (nth @(<sub [:repo type])
                           idx))]
-             (rf/dispatch
-              [:router/goto :files
-               (case x
-                 0 {:label "Untracked"
-                    :files-path [:repo :untracked]
-                    :on-select
-                    #(let [file (get-file :untracked %)]
-                      (rf/dispatch
-                       [:router/goto :file
-                        {:label file
-                         :content-path [:repo :untracked-content file]}]))}
-                 1 {:label "Unstaged"
-                    :files-path [:repo :unstaged]
-                    :on-select
-                    #(let [file (get-file :unstaged %)]
-                       (rf/dispatch
-                        [:router/goto :diffs
-                         {:label file
-                          :file file
-                          :hunks-path [:repo :unstaged-hunks file]
-                          :actions ["s" "k"]}]))
-                    :custom-key-handlers
-                    {["s"] {:f #(let [file (get-file :unstaged %)]
-                                  (toast> "Staging " file)
-                                  (rf/dispatch [:stage-file file]))
-                            :label "Stage"
-                            :type "Action"}
-                     ["r"] {:f #(let [file (get-file :unstaged %)]
-                                  (toast> "Untracking " file)
-                                  (rf/dispatch [:untrack-file file]))
-                            :label "Untrack"
-                            :type "Action"}
-                     ["k"] {:f #(let [file (get-file :unstaged %)]
-                                 (toast> "Checking out " file)
-                                 (rf/dispatch [:checkout-file file]))
-                            :label "Checkout"
-                            :type "Action"}}}
-                    2 {:label "Staged"
-                       :files-path [:repo :staged]
-                       :on-select
-                       (fn [file-idx]
-                         (let [file (nth @(<sub [:repo :staged])
-                                         file-idx)]
-                           (rf/dispatch
-                            [:router/goto :diffs
-                             {:label file
-                              :file file
-                              :hunks-path [:repo :staged-hunks file]
-                              :actions ["u"]}])))
-                       :custom-key-handlers
-                       {["u"] {:f #(let [file (get-file :staged %)]
-                                     (toast> "Unstaging " file)
-                                     (rf/dispatch [:unstage-file file]))
-                               :label "Unstage"
-                               :type "Action"}}})]))
-              (== x 3)
-              (rf/dispatch [:router/goto :commits])))}]]))
+             (evt> [:router/goto :files
+                    (case x
+                      0 {:label "Untracked"
+                         :files-path [:repo :untracked]
+                         :on-select
+                         #(let [file (get-file :untracked %)]
+                            (evt>
+                             [:router/goto :file
+                              {:label file
+                               :content-path [:repo :untracked-content file]}]))}
+                      1 {:label "Unstaged"
+                         :files-path [:repo :unstaged]
+                         :on-select
+                         #(let [file (get-file :unstaged %)]
+                            (evt>
+                             [:router/goto :diffs
+                              {:label file
+                               :file file
+                               :hunks-path [:repo :unstaged-hunks file]
+                               :actions ["s" "k"]}]))
+                         :custom-key-handlers
+                         {["s"] {:f #(let [file (get-file :unstaged %)]
+                                       (toast> "Staging " file)
+                                       (evt> [:stage-file file]))
+                                 :label "Stage"
+                                 :type "Action"}
+                          ["r"] {:f #(let [file (get-file :unstaged %)]
+                                       (toast> "Untracking " file)
+                                       (evt> [:untrack-file file]))
+                                 :label "Untrack"
+                                 :type "Action"}
+                          ["k"] {:f #(let [file (get-file :unstaged %)]
+                                       (toast> "Checking out " file)
+                                       (evt> [:checkout-file file]))
+                                 :label "Checkout"
+                                 :type "Action"}}}
+                      2 {:label "Staged"
+                         :files-path [:repo :staged]
+                         :on-select
+                         (fn [file-idx]
+                           (let [file (nth @(<sub [:repo :staged])
+                                           file-idx)]
+                             (evt>
+                              [:router/goto :diffs
+                               {:label file
+                                :file file
+                                :hunks-path [:repo :staged-hunks file]
+                                :actions ["u"]}])))
+                         :custom-key-handlers
+                         {["u"] {:f #(let [file (get-file :staged %)]
+                                       (toast> "Unstaging " file)
+                                       (evt> [:unstage-file file]))
+                                 :label "Unstage"
+                                 :type "Action"}}})]))
+           (== x 3)
+           (evt> [:router/goto :commits])))}]]))
 
 (defn files []
   (let [{:keys [files-path label selected
@@ -146,12 +137,12 @@
        :custom-key-handlers custom-key-handlers
        :on-select
        (fn [idx]
-         (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
+         (evt> [:assoc-in [:router/view-state :selected] idx])
          (if (some? on-select)
            (on-select idx)
-           (rf/dispatch [:show-file (nth @files idx)])))
+           (evt> [:show-file (nth @files idx)])))
        :on-back
-       #(rf/dispatch [:router/go-back])}]]))
+       #(evt> [:router/go-back])}]]))
 
 (defn file []
   (let [label (<sub [:router/view-state :label])
@@ -174,7 +165,7 @@
        :window-size (- rows 6)
        :items (clojure.string/split @text #"\n")
        :on-back
-       #(rf/dispatch [:router/go-back])}]]))
+       #(evt> [:router/go-back])}]]))
 
 (defn diffs []
   (let [label (<sub [:router/view-state :label])
@@ -225,7 +216,7 @@
                                  idx)]
                        (when-not (:dummy? hunk)
                          (toast> "Staging hunk")
-                         (rf/dispatch [:stage-hunk hunk]))))
+                         (evt> [:stage-hunk hunk]))))
                 :label "Stage Hunk"
                 :type "Action"}
          ["u"] {:f (fn [idx]
@@ -235,7 +226,7 @@
                                  idx)]
                        (when-not (:dummy? hunk)
                          (toast> "Unstaging hunk")
-                         (rf/dispatch [:unstage-hunk hunk]))))
+                         (evt> [:unstage-hunk hunk]))))
                 :label "Unstage Hunk"
                 :type "Action"}
          ["k"] {:f (fn [idx]
@@ -245,12 +236,12 @@
                                  idx)]
                        (when-not (:dummy? hunk)
                          (toast> "NOT IMPLEMENTED: Discarding hunk")
-                         (rf/dispatch [:discard-hunk hunk]))))
+                         (evt> [:discard-hunk hunk]))))
                 :label "Discard Hunk"
                 :type "Action"}}
         (map vector @actions))
        :on-back
-       #(rf/dispatch [:router/go-back])}]]))
+       #(evt> [:router/go-back])}]]))
 
 (defn commits []
   (let [commits (<sub [:repo :commits])
@@ -279,14 +270,13 @@
        :on-select
        (fn [idx]
          (let [commit (nth @commits idx)]
-           (rf/dispatch [:assoc-in [:router/view-state :selected] idx])
-           (rf/dispatch [:get-commit-hunks commit])
-           (rf/dispatch
-            [:router/goto :diffs
-             {:label (commit-str commit)
-              :hunks-path [:repo :commit-hunks]}])))
+           (evt> [:assoc-in [:router/view-state :selected] idx])
+           (evt> [:get-commit-hunks commit])
+           (evt> [:router/goto :diffs
+                  {:label (commit-str commit)
+                   :hunks-path [:repo :commit-hunks]}])))
        :on-back
-       #(rf/dispatch [:router/go-back])}]]))
+       #(evt> [:router/go-back])}]]))
 
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
