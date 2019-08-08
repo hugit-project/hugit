@@ -2,7 +2,6 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [hugit.util :as u]
-            [hugit.keys :refer [with-keys]]
             [hugit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn <sub [query]
@@ -321,17 +320,13 @@
       {:left 1}
       text]]))
 
-(defn home [screen]
+(defn home []
   (let [size (<sub [:terminal/size])
         rows (:rows @size)]
-    (with-keys @screen
-      {["l"] {:f #(rf/dispatch [:logs/show-logs])
-              :label "View Logs"
-              :type "Action"}}
-      [:box#home
-       {:top 0
-        :left 0
-        :height "100%"
-        :width "100%"}
-       [viewport (- rows 3)]
-       [toast]])))
+    [:box#home
+     {:top 0
+      :left 0
+      :height "100%"
+      :width "100%"}
+     [viewport (- rows 3)]
+     [toast]]))
