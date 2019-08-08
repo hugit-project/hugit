@@ -66,8 +66,14 @@
                             (evt>
                              [:router/goto :file
                               {:label file
-                               :content-path [:repo :untracked-content file]}]))}
-                      1 {:label "Unstaged"
+                               :content-path [:repo :untracked-content file]}]))
+                         :custom-key-handlers
+                         {["s"] {:f #(let [file (get-file :untracked %)]
+                                       (toast> "Staging " file)
+                                       (evt> [:stage-file file]))
+                                 :label "Stage"
+                                 :type "Action"}}}
+                      2 {:label "Unstaged"
                          :files-path [:repo :unstaged]
                          :on-select
                          #(let [file (get-file :unstaged %)]
