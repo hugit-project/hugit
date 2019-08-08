@@ -6,6 +6,9 @@
 (defonce global-bindings
   {["q"] {:f #(.exit js/process 0)
           :label "Quit"
+          :type "Global"}
+   ["l"] {:f #(rf/dispatch [:logs/show-logs])
+          :label "View Logs"
           :type "Global"}})
 
 (defonce current-bindings

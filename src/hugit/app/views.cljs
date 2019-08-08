@@ -2,7 +2,6 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [hugit.util :as u]
-            [hugit.keys :refer [with-keys]]
             [hugit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn <sub [query]
@@ -121,22 +120,22 @@
        :selected selected
        :custom-key-handlers
        {["s"] {:f (fn [x]
-                    (rf/dispatch [:toast "Staging " (nth @files x)])
+                    (toast> "Staging " (nth @files x))
                     (rf/dispatch [:stage-file (nth @files x)]))
                :label "Stage"
                :type "Action"}
         ["u"] {:f (fn [x]
-                    (rf/dispatch [:toast "Unstaging " (nth @files x)])
+                    (toast> "Unstaging " (nth @files x))
                     (rf/dispatch [:unstage-file (nth @files x)]))
                :label "Unstage"
                :type "Action"}
         ["r"] {:f (fn [x]
-                    (rf/dispatch [:toast "Untracking " (nth @files x)])
+                    (toast> "Untracking " (nth @files x))
                     (rf/dispatch [:untrack-file (nth @files x)]))
                :label "Untrack"
                :type "Action"}
         ["k"] {:f (fn [x]
-                    (rf/dispatch [:toast "Checking out " (nth @files x)])
+                    (toast> "Checking out " (nth @files x))
                     (rf/dispatch [:checkout-file (nth @files x)]))
                :label "Checkout"
                :type "Action"}}
@@ -321,17 +320,13 @@
       {:left 1}
       text]]))
 
-(defn home [screen]
+(defn home []
   (let [size (<sub [:terminal/size])
         rows (:rows @size)]
-    (with-keys @screen
-      {["l"] {:f #(rf/dispatch [:logs/show-logs])
-              :label "View Logs"
-              :type "Action"}}
-      [:box#home
-       {:top 0
-        :left 0
-        :height "100%"
-        :width "100%"}
-       [viewport (- rows 3)]
-       [toast]])))
+    [:box#home
+     {:top 0
+      :left 0
+      :height "100%"
+      :width "100%"}
+     [viewport (- rows 3)]
+     [toast]]))

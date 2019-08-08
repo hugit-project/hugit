@@ -59,7 +59,7 @@
        :width "80%"}
       (if @show-logs?
         [log-box screen]
-        [home screen])]
+        [home])]
      [keymap-component]]))
 
 (defn main!
