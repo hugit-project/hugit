@@ -186,7 +186,7 @@
                       (if (>= idx (count @unstaged-files))
                         (let [file (nth @staged-files index)]
                             (toast> "Unstaging " file)
-                          (evt> [:unstage-file file])))))
+                            (evt> [:unstage-file file])))))
                :label "Unstage"
                :type "Action"}}
        :on-back
