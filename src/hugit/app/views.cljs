@@ -84,7 +84,8 @@
                         [:router/goto :diffs
                          {:label file
                           :file file
-                          :hunks-path [:repo :unstaged-hunks file]}]))
+                          :hunks-path [:repo :unstaged-hunks file]
+                          :actions ["s" "k"]}]))
                     :custom-key-handlers
                     {["s"] {:f #(let [file (get-file :unstaged %)]
                                   (toast> "Staging " file)
@@ -111,7 +112,8 @@
                             [:router/goto :diffs
                              {:label file
                               :file file
-                              :hunks-path [:repo :staged-hunks file]}])))
+                              :hunks-path [:repo :staged-hunks file]
+                              :actions ["u"]}])))
                        :custom-key-handlers
                        {["u"] {:f #(let [file (get-file :staged %)]
                                      (toast> "Unstaging " file)
@@ -157,7 +159,7 @@
         text (<sub @content-path)
         size (<sub [:terminal/size])
         rows (:rows @size)]
-    [:box#diffs
+    [:box#file
      {:top 0
       :right 0
       :width "100%"
@@ -178,6 +180,7 @@
   (let [label (<sub [:router/view-state :label])
         file  (<sub [:router/view-state :file])
         hunks-path (<sub [:router/view-state :hunks-path])
+        actions (<sub [:router/view-state :actions])
         hunks (<sub @hunks-path)
         separated-hunks (fn [hunks]
                           (interleave hunks
@@ -214,36 +217,38 @@
            \+ {:style {:fg :green}}
            {:style {:fg :white}}))
        :custom-key-handlers
-       {["s"] {:f (fn [idx]
-                    (let [hunk (u/nth-weighted-item
-                                (separated-hunks @hunks)
-                                :size
-                                idx)]
-                      (when-not (:dummy? hunk)
-                        (toast> "Staging hunk")
-                        (rf/dispatch [:stage-hunk hunk]))))
-               :label "Stage Hunk"
-               :type "Action"}
-        ["u"] {:f (fn [idx]
-                    (let [hunk (u/nth-weighted-item
-                                (separated-hunks @hunks)
-                                :size
-                                idx)]
-                      (when-not (:dummy? hunk)
-                        (toast> "Unstaging hunk")
-                        (rf/dispatch [:unstage-hunk hunk]))))
-               :label "Unstage Hunk"
-               :type "Action"}
-        ["k"] {:f (fn [idx]
-                    (let [hunk (u/nth-weighted-item
-                                (separated-hunks @hunks)
-                                :size
-                                idx)]
-                      (when-not (:dummy? hunk)
-                        (toast> "NOT IMPLEMENTED: Discarding hunk")
-                        (rf/dispatch [:discard-hunk hunk]))))
-               :label "Discard Hunk"
-               :type "Action"}}
+       (select-keys
+        {["s"] {:f (fn [idx]
+                     (let [hunk (u/nth-weighted-item
+                                 (separated-hunks @hunks)
+                                 :size
+                                 idx)]
+                       (when-not (:dummy? hunk)
+                         (toast> "Staging hunk")
+                         (rf/dispatch [:stage-hunk hunk]))))
+                :label "Stage Hunk"
+                :type "Action"}
+         ["u"] {:f (fn [idx]
+                     (let [hunk (u/nth-weighted-item
+                                 (separated-hunks @hunks)
+                                 :size
+                                 idx)]
+                       (when-not (:dummy? hunk)
+                         (toast> "Unstaging hunk")
+                         (rf/dispatch [:unstage-hunk hunk]))))
+                :label "Unstage Hunk"
+                :type "Action"}
+         ["k"] {:f (fn [idx]
+                     (let [hunk (u/nth-weighted-item
+                                 (separated-hunks @hunks)
+                                 :size
+                                 idx)]
+                       (when-not (:dummy? hunk)
+                         (toast> "NOT IMPLEMENTED: Discarding hunk")
+                         (rf/dispatch [:discard-hunk hunk]))))
+                :label "Discard Hunk"
+                :type "Action"}}
+        (map vector @actions))
        :on-back
        #(rf/dispatch [:router/go-back])}]]))
 
