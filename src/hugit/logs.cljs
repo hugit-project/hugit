@@ -34,13 +34,17 @@
  (fn [db _]
    (assoc db :logs/show-logs? false)))
 
-(set! (.-log js/console) log)
-(set! (.-error js/console) log)
-(set! (.-info js/console) log)
-(set! (.-debug js/console) log)
-(re-frame.loggers/set-loggers! {:log log
-                                :error log
-                                :warn log})
+(defn setup []
+  (set! (.-log js/console) log)
+  (set! (.-error js/console) log)
+  (set! (.-info js/console) log)
+  (set! (.-debug js/console) log)
+  (re-frame.loggers/set-loggers! {:log log
+                                  :error log
+                                  :warn log})
+  (js/process.on "uncaughtException"
+                 (fn [err]
+                   (log err))))
 
 (defn log-box
   "Display a box that shows the last several lines of logged output based on

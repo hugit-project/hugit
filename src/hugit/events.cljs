@@ -4,7 +4,7 @@
   https://github.com/Day8/re-frame/blob/master/docs/EffectfulHandlers.md"
   (:require [re-frame.core :as rf]
             [hugit.git :as git]
-            [hugit.logs :refer [log]]
+            [hugit.logs :refer [log] :as logs]
             [clojure.string :as str]))
 
 (defonce watch
@@ -21,6 +21,7 @@
       (.unwatchTree watch cwd)
       (.watchTree watch cwd (fn [& args]
                               (rf/dispatch [:get-status])))
+      (logs/setup)
       {:opts opts
        :router/view :status
        :router/view-state {}
