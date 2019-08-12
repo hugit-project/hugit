@@ -34,7 +34,7 @@
                (str "Commit Log")]
        :selected @selected
        :custom-key-handlers
-       {["c"] {:f (fn [idx]
+       {["c"] {:f (fn [_]
                     (evt> [:router/goto :input
                            {:label "Commit Message"
                             :on-submit (fn [msg]
@@ -141,14 +141,8 @@
        :items @files
        :selected selected
        :custom-key-handlers custom-key-handlers
-       :on-select
-       (fn [idx]
-         (evt> [:assoc-in [:router/view-state :selected] idx])
-         (if (some? on-select)
-           (on-select idx)
-           (evt> [:show-file (nth @files idx)])))
-       :on-back
-       #(evt> [:router/go-back])}]]))
+       :on-select on-select
+       :on-back #(evt> [:router/go-back])}]]))
 
 (defn file []
   (let [label (<sub [:router/view-state :label])
