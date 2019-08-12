@@ -178,12 +178,10 @@
 ;; It should return the list of branches
 (defn branches
   []
-  (exec "git branch"))
-
-(defn branches2
-  []
-  (print "Asasdsm")
   (let [branches (exec "git branch")]
-   (-> branches
-       (get :stdout)
-       (str/split #"\n"))))
+    (-> branches
+      (get :stdout)
+      (str/split #"\n")
+      (->>
+        (map #(str/replace % #"* " ""))))))
+
