@@ -148,7 +148,7 @@
      (.stageLines repo path diff-lines true))))
 
 
-;; Git commancds
+;; Git commands
 ;; =============
 ;; To use in bootstrap phase
 (defn stage-file
@@ -174,3 +174,16 @@
 (defn push-promise
   []
   (exec-promise "git push origin HEAD"))
+
+;; It should return the list of branches
+(defn branches
+  []
+  (exec "git branch"))
+
+(defn branches2
+  []
+  (print "Asasdsm")
+  (let [branches (exec "git branch")]
+   (-> branches
+       (get :stdout)
+       (str/split #"\n"))))

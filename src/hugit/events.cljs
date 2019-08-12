@@ -80,7 +80,8 @@
          head-commit* (git/head-commit-promise repo*)
          commits* (git/commits-promise head-commit*)
          unstaged-hunks* (git/unstaged-hunks-promise repo*)
-         staged-hunks* (git/staged-hunks-promise repo*)]
+         staged-hunks* (git/staged-hunks-promise repo*)
+         branches (git/branches)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
@@ -138,7 +139,7 @@
      (.then commits*
             (fn [commits]
               (rf/dispatch [:assoc-in [:repo :commits] commits]))))
-     db))
+     (assoc-in db [:repo :branches] branches)))
 
 (rf/reg-event-db
  :stage-file
