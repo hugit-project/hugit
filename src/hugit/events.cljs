@@ -81,7 +81,7 @@
          commits* (git/commits-promise head-commit*)
          unstaged-hunks* (git/unstaged-hunks-promise repo*)
          staged-hunks* (git/staged-hunks-promise repo*)
-         branches (git/branches)]
+         local-branches* (git/local-branches-promise)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
@@ -138,8 +138,11 @@
                   concat [hunk]]))))
      (.then commits*
             (fn [commits]
-              (rf/dispatch [:assoc-in [:repo :commits] commits]))))
-     (assoc-in db [:repo :branches] branches)))
+              (rf/dispatch [:assoc-in [:repo :commits] commits])))
+     (.then local-branches*
+            (fn [branches]
+              (rf/dispatch [:assoc-in [:repo :branches :local] branches]))))
+     db))
 
 (rf/reg-event-db
  :stage-file

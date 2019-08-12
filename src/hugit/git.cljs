@@ -175,13 +175,13 @@
   []
   (exec-promise "git push origin HEAD"))
 
-;; It should return the list of branches
-(defn branches
+(defn local-branches-promise
   []
-  (let [branches (exec "git branch")]
-    (-> branches
-      (get :stdout)
-      (str/split #"\n")
-      (->>
-        (map #(str/replace % #"* " ""))))))
-
+  (a/async
+   (let [result (a/await (exec-promise "git branch"))
+         stdout (:stdout result)
+         lines (str/split stdout "\n")]
+     (for [line lines]
+       (-> line
+           .trim
+           (str/replace "* " ""))))))
