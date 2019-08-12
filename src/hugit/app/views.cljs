@@ -7,8 +7,11 @@
                 head-commit-summary
                 untracked
                 unstaged
+                branches
                 staged]}
         @(<sub [:repo])
+
+        local-branches (:local branches)
 
         selected (<sub [:router/view-state :selected])]
     [:box#status
@@ -31,6 +34,7 @@
        :items [(str "Untracked (" (count untracked) ")")
                (str "Unstaged (" (count unstaged) ")")
                (str "Staged (" (count staged) ")")
+               (str "Local Branches (" (count local-branches) ")")
                (str "Commit Log")]
        :selected @selected
        :custom-key-handlers
@@ -117,7 +121,13 @@
                                        (evt> [:unstage-file file]))
                                  :label "Unstage"
                                  :type "Action"}}})]))
+
            (== x 3)
+           (evt> [:router/goto :branches
+                  {:label "Local Branches"
+                   :branches-path [:repo :branches :local]}])
+
+           (== x 4)
            (evt> [:router/goto :commits])))}]]))
 
 (defn files []
@@ -278,6 +288,38 @@
        :on-back
        #(evt> [:router/go-back])}]]))
 
+(defn branches []
+  (let [branches-path (<sub [:router/view-state :branches-path])
+        branches (<sub @branches-path)
+        label (<sub [:router/view-state :label])
+        selected (<sub [:router/view-state :selected])
+        size (<sub [:terminal/size])
+        rows (:rows @size)]
+    [:box#commits
+     {:top 0
+      :right 0
+      :width "100%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label (str " " @label " ")}
+     [scrollable-list
+      {:top 0
+       :left 1
+       :right 2
+       :align :left
+       :window-size (- rows 6)
+       :items @branches
+       :selected @selected
+       :custom-key-handlers
+       {["enter"] {:f (fn [idx]
+                        (let [branch (nth @branches idx)]
+                          (evt> [:assoc-in [:router/view-state :selected] idx])
+                          (toast> "selected: " branch)))
+                   :label "Checkout"
+                   :type "Action"}}
+       :on-back
+       #(evt> [:router/go-back])}]]))
+
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
         @(<sub [:router/view-state])]
@@ -303,6 +345,7 @@
         :status status
         :files files
         :file file
+        :branches branches
         :commits commits
         :diffs diffs
         :input input)])])
