@@ -148,7 +148,7 @@
      (.stageLines repo path diff-lines true))))
 
 
-;; Git commancds
+;; Git commands
 ;; =============
 ;; To use in bootstrap phase
 (defn stage-file
@@ -167,6 +167,10 @@
   [file]
   (exec "git checkout " file))
 
+(defn checkout-branch
+  [branch-name]
+  (exec "git checkout " branch-name))
+
 (defn commit
   [msg]
   (exec "git commit -m \"" msg "\""))
@@ -174,3 +178,14 @@
 (defn push-promise
   []
   (exec-promise "git push origin HEAD"))
+
+(defn local-branches-promise
+  []
+  (a/async
+   (let [result (a/await (exec-promise "git branch"))
+         stdout (:stdout result)
+         lines (str/split stdout "\n")]
+     (for [line lines]
+       (-> line
+           .trim
+           (str/replace "* " ""))))))

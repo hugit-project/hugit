@@ -80,7 +80,8 @@
          head-commit* (git/head-commit-promise repo*)
          commits* (git/commits-promise head-commit*)
          unstaged-hunks* (git/unstaged-hunks-promise repo*)
-         staged-hunks* (git/staged-hunks-promise repo*)]
+         staged-hunks* (git/staged-hunks-promise repo*)
+         local-branches* (git/local-branches-promise)]
      (.then branch-name*
             (fn [branch-name]
               (rf/dispatch
@@ -137,7 +138,10 @@
                   concat [hunk]]))))
      (.then commits*
             (fn [commits]
-              (rf/dispatch [:assoc-in [:repo :commits] commits]))))
+              (rf/dispatch [:assoc-in [:repo :commits] commits])))
+     (.then local-branches*
+            (fn [branches]
+              (rf/dispatch [:assoc-in [:repo :branches :local] branches]))))
      db))
 
 (rf/reg-event-db
@@ -162,6 +166,17 @@
  :checkout-file
  (fn [db [_ file]]
    (git/checkout-file file)
+   db))
+
+(rf/reg-event-db
+ :checkout-branch
+ (fn [db [_ branch]]
+   (let [{:keys [command stdout stderr]}
+         (git/checkout-branch branch)]
+     (println "\n$" command)
+     (println stdout)
+     (println stderr)
+     (println))
    db))
 
 (rf/reg-event-db
