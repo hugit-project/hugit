@@ -46,7 +46,10 @@ The general philosophy is:
 ### Branches
 
 - [x] show current branch
-- [ ] checkout branch
+- [x] show local branches
+- [x] checkout local branch
+- [ ] create and checkout new local branch
+- [ ] fetch remote branches
 
 ### Remote
 
