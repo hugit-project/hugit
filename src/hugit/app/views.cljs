@@ -291,6 +291,7 @@
 (defn branches []
   (let [branches-path (<sub [:router/view-state :branches-path])
         branches (<sub @branches-path)
+        current-branch (<sub [:repo :branch-name])
         label (<sub [:router/view-state :label])
         selected (<sub [:router/view-state :selected])
         size (<sub [:terminal/size])
@@ -309,6 +310,11 @@
        :align :left
        :window-size (- rows 6)
        :items @branches
+       :item-props-f
+       (fn [branch]
+         (if (= @current-branch branch)
+           {:style {:fg :green}}
+           {:style {:fg :white}}))
        :selected @selected
        :custom-key-handlers
        {["enter"] {:f (fn [idx]
