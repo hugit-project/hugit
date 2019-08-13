@@ -313,8 +313,9 @@
        :custom-key-handlers
        {["enter"] {:f (fn [idx]
                         (let [branch (nth @branches idx)]
-                          (evt> [:assoc-in [:router/view-state :selected] idx])
-                          (toast> "selected: " branch)))
+                          (toast> "Checking out " branch)
+                          (evt> [:checkout-branch branch])
+                          (evt> [:router/goto :status])))
                    :label "Checkout"
                    :type "Action"}}
        :on-back

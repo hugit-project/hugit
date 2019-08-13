@@ -169,6 +169,17 @@
    db))
 
 (rf/reg-event-db
+ :checkout-branch
+ (fn [db [_ branch]]
+   (let [{:keys [command stdout stderr]}
+         (git/checkout-branch branch)]
+     (println "\n$" command)
+     (println stdout)
+     (println stderr)
+     (println))
+   db))
+
+(rf/reg-event-db
  :commit
  (fn [db [_ msg]]
    (git/commit msg)

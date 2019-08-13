@@ -167,6 +167,10 @@
   [file]
   (exec "git checkout " file))
 
+(defn checkout-branch
+  [branch-name]
+  (exec "git checkout " branch-name))
+
 (defn commit
   [msg]
   (exec "git commit -m \"" msg "\""))
