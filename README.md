@@ -53,7 +53,7 @@ The general philosophy is:
 
 ### Remote
 
-- [x] Push to `origin HEAD` (upstream branch with the same name)
+- [x] Push to `-u origin <current-branch-name>`
 - [ ] Change remote
 - [ ] Push to custom branch
 
