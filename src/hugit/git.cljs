@@ -29,7 +29,8 @@
       (.then (fn [branch]
                (-> (.name branch)
                    (str/split #"/")
-                   last)))))
+                   (#(drop 2 %))
+                   (#(str/join "/" %)))))))
 
 (defn head-commit-promise
   [repo-promise]
