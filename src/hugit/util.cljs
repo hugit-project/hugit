@@ -10,6 +10,12 @@
 (defn toast> [& msgs]
   (rf/dispatch-sync (vec (cons :toast msgs))))
 
+(defn timeout [ms]
+  (js/Promise.
+   (fn [resolve]
+     (js/setTimeout #(resolve ms)
+                    ms))))
+
 (defn nth-weighted-item
   [weighted-items weight-fn n]
   (let [repeated-weighted-items (map #(repeat (weight-fn %) %)

@@ -5,6 +5,7 @@
   (:require [re-frame.core :as rf]
             [hugit.git :as git]
             [hugit.logs :refer [log] :as logs]
+            [hugit.util :as u]
             [clojure.string :as str]))
 
 (defonce watch
@@ -182,8 +183,9 @@
 (rf/reg-event-db
  :fetch-branch-status
  (fn [db [_ branch]]
-   (.then (git/branch-status-promise branch)
-          #(rf/dispatch [:assoc-in [:repo :branch-status] %]))
+   (-> (u/timeout 50)
+       (.then (fn [_] (git/branch-status-promise branch)))
+       (.then #(rf/dispatch [:assoc-in [:repo :branch-status] %])))
    db))
 
 (rf/reg-event-db
@@ -207,9 +209,9 @@
 (rf/reg-event-db
  :toast
  (fn [db [_ & strings]]
-   (js/setTimeout
-    #(rf/dispatch [:assoc-in [:toast/view-state :text] ""])
-    3000)
+   (.then (u/timeout 3000)
+          (fn [_]
+            (rf/dispatch [:assoc-in [:toast/view-state :text] ""])))
    (assoc-in db [:toast/view-state :text] (str/join strings))))
 
 (rf/reg-event-db
