@@ -237,3 +237,13 @@
      ;; TODO: implement
      )
    db))
+
+(rf/reg-event-db
+ :new-branch
+ (fn [db [_ branch-name]]
+   (let [{:keys [command stdout stderr]}
+         (git/new-branch branch-name)]
+        (println "\n$" command)
+        (println stdout)
+        (print stderr))
+   db))

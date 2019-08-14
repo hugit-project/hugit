@@ -35,7 +35,8 @@
                (str "Unstaged (" (count unstaged) ")")
                (str "Staged (" (count staged) ")")
                (str "Local Branches (" (count local-branches) ")")
-               (str "Commit Log")]
+               (str "Commit Log")
+               (str "Create new branch")]
        :selected @selected
        :custom-key-handlers
        {["c"] {:f (fn [_]
@@ -128,7 +129,16 @@
                    :branches-path [:repo :branches :local]}])
 
            (== x 4)
-           (evt> [:router/goto :commits])))}]]))
+           (evt> [:router/goto :commits])
+
+           (== x 5)
+           (evt> [:router/goto :input
+                  {:label "New Branch"
+                   :on-submit (fn [branch-name]
+                                  (toast> "Creating new branch")
+                                  (evt> [:new-branch branch-name])
+                                  (evt> [:router/goto-and-forget :status]))
+                   :on-cancel #(evt> [:router/go-back])}])))}]]))
 
 (defn files []
   (let [{:keys [files-path label selected

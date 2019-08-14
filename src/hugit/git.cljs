@@ -189,3 +189,7 @@
        (-> line
            .trim
            (str/replace "* " ""))))))
+
+(defn new-branch [branch-name]
+  (println "Hugit.git new branch")
+  (exec "git checkout -b " branch-name))
