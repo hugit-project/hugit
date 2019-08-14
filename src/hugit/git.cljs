@@ -193,7 +193,7 @@
                                  "tail -1"))
 
           [_ remaining] (str/split stdout "(")]
-      (when (seq stdout)
+      (when (seq remaining)
         (str "(" remaining))))))
 
 (defn local-branches-promise
