@@ -68,7 +68,8 @@
         :width        "100%"
         :height       "100%"
         :style {:border {:fg :magenta}}
-        :border {:type :line}}
+        :border {:type :line}
+        :label " Logs "}
        [scrollable-list
         {:top 0
          :left 1

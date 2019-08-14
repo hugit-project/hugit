@@ -4,6 +4,7 @@
 
 (defn status []
   (let [{:keys [branch-name
+                branch-status
                 head-commit-summary
                 untracked
                 unstaged
@@ -21,14 +22,15 @@
       :style {:border {:fg :magenta}}
       :border {:type :line}
       :label " Status "}
-     [:box#head
+     [:text
       {:top 1
        :left 1
        :right 2
-       :align :left}
-      [:text (str "Head: [" branch-name "] " head-commit-summary)]]
+       :align "left"}
+      (str "[" branch-name "] " head-commit-summary " " branch-status)]
      [navigable-list
-      {:top 4
+      {:top 3
+       :bottom 1
        :left 1
        :align :left
        :items [(str "Untracked (" (count untracked) ")")
@@ -47,6 +49,11 @@
                                          (evt> [:router/goto-and-forget :commits]))
                             :on-cancel #(evt> [:router/go-back])}]))
                :label "Commit"
+               :type "Action"}
+        ["f"] {:f (fn [_]
+                    (toast> "Fetching")
+                    (evt> [:fetch-branch-status branch-name]))
+               :label "Fetch"
                :type "Action"}
         ["p"] {:f (fn [_]
                     (toast> "Pushing")
