@@ -142,7 +142,7 @@
      (.then local-branches*
             (fn [branches]
               (rf/dispatch [:assoc-in [:repo :branches :local] branches]))))
-     db))
+   (assoc-in db [:repo :branch-status] nil)))
 
 (rf/reg-event-db
  :stage-file
@@ -177,6 +177,13 @@
      (println stdout)
      (println stderr)
      (println))
+   db))
+
+(rf/reg-event-db
+ :fetch-branch-status
+ (fn [db [_ branch]]
+   (.then (git/branch-status-promise branch)
+          #(rf/dispatch [:assoc-in [:repo :branch-status] %]))
    db))
 
 (rf/reg-event-db
