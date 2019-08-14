@@ -190,7 +190,7 @@
  :commit
  (fn [db [_ msg]]
    (git/commit msg)
-   (assoc-in db [:repo :branch-status] nil)))
+   db))
 
 (rf/reg-event-db
  :push
@@ -201,7 +201,7 @@
             (println stdout)
             (println stderr)
             (println)))
-   (assoc-in db [:repo :branch-status] nil)))
+   db))
 
 (rf/reg-event-db
  :toast
