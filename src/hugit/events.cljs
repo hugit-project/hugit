@@ -74,6 +74,7 @@
 (rf/reg-event-db
  :get-status
  (fn [db _]
+   (rf/dispatch [:assoc-in [:repo :branch-status] nil])
    (let [repo-path (get-in db [:repo :path])
          repo* (git/repo-promise repo-path)
          branch-name* (git/current-branch-name-promise repo*)
@@ -143,7 +144,7 @@
      (.then local-branches*
             (fn [branches]
               (rf/dispatch [:assoc-in [:repo :branches :local] branches]))))
-   (assoc-in db [:repo :branch-status] nil)))
+   db))
 
 (rf/reg-event-db
  :stage-file
@@ -183,9 +184,8 @@
 (rf/reg-event-db
  :fetch-branch-status
  (fn [db [_ branch]]
-   (-> (u/timeout 50)
-       (.then (fn [_] (git/branch-status-promise branch)))
-       (.then #(rf/dispatch [:assoc-in [:repo :branch-status] %])))
+   (.then (git/branch-status-promise branch)
+          #(rf/dispatch [:assoc-in [:repo :branch-status] %]))
    db))
 
 (rf/reg-event-db
