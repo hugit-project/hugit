@@ -24,7 +24,9 @@
       :label " Status "}
      [:text
       {:top 1
-       :left 1}
+       :left 1
+       :right 2
+       :align "left"}
       (str "[" branch-name "] " head-commit-summary " " branch-status)]
      [navigable-list
       {:top 3
