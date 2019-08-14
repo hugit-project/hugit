@@ -195,12 +195,13 @@
 (rf/reg-event-db
  :push
  (fn [db _]
-   (.then (git/push-promise)
-          (fn [{:keys [command stdout stderr]}]
-            (println "\n$" command)
-            (println stdout)
-            (println stderr)
-            (println)))
+   (let [branch (get-in db [:repo :branch-name])]
+     (.then (git/push-promise branch)
+            (fn [{:keys [command stdout stderr]}]
+              (println "\n$" command)
+              (println stdout)
+              (println stderr)
+              (println))))
    db))
 
 (rf/reg-event-db

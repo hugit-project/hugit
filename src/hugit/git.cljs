@@ -176,8 +176,8 @@
   (exec "git commit -m \"" msg "\""))
 
 (defn push-promise
-  []
-  (exec-promise "git push origin HEAD"))
+  [branch-name]
+  (exec-promise "git push -u origin " branch-name))
 
 (defn branch-status-promise
   ([branch-name]
