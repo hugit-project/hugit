@@ -35,8 +35,7 @@
                (str "Unstaged (" (count unstaged) ")")
                (str "Staged (" (count staged) ")")
                (str "Local Branches (" (count local-branches) ")")
-               (str "Commit Log")
-               (str "Create new branch")]
+               (str "Commit Log")]
        :selected @selected
        :custom-key-handlers
        {["c"] {:f (fn [_]
@@ -129,16 +128,7 @@
                    :branches-path [:repo :branches :local]}])
 
            (== x 4)
-           (evt> [:router/goto :commits])
-
-           (== x 5)
-           (evt> [:router/goto :input
-                  {:label "New Branch"
-                   :on-submit (fn [branch-name]
-                                  (toast> "Creating new branch")
-                                  (evt> [:new-branch branch-name])
-                                  (evt> [:router/goto-and-forget :status]))
-                   :on-cancel #(evt> [:router/go-back])}])))}]]))
+           (evt> [:router/goto :commits])))}]]))
 
 (defn files []
   (let [{:keys [files-path label selected
@@ -314,28 +304,45 @@
       :border {:type :line}
       :label (str " " @label " ")}
      [scrollable-list
-      {:top 0
-       :left 1
-       :right 2
-       :align :left
+      {:top         0
+       :left        1
+       :right       2
+       :align       :left
        :window-size (- rows 6)
-       :items @branches
+       :items       @branches
        :item-props-f
-       (fn [branch]
-         (if (= @current-branch branch)
-           {:style {:fg :green}}
-           {:style {:fg :white}}))
-       :selected @selected
+                    (fn [branch]
+                        (if (= @current-branch branch)
+                          {:style {:fg :green}}
+                          {:style {:fg :white}}))
+       :selected    @selected
        :custom-key-handlers
-       {["enter"] {:f (fn [idx]
-                        (let [branch (nth @branches idx)]
-                          (toast> "Checking out " branch)
-                          (evt> [:checkout-branch branch])
-                          (evt> [:router/goto :status])))
-                   :label "Checkout"
-                   :type "Action"}}
+                    {["enter"] {:f     (fn [idx]
+                                           (let [branch (nth @branches idx)]
+                                                (toast> "Checking out " branch)
+                                                (evt> [:checkout-branch branch])
+                                                (evt> [:router/goto :status])))
+                                :label "Checkout"
+                                :type  "Action"}
+                     ["n"]     {:f (fn [idx]
+                                       (evt> [:router/goto :input
+                                              {:label     "New Branch"
+                                               :on-submit (fn [branch-name]
+                                                              (print branch-name)
+                                                              (if (-> @(<sub [:repo :branches :local])
+                                                                      (set)
+                                                                      (contains? branch-name))
+                                                                ((toast> "Branch Already Exits")
+                                                                  (evt> [:router/goto :branches {:label "Local Branches"
+                                                                                                 :branches-path [:repo :branches :local]}]))
+                                                                ((toast> "Creating new branch")
+                                                                  (evt> [:new-branch branch-name])
+                                                                  (evt> [:router/goto-and-forget :status]))))
+                                               :on-cancel #(evt> [:router/go-back])}]))
+                                :label "Create Branch"
+                                :type "Action"}}
        :on-back
-       #(evt> [:router/go-back])}]]))
+                    #(evt> [:router/go-back])}]]))
 
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
@@ -388,3 +395,12 @@
       :width "100%"}
      [viewport (- rows 3)]
      [toast]]))
+
+(defn create-branch []
+  (evt> [:router/goto :input
+     {:label "New Branch"
+      :on-submit (fn [branch-name]
+                     (toast> "Creating new branch")
+                     (evt> [:new-branch branch-name])
+                     (evt> [:router/goto-and-forget :status]))
+      :on-cancel #(evt> [:router/go-back])}]))
