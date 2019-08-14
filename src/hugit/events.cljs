@@ -184,8 +184,13 @@
 (rf/reg-event-db
  :fetch-branch-status
  (fn [db [_ branch]]
-   (.then (git/branch-status-promise branch)
-          #(rf/dispatch [:assoc-in [:repo :branch-status] %]))
+   (let [status (atom nil)]
+     (-> (git/branch-status-promise branch)
+         (.then (fn [status*]
+                  (reset! status status*)
+                  (u/timeout 2000)))
+         (.then (fn [_]
+                  (rf/dispatch [:assoc-in [:repo :branch-status] @status])))))
    db))
 
 (rf/reg-event-db
