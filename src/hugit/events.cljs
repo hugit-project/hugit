@@ -142,7 +142,7 @@
      (.then local-branches*
             (fn [branches]
               (rf/dispatch [:assoc-in [:repo :branches :local] branches]))))
-     db))
+   (assoc-in db [:repo :branch-status] nil)))
 
 (rf/reg-event-db
  :stage-file
