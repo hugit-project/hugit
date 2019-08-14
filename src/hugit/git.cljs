@@ -179,6 +179,22 @@
   []
   (exec-promise "git push origin HEAD"))
 
+(defn branch-status-promise
+  ([branch-name]
+   (branch-status-promise "origin" branch-name))
+  ([remote-name branch-name]
+   (a/async
+    (let [_ (a/await (exec-promise "git fetch"))
+          
+          {:keys [stdout]}
+          (a/await (exec-promise "git remote show " remote-name " | "
+                                 "grep -w " branch-name " | "
+                                 "tail -1"))
+
+          [_ remaining] (str/split stdout "(")]
+      (when (seq stdout)
+        (str "(" remaining))))))
+
 (defn local-branches-promise
   []
   (a/async

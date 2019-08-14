@@ -180,6 +180,13 @@
    db))
 
 (rf/reg-event-db
+ :fetch-branch-status
+ (fn [db [_ branch]]
+   (.then (git/branch-status-promise branch)
+          #(rf/dispatch [:assoc-in [:repo :branch-status] %]))
+   db))
+
+(rf/reg-event-db
  :commit
  (fn [db [_ msg]]
    (git/commit msg)
