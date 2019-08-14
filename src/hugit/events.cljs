@@ -239,7 +239,7 @@
    db))
 
 (rf/reg-event-db
- :new-branch
+ :create-branch
  (fn [db [_ branch-name]]
    (let [{:keys [command stdout stderr]}
          (git/create-branch branch-name)]

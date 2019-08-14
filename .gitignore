@@ -13,3 +13,5 @@
 pom.xml
 pom.xml.asc
 profiles.clj
+.idea/*
+yarn.lock
