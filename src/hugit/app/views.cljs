@@ -336,7 +336,8 @@
                                                                 (toast> (str "A branch called " branch-name " already exits!"))
                                                                 (evt> [:router/goto :branches {:label         "Local Branches"
                                                                                                :branches-path [:repo :branches :local]}]))
-                                                              ((toast> "Creating new branch")
+                                                              (do
+                                                                (toast> "Creating new branch")
                                                                 (evt> [:create-branch branch-name])
                                                                 (evt> [:router/goto-and-forget :status]))))
                                              :on-cancel #(evt> [:router/go-back])}]))

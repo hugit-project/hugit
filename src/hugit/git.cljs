@@ -191,5 +191,4 @@
            (str/replace "* " ""))))))
 
 (defn create-branch [branch-name]
-  (println "Hugit.git new branch")
   (exec "git checkout -b " branch-name))

@@ -242,8 +242,9 @@
  :create-branch
  (fn [db [_ branch-name]]
    (let [{:keys [command stdout stderr]}
-         (git/create-branch branch-name)]
+          (git/create-branch branch-name)]
+      (do
         (println "\n$" command)
         (println stdout)
-        (print stderr))
+        (print stderr)))
    db))
