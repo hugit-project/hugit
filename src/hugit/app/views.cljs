@@ -22,12 +22,12 @@
       :style {:border {:fg :magenta}}
       :border {:type :line}
       :label " Status "}
-     [:text
+     [:box#head
       {:top 1
        :left 1
        :right 2
-       :align "left"}
-      (str "[" branch-name "] " head-commit-summary " " branch-status)]
+       :align :left}
+      [:text (str "[" branch-name "] " head-commit-summary " " branch-status)]]
      [navigable-list
       {:top 3
        :bottom 1
