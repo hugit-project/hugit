@@ -344,7 +344,7 @@
                                (evt> [:create-branch branch-name])
                                (evt> [:router/goto-and-forget :status]))))
                          :on-cancel #(evt> [:router/go-back])}]))
-               :label "Create Branch"
+               :label "New Branch"
                :type  "Action"}}
        :on-back #(evt> [:router/go-back])}]]))
 
