@@ -317,20 +317,22 @@
                           {:style {:fg :white}}))
        :selected    @selected
        :custom-key-handlers
-          {["enter"] {:f (fn [idx]
-                             (let [branch (nth @branches idx)]
-                                  (toast> "Checking out " branch)
-                                  (evt> [:checkout-branch branch])
-                                  (evt> [:router/goto :status])))
+          {["enter"] {:f
+                        (fn [idx]
+                            (let [branch (nth @branches idx)]
+                                 (toast> "Checking out " branch)
+                                 (evt> [:checkout-branch branch])
+                                 (evt> [:router/goto :status])))
                       :label "Checkout"
                       :type  "Action"}
-           ["n"] {:f (fn [_]
-                         (evt> [:router/goto :input
-                                {:label     "New Branch"
-                                 :on-submit (fn [branch-name]
-                                                (if (-> @(<sub [:repo :branches :local])
-                                                        (set)
-                                                        (contains? branch-name))
+           ["n"] {:f
+                    (fn [_]
+                        (evt> [:router/goto :input
+                               {:label     "New Branch"
+                                :on-submit (fn [branch-name]
+                                               (if (-> @(<sub [:repo :branches :local])
+                                                       (set)
+                                                       (contains? branch-name))
                                                 (do
                                                   (toast> (str "A branch called " branch-name " already exists!"))
                                                   (evt> [:router/goto :branches
@@ -343,7 +345,7 @@
                                  :on-cancel #(evt> [:router/go-back])}]))
                       :label "Create Branch"
                       :type  "Action"}}
-       :on-back   #(evt> [:router/go-back])}]]))
+       :on-back #(evt> [:router/go-back])}]]))
 
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
