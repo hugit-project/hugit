@@ -38,7 +38,6 @@
 (rf/reg-event-db
   :assoc-in
   (fn [db [_ path val]]
-    (println :assoc-in path val)
     (assoc-in db path val)))
 
 (rf/reg-event-db
