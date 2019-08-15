@@ -73,11 +73,13 @@
                       0 {:label "Untracked"
                          :files-path [:repo :untracked]
                          :on-select
-                         #(let [file (get-file :untracked %)]
-                            (evt>
-                             [:router/goto :file
-                              {:label file
-                               :content-path [:repo :untracked-content file]}]))
+                         (fn [file-idx]
+                           (evt> [:assoc-in [:router/view-state :selected] file-idx])
+                           (let [file (get-file :untracked file-idx)]
+                             (evt>
+                              [:router/goto :file
+                               {:label file
+                                :content-path [:repo :untracked-content file]}])))
                          :custom-key-handlers
                          {["s"] {:f #(let [file (get-file :untracked %)]
                                        (toast> "Staging " file)
@@ -87,13 +89,15 @@
                       1 {:label "Unstaged"
                          :files-path [:repo :unstaged]
                          :on-select
-                         #(let [file (get-file :unstaged %)]
-                            (evt>
-                             [:router/goto :diffs
-                              {:label file
-                               :file file
-                               :hunks-path [:repo :unstaged-hunks file]
-                               :actions ["s" "k"]}]))
+                         (fn [file-idx]
+                           (evt> [:assoc-in [:router/view-state :selected] file-idx])
+                           (let [file (get-file :unstaged file-idx)]
+                             (evt>
+                              [:router/goto :diffs
+                               {:label file
+                                :file file
+                                :hunks-path [:repo :unstaged-hunks file]
+                                :actions ["s" "k"]}])))
                          :custom-key-handlers
                          {["s"] {:f #(let [file (get-file :unstaged %)]
                                        (toast> "Staging " file)
@@ -114,8 +118,8 @@
                          :files-path [:repo :staged]
                          :on-select
                          (fn [file-idx]
-                           (let [file (nth @(<sub [:repo :staged])
-                                           file-idx)]
+                           (evt> [:assoc-in [:router/view-state :selected] file-idx])
+                           (let [file (get-file :staged file-idx)]
                              (evt>
                               [:router/goto :diffs
                                {:label file
