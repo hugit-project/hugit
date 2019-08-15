@@ -48,8 +48,8 @@ The general philosophy is:
 - [x] show current branch
 - [x] show local branches
 - [x] checkout local branch
-- [ ] create and checkout new local branch
-- [ ] fetch remote branches
+- [x] create and checkout new local branch
+- [x] fetch remote branches
 
 ### Remote
 
