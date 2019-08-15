@@ -27,7 +27,7 @@
        :left 1
        :right 2
        :align :left}
-      [:text (str "[" branch-name "] " head-commit-summary " " branch-status)]]
+      [:text (str "Head: [" branch-name "] " head-commit-summary " " branch-status)]]
      [navigable-list
       {:top 3
        :bottom 1
