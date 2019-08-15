@@ -324,12 +324,11 @@
            {:style {:fg :white}}))
        :selected    @selected
        :custom-key-handlers
-       {["enter"] {:f
-                   (fn [idx]
-                     (let [branch (nth @branches idx)]
-                       (toast> "Checking out " branch)
-                       (evt> [:checkout-branch branch])
-                       (evt> [:router/goto :status])))
+       {["enter"] {:f (fn [idx]
+                        (let [branch (nth @branches idx)]
+                          (toast> "Checking out " branch)
+                          (evt> [:checkout-branch branch])
+                          (evt> [:router/goto :status])))
                    :label "Checkout"
                    :type  "Action"}
         ["n"] {:f (fn [_]
