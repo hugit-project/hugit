@@ -206,3 +206,6 @@
        (-> line
            .trim
            (str/replace "* " ""))))))
+
+(defn create-branch [branch-name]
+  (exec "git checkout -b " branch-name))

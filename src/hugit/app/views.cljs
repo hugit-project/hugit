@@ -22,12 +22,12 @@
       :style {:border {:fg :magenta}}
       :border {:type :line}
       :label " Status "}
-     [:text
+     [:box#head
       {:top 1
        :left 1
        :right 2
-       :align "left"}
-      (str "[" branch-name "] " head-commit-summary " " branch-status)]
+       :align :left}
+      [:text (str "Head: [" branch-name "] " head-commit-summary " " branch-status)]]
      [navigable-list
       {:top 3
        :bottom 1
@@ -311,18 +311,18 @@
       :border {:type :line}
       :label (str " " @label " ")}
      [scrollable-list
-      {:top 0
-       :left 1
-       :right 2
-       :align :left
+      {:top         0
+       :left        1
+       :right       2
+       :align       :left
        :window-size (- rows 6)
-       :items @branches
+       :items       @branches
        :item-props-f
        (fn [branch]
          (if (= @current-branch branch)
            {:style {:fg :green}}
            {:style {:fg :white}}))
-       :selected @selected
+       :selected    @selected
        :custom-key-handlers
        {["enter"] {:f (fn [idx]
                         (let [branch (nth @branches idx)]
@@ -330,9 +330,28 @@
                           (evt> [:checkout-branch branch])
                           (evt> [:router/goto :status])))
                    :label "Checkout"
-                   :type "Action"}}
-       :on-back
-       #(evt> [:router/go-back])}]]))
+                   :type  "Action"}
+        ["n"] {:f (fn [_]
+                    (evt> [:router/goto :input
+                           {:label "New Branch"
+                            :on-submit
+                            (fn [branch-name]
+                              (if (-> @(<sub [:repo :branches :local])
+                                      set
+                                      (contains? branch-name))
+                                (do
+                                  (toast> (str "A branch called " branch-name " already exists!"))
+                                  (evt> [:router/goto :branches
+                                         {:label "Local Branches"
+                                          :branches-path [:repo :branches :local]}]))
+                                (do
+                                  (toast> "Creating new branch")
+                                  (evt> [:create-branch branch-name])
+                                  (evt> [:router/goto-and-forget :status]))))
+                            :on-cancel #(evt> [:router/go-back])}]))
+               :label "New Branch"
+               :type  "Action"}}
+       :on-back #(evt> [:router/go-back])}]]))
 
 (defn input []
   (let [{:keys [label on-submit on-cancel]}
