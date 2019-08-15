@@ -34,6 +34,12 @@
  (fn [db _]
    (assoc db :logs/show-logs? false)))
 
+(rf/reg-event-db
+ :logs/clear-logs
+ (fn [db _]
+   (reset! log-lines [])
+   db))
+
 (defn setup []
   (set! (.-log js/console) log)
   (set! (.-error js/console) log)
@@ -60,7 +66,10 @@
     (keys/with-keys @screen
       {["left"] {:f #(rf/dispatch [:logs/hide-logs])
                  :label "Hide Logs"
-                 :type "Navigation"}}
+                 :type "Navigation"}
+       ["c"]    {:f #(rf/dispatch [:logs/clear-logs])
+                 :label "Clear Logs"
+                 :type "Action"}}
       [:box#log
        {:top          0
         :bottom       0
