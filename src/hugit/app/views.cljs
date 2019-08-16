@@ -188,6 +188,13 @@
                             (toast> "Unstaging " file)
                             (evt> [:unstage-file file])))))
                :label "Unstage"
+               :type "Action"}
+        ["k"] {:f (fn [idx]
+                    (if (< idx (count @unstaged-files))
+                      (let [file (nth @unstaged-files idx)]
+                        (toast> "Checking out " file)
+                        (evt> [:checkout-file file]))))
+               :label "Checkout"
                :type "Action"}}
        :on-back
        #(evt> [:router/go-back])}]]))
