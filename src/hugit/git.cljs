@@ -158,7 +158,7 @@
 
 (defn unstage-file
   [file]
-  (exec "git reset " file))
+  (exec "git reset HEAD " file))
 
 (defn untrack-file
   [file]

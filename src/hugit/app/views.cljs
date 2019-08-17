@@ -6,6 +6,8 @@
   (let [{:keys [branch-name
                 branch-status
                 head-commit-summary
+                staged-deleted
+                unstaged-deleted
                 untracked
                 unstaged
                 branches
@@ -33,7 +35,9 @@
        :bottom 1
        :left 1
        :align :left
-       :items [(str "Untracked (" (count untracked) ")")
+       :items [(str "Deleted (" (+ (count staged-deleted)
+                                   (count unstaged-deleted)) ")")
+               (str "Untracked (" (count untracked) ")")
                (str "Unstaged (" (count unstaged) ")")
                (str "Staged (" (count staged) ")")
                (str "Local Branches (" (count local-branches) ")")
@@ -64,13 +68,19 @@
        (fn [x]
          (evt> [:assoc-in [:router/view-state :selected] x])
          (cond
-           (< x 3)
+           (zero? x)
+           (evt> [:router/goto :deleted-files
+                  {:label "Deleted"
+                   :unstaged-files-path [:repo :unstaged-deleted]
+                   :staged-files-path [:repo :staged-deleted]}])
+
+           (< 0 x 4)
            (letfn [(get-file [type idx]
                      (nth @(<sub [:repo type])
                           idx))]
              (evt> [:router/goto :files
                     (case x
-                      0 {:label "Untracked"
+                      1 {:label "Untracked"
                          :files-path [:repo :untracked]
                          :on-select
                          (fn [file-idx]
@@ -86,7 +96,7 @@
                                        (evt> [:stage-file file]))
                                  :label "Stage"
                                  :type "Action"}}}
-                      1 {:label "Unstaged"
+                      2 {:label "Unstaged"
                          :files-path [:repo :unstaged]
                          :on-select
                          (fn [file-idx]
@@ -114,7 +124,7 @@
                                        (evt> [:checkout-file file]))
                                  :label "Checkout"
                                  :type "Action"}}}
-                      2 {:label "Staged"
+                      3 {:label "Staged"
                          :files-path [:repo :staged]
                          :on-select
                          (fn [file-idx]
@@ -133,13 +143,61 @@
                                  :label "Unstage"
                                  :type "Action"}}})]))
 
-           (== x 3)
+           (== x 4)
            (evt> [:router/goto :branches
                   {:label "Local Branches"
                    :branches-path [:repo :branches :local]}])
 
-           (== x 4)
+           (== x 5)
            (evt> [:router/goto :commits])))}]]))
+
+(defn deleted-files []
+  (let [{:keys [staged-files-path unstaged-files-path]}
+        @(<sub [:router/view-state])
+
+        staged-files (<sub staged-files-path)
+        unstaged-files (<sub unstaged-files-path)]
+    [:box#deleted-files
+     {:top 0
+      :right 0
+      :width "100%"
+      :style {:border {:fg :magenta}}
+      :border {:type :line}
+      :label "Deleted files"}
+     [navigable-list
+      {:top 1
+       :left 1
+       :right 2
+       :align :left
+       :items (concat (for [item @unstaged-files]
+                        (str "[unstaged] " item))
+                      (for [item @staged-files]
+                        (str "[staged] " item)))
+       :custom-key-handlers
+       {["s"] {:f (fn [idx]
+                    (if (< idx (count @unstaged-files))
+                      (let [file (nth @unstaged-files idx)]
+                        (toast> "Staging " file)
+                        (evt> [:stage-file file]))))
+               :label "Stage"
+               :type "Action"}
+        ["u"] {:f (fn [idx]
+                    (let [index (- idx (count @unstaged-files))]
+                      (if (>= idx (count @unstaged-files))
+                        (let [file (nth @staged-files index)]
+                            (toast> "Unstaging " file)
+                            (evt> [:unstage-file file])))))
+               :label "Unstage"
+               :type "Action"}
+        ["k"] {:f (fn [idx]
+                    (if (< idx (count @unstaged-files))
+                      (let [file (nth @unstaged-files idx)]
+                        (toast> "Checking out " file)
+                        (evt> [:checkout-file file]))))
+               :label "Checkout"
+               :type "Action"}}
+       :on-back
+       #(evt> [:router/go-back])}]]))
 
 (defn files []
   (let [{:keys [files-path label selected
@@ -380,6 +438,7 @@
    (let [view @(<sub [:router/view])]
      [(case view
         :status status
+        :deleted-files deleted-files
         :files files
         :file file
         :branches branches
