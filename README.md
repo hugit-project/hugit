@@ -4,6 +4,8 @@
 
 # hugit
 
+[![Gitter](https://badges.gitter.im/hugit-project/community.svg)](https://gitter.im/hugit-project/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 The `hu`mane Terminal UI for `git`!
 
 The general philosophy is:
