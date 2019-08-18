@@ -1,6 +1,5 @@
 (ns hugit.app.views
-  (:require [clojure.string :as str]
-            [hugit.util :as u :refer [<sub evt> toast>]]
+  (:require [hugit.util :as u :refer [<sub evt> toast>]]
             [hugit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn status []
@@ -422,7 +421,7 @@
                              {:label (str "Delete local branch " branch-name "?")
                               :on-submit
                               (fn [input]
-                                (when (= "yes" (str/lower-case input))
+                                (when (= "yes" input)
                                   (toast> "Deleting local branch " branch-name)
                                   (evt> [:delete-branch branch-name]))
                                 (evt> [:router/go-back]))
