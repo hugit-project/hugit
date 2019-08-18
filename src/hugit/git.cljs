@@ -207,7 +207,7 @@
            .trim
            (str/replace "* " ""))))))
 
-(defn create-branch [branch-name] 
+(defn create-branch [branch-name]
   (exec "git checkout -b " branch-name))
 
 (defn delete-branch [branch-name]
