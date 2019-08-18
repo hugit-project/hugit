@@ -1,5 +1,6 @@
 (ns hugit.app.views
-  (:require [hugit.util :as u :refer [<sub evt> toast>]]
+  (:require [clojure.string :as str]
+            [hugit.util :as u :refer [<sub evt> toast>]]
             [hugit.views :refer [navigable-list scrollable-list text-input]]))
 
 (defn status []
@@ -414,24 +415,17 @@
                :label "New Branch"
                :type  "Action"}
         ["d"] {:f (fn [idx]
+                    (evt> [:assoc-in [:router/view-state :selected] idx])
                     (let [branch-name (nth @branches idx)]
-                      (toast> (str "Type 'YES' to continue" ))
+                      (toast> "Enter 'yes' to delete " branch-name)
                       (evt> [:router/goto :input
-                             {:label (str "Delete branch " branch-name)
+                             {:label (str "Delete local branch " branch-name "?")
                               :on-submit
-                               (fn [selection]
-                                 (if (= selection "YES")
-                                   (do
-                                     (evt> [:delete-branch branch-name])
-                                     (evt> [:router/goto :branches
-                                            {:label "Local Branches"
-                                             :branches-path [:repo :branches :local]}])
-                                     (toast> (str "Branch " branch-name " deleted!")))
-                                   (do
-                                     (evt> [:router/goto :branches
-                                            {:label "Local Branches"
-                                             :branches-path [:repo :branches :local]}])
-                                     (toast> (str "Please type YES in capital to continue")))))
+                              (fn [input]
+                                (when (= "yes" (str/lower-case input))
+                                  (toast> "Deleting local branch " branch-name)
+                                  (evt> [:delete-branch branch-name]))
+                                (evt> [:router/go-back]))
                               :on-cancel #(evt> [:router/go-back])}])))
                :label "Delete Branch"
                :type  "Action"}}
