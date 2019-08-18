@@ -412,6 +412,28 @@
                                   (evt> [:router/goto-and-forget :status]))))
                             :on-cancel #(evt> [:router/go-back])}]))
                :label "New Branch"
+               :type  "Action"}
+        ["d"] {:f (fn [idx]
+                    (let [branch-name (nth @branches idx)]
+                      (toast> (str "Type 'YES' to continue" ))
+                      (evt> [:router/goto :input
+                             {:label (str "Delete branch " branch-name)
+                              :on-submit
+                               (fn [selection]
+                                 (if (= selection "YES")
+                                   (do
+                                     (evt> [:delete-branch branch-name])
+                                     (evt> [:router/goto :branches
+                                            {:label "Local Branches"
+                                             :branches-path [:repo :branches :local]}])
+                                     (toast> (str "Branch " branch-name " deleted!")))
+                                   (do
+                                     (evt> [:router/goto :branches
+                                            {:label "Local Branches"
+                                             :branches-path [:repo :branches :local]}])
+                                     (toast> (str "Please type YES in capital to continue")))))
+                              :on-cancel #(evt> [:router/go-back])}])))
+               :label "Delete Branch"
                :type  "Action"}}
        :on-back #(evt> [:router/go-back])}]]))
 
