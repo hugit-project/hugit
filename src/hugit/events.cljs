@@ -269,3 +269,13 @@
      (println stdout)
      (print stderr))
    db))
+
+(rf/reg-event-db
+ :delete-branch
+ (fn [db [_ branch-name]]
+   (let [{:keys [command stdout stderr]}
+         (git/delete-branch branch-name)]
+     (println "\n$" command)
+     (println stdout)
+     (println stderr))
+   db))
