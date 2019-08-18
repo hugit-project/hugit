@@ -211,4 +211,4 @@
   (exec "git checkout -b " branch-name))
 
 (defn delete-branch [branch-name]
-  (exec "git branch -d " branch-name))
+  (exec "git branch -D " branch-name))
