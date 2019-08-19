@@ -86,7 +86,7 @@ The general philosophy is:
 
 This will:
   * start the compiler and watch for changes and recompile automatically
-  * start a Clojure nrepl, connecting to which and running `(repl)` will start a ClojureScript repl
+  * start a Clojure nREPL, connecting to which and running `(user/repl)` will start a ClojureScript REPL
 
 **Run**
 
