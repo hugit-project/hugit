@@ -63,6 +63,11 @@
                     (toast> "Pushing")
                     (evt> [:push]))
                :label "Push"
+               :type "Action"}
+        ["z"] {:f (fn [_]
+                    (toast> "Stashing")
+                    (evt> [:stash]))
+               :label "Stash"
                :type "Action"}}
        :on-select
        (fn [x]

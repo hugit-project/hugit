@@ -212,3 +212,6 @@
 
 (defn delete-branch [branch-name]
   (exec "git branch -D " branch-name))
+
+(defn stash []
+  (exec "git stash"))
