@@ -279,3 +279,9 @@
      (println stdout)
      (println stderr))
    db))
+
+(rf/reg-event-db
+ :stash
+ (fn [db _]
+   (git/stash)
+   db))
