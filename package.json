@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "loose-envify": "^1.4.0",
-    "ws": "^6.1.2",
+    "ws": "^7.4.6",
     "shadow-cljs": "^2.7.24",
     "source-map-support": "^0.5.10"
   }
